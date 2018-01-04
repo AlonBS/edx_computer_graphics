@@ -28,13 +28,13 @@ mat3 Transform::rotate(const float degrees, const vec3& axis) {
 
 void Transform::left(float degrees, vec3& eye, vec3& up) {
 
-	eye = Transform::rotate(degrees, -up) * eye;
+	eye = Transform::rotate(-degrees, up) * eye;
 }
 
 void Transform::up(float degrees, vec3& eye, vec3& up) {
 
 	// Rotate by the perpendicular axis to eye and up (obtain via cross-product)
-	eye = Transform::rotate(degrees, glm::normalize(glm::cross(eye, -up))) * eye;
+	eye = Transform::rotate(-degrees, glm::normalize(glm::cross(eye, up))) * eye;
 	// Update the new up vector
 	up = glm::normalize(glm::cross(glm::cross(eye, up), eye));
 }
