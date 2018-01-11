@@ -112,10 +112,10 @@ void readfile(const char* filename)
             	lightposn[4 * numused + 2] = values[2];
             	lightposn[4 * numused + 3] = values[3];
 
-            	lightcolor[4 * numused + 0] = values[5];
-            	lightcolor[4 * numused + 1] = values[6];
-            	lightcolor[4 * numused + 2] = values[7];
-            	lightcolor[4 * numused + 3] = values[8];
+            	lightcolor[4 * numused + 0] = values[4];
+            	lightcolor[4 * numused + 1] = values[5];
+            	lightcolor[4 * numused + 2] = values[6];
+            	lightcolor[4 * numused + 3] = values[7];
 
             	++numused;
             }
@@ -170,20 +170,11 @@ void readfile(const char* filename)
           validinput = readvals(s,10,values); // 10 values eye cen up fov
           if (validinput) {
 
-        	  eyeinit.x = values[0]; eyeinit.y = values[1]; eyeinit.z = values[2];
-        	  center.x  = values[3]; center.y  = values[4]; center.z  = values[5];
-        	  upinit.x  = values[6]; upinit.y  = values[7]; upinit.z  = values[8];
+        	  eyeinit = glm::vec3(values[0], values[1], values[2]);
+        	  center  = glm::vec3(values[3], values[4], values[5]);
+        	  upinit  = glm::vec3(values[6], values[7], values[8]);
         	  upinit = Transform::upvector(upinit, eyeinit);
         	  fovy = values[9];
-
-
-
-            // YOUR CODE FOR HW 2 HERE
-            // Use all of values[0...9]
-            // You may need to use the upvector fn in Transform.cpp
-            // to set up correctly. 
-            // Set eyeinit upinit center fovy in variables.h 
-
           }
         }
 
@@ -229,11 +220,6 @@ void readfile(const char* filename)
           if (validinput) {
 
         	  rightmultiply(Transform::translate(values[0], values[1], values[2]), transfstack);
-            // YOUR CODE FOR HW 2 HERE.  
-            // Think about how the transformation stack is affected
-            // You might want to use helper functions on top of file. 
-            // Also keep in mind what order your matrix is!
-
           }
         }
         else if (cmd == "scale") {
@@ -241,32 +227,18 @@ void readfile(const char* filename)
           if (validinput) {
 
         	  rightmultiply(Transform::scale(values[0], values[1], values[2]), transfstack);
-            // YOUR CODE FOR HW 2 HERE.  
-            // Think about how the transformation stack is affected
-            // You might want to use helper functions on top of file.  
-            // Also keep in mind what order your matrix is!
-
           }
         }
         else if (cmd == "rotate") {
           validinput = readvals(s,4,values); 
           if (validinput) {
 
-        	  glm::mat3x3 rotate3x3 = Transform::rotate(values[3], glm::normalize(glm::vec3(values[0], values[1], values[2])));
+        	  glm::mat3x3 rotate3x3 = Transform::rotate(values[3], glm::vec3(values[0], values[1], values[2]));
         	  glm::mat4x4 rotate4x4 = glm::mat4x4(vec4(rotate3x3[0], 0.0f),
         			  	  	  	  	  	  	  	  vec4(rotate3x3[1], 0.0f),
 												  vec4(rotate3x3[2], 0.0f),
 												  vec4(0.0f, 0.0f, 0.0f, 1.0f));
-
         	  rightmultiply(glm::transpose(rotate4x4), transfstack);
-
-            // YOUR CODE FOR HW 2 HERE. 
-            // values[0..2] are the axis, values[3] is the angle.  
-            // You may want to normalize the axis (or in Transform::rotate)
-            // See how the stack is affected, as above.  
-            // Note that rotate returns a mat3. 
-            // Also keep in mind what order your matrix is!
-
           }
         }
 
@@ -286,37 +258,8 @@ void readfile(const char* filename)
         }
       }
 
-      mat4 t = transfstack.top();
-      for (int i = 0 ; i < 4; ++i) {
-    	  std::cout << t[i][0] << "  " << t[i][1] << "  " << t[i][2] << "  " << t[i][3] << "  " << std::endl;
-      }
-
-      std:: cout << std::endl;
-
       getline (in, str);
     }
-
-    glm::mat4 model; // identify
-    model = glm::translate(model, vec3(0, 0, -5.8));
-    model = glm::scale(model, vec3(1, 1, 1));
-
-    glm::mat4 model2;
-    glm::mat4 trans = glm::translate(model2, vec3(0, 0, -5.8));
-    glm::mat4 scale = glm::scale(model2, vec3(1, 1, 1));
-
-    model2 = trans * scale * model2;
-
-    for (int i = 0 ; i < 4; ++i) {
-    	std::cout << model[i][0] << "  " << model[i][1] << "  " << model[i][2] << "  " << model[i][3] << "  " << std::endl;
-    }
-    std::cout << " **** " << std::endl;
-    for (int i = 0 ; i < 4; ++i) {
-    	std::cout << model2[i][0] << "  " << model2[i][1] << "  " << model2[i][2] << "  " << model2[i][3] << "  " << std::endl;
-    }
-
-
-    // Set up initial position for eye, up and amount
-    // As well as booleans 
 
     eye = eyeinit; 
     up = upinit; 

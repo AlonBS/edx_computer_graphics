@@ -34,47 +34,20 @@ uniform vec4 specular;
 uniform vec4 emission; 
 uniform float shininess;
 
-vec4 calculatePositionalLight(const vec3 fragPos,
-							  const vec3 lightPos,
-							  const vec4 lightColor,
-							  const vec3 normal,
-							  const vec4 objDiffuse,
-							  const vec4 objSpecular,
-							  const float objShininess)
+
+vec4 
+CalcLight (const vec3 light_dir, const vec3 normal, 
+ 		   const vec3 half_vec, const vec4 light_color, 
+ 		   const vec4 obj_diffuse, const vec4 obj_specular, 
+ 			const float obj_shininess) 
 {
-	// Diffuse element
-	vec3 lightDir = normalize(lightPos - fragPos);
-	float NdotL = dot(normal,lightDir);
-	vec4 diff = lightColor * objDiffuse * max(NdotL ,0.0);
-	
-	
-	// Specular
-	vec3 eyePos = vec3(0.0f, 0.0f, 0.0f); // This is our convention
-	vec3 eyeDir = normalize(eyePos - fragPos);
-	vec3 halfAngle = normalize(eyeDir + lightDir);
-	float NdotH = dot(normal, halfAngle);
-	vec4 spec = lightColor * objSpecular * pow(max(dot(normal, halfAngle), 0.0), shininess);
-		
-	return diff + spec;
-}
-
-
-vec4 ComputeLight (const in vec3 direction,
- 				   const in vec4 lightcolor, 
- 				   const in vec3 normal, 
- 				   const in vec3 halfvec, 
- 				   const in vec4 mydiffuse, 
- 				   const in vec4 myspecular, 
- 				   const in float myshininess) {
-
-        float nDotL = dot(normal, direction)  ;         
-        vec4 lambert = mydiffuse * lightcolor * max (nDotL, 0.0) ;  
-
-        float nDotH = dot(normal, halfvec) ; 
-        vec4 phong = myspecular * lightcolor * pow (max(nDotH, 0.0), myshininess) ; 
-
-        vec4 retval = lambert + phong ; 
-        return retval ;            
+        float NL = dot(normal, light_dir)  ;         
+        vec4 diffuse = light_color * obj_diffuse * max (NL, 0.0) ;
+          
+        float NH = dot(normal, half_vec) ; 
+        vec4 specular = light_color * obj_specular * pow (max(NH, 0.0), obj_shininess) ;
+         
+        return diffuse + specular ;            
 }       
 
 
@@ -83,36 +56,39 @@ vec4 ComputeLight (const in vec3 direction,
 
 void main (void) 
 {       
-    if (enablelighting) {       
-        vec4 finalcolor;
+    if (enablelighting) {      
+     
+        vec4 finalcolor = vec4(0.0f);
+        vec3 light_dir;
         
-        const vec3 eyepos = vec3(0,0,0); // This is the convension               
-        vec3 fragPos = myvertex.xyz / myvertex.w;
+        const vec3 eye_pos = vec3(0,0,0); // This is the convension
+        vec4 mv_vertex = modelview * myvertex; // Preferably, this would be done in verx shader to same calculations
+        
+        vec3 frag_pos = mv_vertex.xyz / mv_vertex.w;               
         vec3 normal = normalize(mat3(transpose(inverse(modelview))) * mynormal);
-        vec3 eyeDir = normalize(eyepos - fragPos) ;
-        vec3 lightDir;
-        
-        finalcolor = ambient + emission;
+        vec3 eye_dir = normalize(eye_pos - frag_pos) ;
                      
         for (int i = 0; i < numused; ++i) {
 
 			// Point light Light        
         	if (lightposn[i].w  > 0.0f) {
-        		lightDir = normalize((lightposn[i].xyz / lightposn[i].w) - fragPos);
+        		light_dir = normalize((lightposn[i].xyz / lightposn[i].w) - frag_pos);
         	}
         	
         	// Directional light
         	else {
-        		lightDir = normalize(lightposn[i].xyz);
+        		light_dir = normalize(lightposn[i].xyz);
         	}
         	
-        	vec3 halfvec = normalize(lightDir + eyeDir);
-        	finalcolor += ComputeLight(lightDir, lightcolor[i], normal, halfvec, diffuse, specular, shininess);
+        	vec3 halfvec = normalize(light_dir + eye_dir);
+        	finalcolor += CalcLight(light_dir, normal, halfvec, lightcolor[i], diffuse, specular, shininess);
                 
         }
-
+        
+        // We already calculated diffusive and specular, we also add ambient and emission
+        finalcolor += ambient + emission;
 		fragColor = finalcolor;
-        //fragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f); 
+         
     } else {
         fragColor = vec4(color, 1.0f); 
     }

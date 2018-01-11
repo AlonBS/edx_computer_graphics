@@ -10,31 +10,30 @@
 mat3 Transform::rotate(const float degrees, const vec3& axis) 
 {
 	glm::mat3 ret;
-
+	vec3 an = glm::normalize(axis); // normalize the axis first.
 	float c = glm::cos(glm::radians(degrees));
 	float s = glm::sin(glm::radians(degrees));
 	float t = 1 - c;
 
-	ret[0][0] = t * axis.x * axis.x + c;
-	ret[0][1] = t * axis.x * axis.y - s * axis.z;
-	ret[0][2] = t * axis.x * axis.z + s * axis.y;
+	ret[0][0] = t * an.x * an.x + c;
+	ret[0][1] = t * an.x * an.y - s * an.z;
+	ret[0][2] = t * an.x * an.z + s * an.y;
 
-	ret[1][0] = t * axis.x * axis.y + s * axis.z;
-	ret[1][1] = t * axis.y * axis.y + c;
-	ret[1][2] = t * axis.y * axis.z - s * axis.x;
+	ret[1][0] = t * an.x * an.y + s * an.z;
+	ret[1][1] = t * an.y * an.y + c;
+	ret[1][2] = t * an.y * an.z - s * an.x;
 
-	ret[2][0] = t * axis.x * axis.z - s * axis.y;
-	ret[2][1] = t * axis.y * axis.z + s * axis.x;
-	ret[2][2] = t * axis.z * axis.z + c;
+	ret[2][0] = t * an.x * an.z - s * an.y;
+	ret[2][1] = t * an.y * an.z + s * an.x;
+	ret[2][2] = t * an.z * an.z + c;
 
+	// easier to transpose here than on each row separately
 	return ret;
 }
 
-#include <iostream>
+
 void Transform::left(float degrees, vec3& eye, vec3& up) 
 {
-	std::cout << "JERE" << std::endl;
-
 	eye = Transform::rotate(-degrees, up) * eye;
 }
 
@@ -76,39 +75,41 @@ mat4 Transform::lookAt(const vec3 &eye, const vec3 &center, const vec3 &up)
 	ret[2][3] = 0;
 	ret[3][3] = 1;
 
-
-	return glm::lookAt(eye, center, up);
-	//return ret;
+	return ret;
 }
 
 mat4 Transform::perspective(float fovy, float aspect, float zNear, float zFar)
 {
-	mat4 ret = glm::perspective(glm::radians(fovy), aspect, zNear, zFar);
-	// YOUR CODE FOR HW2 HERE
-	// New, to implement the perspective transform as well.
+	mat4 ret(0);
+
+	float tanHalfAng = tan(glm::radians(fovy) / 2);
+	ret[0][0] = 1 / (aspect * tanHalfAng);
+	ret[1][1] = 1 / tanHalfAng;
+	ret[2][2] = - ((zFar + zNear) / (zFar - zNear));
+	ret[2][3] = -1;
+	ret[3][2] = - ((2 * zFar * zNear) / (zFar - zNear));
+
 	return ret;
 }
 
 mat4 Transform::scale(const float &sx, const float &sy, const float &sz) 
 {
-	return glm::scale(mat4(1.0), glm::vec3(sx, sy, sz));
-
-//	mat4 ret;
-//	ret[0][0] = sx;
-//	ret[1][1] = sy;
-//	ret[2][2] = sz;
-//	return ret;
+	mat4 ret;
+	// column-major order in open-GL, but this is the diagonal anyway.
+	ret[0][0] = sx;
+	ret[1][1] = sy;
+	ret[2][2] = sz;
+	return ret;
 }
 
 mat4 Transform::translate(const float &tx, const float &ty, const float &tz) 
 {
-	return glm::translate(mat4(1.0), glm::vec3(tx, ty, tz));
-
-//	mat4 ret;
-//	ret[0][3] = tx;
-//	ret[1][3] = ty;
-//	ret[2][3] = tz;
-//	return ret;
+	mat4 ret;
+	// column-major order in open-GL, so we 'flip' lines.
+	ret[3][0] = tx;
+	ret[3][1] = ty;
+	ret[3][2] = tz;
+	return ret;
 }
 
 // To normalize the up direction and construct a coordinate frame.  
@@ -119,10 +120,9 @@ mat4 Transform::translate(const float &tx, const float &ty, const float &tz)
 
 vec3 Transform::upvector(const vec3 &up, const vec3 & zvec) 
 {
-	vec3 x = glm::cross(up,zvec);
-	vec3 y = glm::cross(zvec,x);
-	vec3 ret = glm::normalize(y);
-	return ret;
+	vec3 up_1 = glm::cross(up, zvec);
+	vec3 up_2 = glm::cross(zvec, up_1);
+	return glm::normalize(up_2);
 }
 
 
