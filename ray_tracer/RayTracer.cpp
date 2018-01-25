@@ -35,7 +35,6 @@ Image* RayTracer::rayTrace(Camera & camera, Scene & scene, GLuint height, GLuint
 
 			if (intersectScene(scene, ray)) {
 
-				cout << " YES" << endl;
 				(*image)(i,j) = Pixel(0,0,0);
 
 			}

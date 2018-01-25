@@ -41,7 +41,7 @@ private:
 
 	int width;
 	int height;
-
+public:
 	Pixel **image;
 
 public:
@@ -81,6 +81,7 @@ public:
 
 	inline void tt()
 	{
+
 		Pixel p;
 		for (int i = 0 ; i < this->height ; ++i) {
 			for (int j = 0 ; j < this->width ; ++j) {
@@ -90,9 +91,9 @@ public:
 				int g = p.g;
 				int b = p.b;
 
-				std::cout << "(" << r << "," << g << "," << b << ")";
+				//std::cout << "(" << r << "," << g << "," << b << ")";
 			}
-			std::cout << std::endl;
+			//std::cout << std::endl;
 		}
 	}
 

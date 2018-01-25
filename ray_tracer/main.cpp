@@ -19,23 +19,27 @@ using namespace std;
 static void
 saveScene(std::string& fileName, Image* image)
 {
-	BYTE *pixels = new BYTE[3*image->getHeight() * image->getWidth()];
 
-	for (int i = 0 ; i < image->getHeight() ; ++ i) {
-		for (int j = 0 ; j < image->getWidth() ; ++j) {
+	//0xFF0000, 0x00FF00, 0x0000FF, false
+	FIBITMAP* bitmap = FreeImage_Allocate(100, 100, 24);
+	RGBQUAD color;
 
-			pixels[(i * image->getWidth() + j) + 0] = (*image)(i,j).r;
-			pixels[(i * image->getWidth() + j) + 1] = (*image)(i,j).g;
-			pixels[(i * image->getWidth() + j) + 2] = (*image)(i,j).b;
+	for (int i = 0 ; i < 100 ; ++i) {
+		for (int j = 0 ; j < 100 ; ++j) {
+			color.rgbRed = (double) i / 100 * 255;
+			color.rgbGreen = (double) i / 100 * 255;
+			color.rgbBlue = 0;
+			FreeImage_SetPixelColor(bitmap, i, j, &color);
 		}
 	}
 
-	pixels = image->toByteArray();
-	FIBITMAP *img = FreeImage_ConvertFromRawBits(pixels, image->getWidth(),
-			                                             image->getHeight(),
-														 image->getWidth() * 3,
-														 24, 0xFF0000, 0x00FF00, 0x0000FF, false);
-	FreeImage_Save(FIF_PNG, img, fileName.c_str(), 0);
+
+//
+//	FIBITMAP *img = FreeImage_ConvertFromRawBits(pixels, image->getWidth(),
+//			                                             image->getHeight(),
+//														 image->getWidth() * 3,
+//														 24, 0xFF0000, 0x00FF00, 0x0000FF, false);
+	FreeImage_Save(FIF_PNG, bitmap, fileName.c_str(), 0);
 	//delete[] pixels;
 }
 
