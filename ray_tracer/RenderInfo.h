@@ -22,9 +22,9 @@ struct RenderInfo {
 
 	std::string outputFile;
 
-	Camera *camera;
+	Camera camera;
 
-	Scene *scene;
+	Scene scene;
 
 
 };

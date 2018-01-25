@@ -7,7 +7,7 @@
 
 #include "Ray.h"
 
-Ray::Ray(glm::vec3 origin, glm::vec3 direction)
+Ray::Ray(glm::vec3& origin, glm::vec3& direction)
 :origin(origin), direction(glm::normalize(direction))
 {
 	// TODO - consider changing origin a bit - due to floating point errors

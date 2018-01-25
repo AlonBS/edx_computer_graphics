@@ -32,6 +32,8 @@
 
 #include "SceneParser.h"
 #include "Camera.h"
+#include "Object.h"
+#include "Sphere.h"
 
 using namespace std;
 
@@ -135,6 +137,8 @@ readFile(const char* fileName, RenderInfo& renderInfo)
 			continue;
 		}
 
+		cout << str << endl;
+
 		stringstream s(str);
 		s >> cmd;
 
@@ -143,7 +147,7 @@ readFile(const char* fileName, RenderInfo& renderInfo)
 		//			const string output        = "output";
 		//			const string camera        = "camera";
 
-		if (cmd == "size") {
+		if (cmd == Commands.size) {
 
 			readValues(s, 2, values);
 			renderInfo.width = values[0];
@@ -160,22 +164,24 @@ readFile(const char* fileName, RenderInfo& renderInfo)
 
 		} else if (cmd == Commands.camera) {
 
-			readValues(s, 9, values);
+			readValues(s, 10, values);
 			glm::vec3 eyeInit = glm::vec3(values[0], values[1], values[2]);
 			glm::vec3 center  = glm::vec3(values[3], values[4], values[5]);
 			glm::vec3 upInit  = glm::vec3(values[6], values[7], values[8]);
 			//upinit = Transform::upvector(upinit, eyeinit);
 			float fovy = values[9];
-
-
-			renderInfo.camera = new Camera(eyeInit, center, upInit, fovy);
-			//camera->center;
+			renderInfo.camera = Camera(eyeInit, center, upInit, fovy, renderInfo.width, renderInfo.height);
 		}
 
+		else if (cmd == Commands.sphere) {
+			readValues(s, 4, values);
+			Object *object = new Sphere(glm::vec3(values[0], values[1], values[2]), values[3]);
+			renderInfo.scene.addObject(object);
+		}
 
-
-		in.close();
 	}
+
+	in.close();
 }
 
 

@@ -1,3 +1,4 @@
 hw0/*.o
 hw1/*.o
 hw2/*.o
+ray_tracer/*.o

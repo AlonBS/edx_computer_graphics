@@ -10,10 +10,12 @@ LINKFLAGS  = -L ./lib/nix -lfreeimage -lGLEW
 CFLAGS    = -g -std=c++1y
 CC        = g++
 SRCS      = main.cpp \
-	    Ray.cpp \
-	    RayTrace.cpp \
-	    Scene.cpp \
+	    	Ray.cpp \
+	    	RayTracer.cpp \
+	    	Scene.cpp \
             SceneParser.cpp \
+            Object.cpp \
+            Sphere.cpp
 	    
 
 OBJS      = $(SRCS:.cpp=.o)
@@ -31,5 +33,5 @@ depend:
 	makedepend $(INCFLAGS) -Y $(SRCS)
 
 clean:
-	rm $(OBJS) $(PROG)
+	rm -rf $(OBJS) $(PROG)
 
