@@ -12,6 +12,8 @@
 #include <cstdint>
 #include <GL/glew.h>
 
+using namespace glm;
+
 class Object {
 public:
 
@@ -19,7 +21,7 @@ public:
 	Object() {}
 	virtual ~Object() {}
 
-	virtual bool intersectsRay(Ray &r, GLfloat &dist, glm::vec3& normal) = 0;
+	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& normal) = 0;
 
 	friend std::ostream& operator<< (std::ostream& out, const Object & obj);
 

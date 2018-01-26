@@ -13,7 +13,8 @@ SRCS      = main.cpp \
 	    	Scene.cpp \
             SceneParser.cpp \
             Object.cpp \
-            Sphere.cpp
+            Sphere.cpp \
+            Triangle.cpp
 	    
 
 OBJS      = $(SRCS:.cpp=.o)
