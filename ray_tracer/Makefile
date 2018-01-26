@@ -1,15 +1,13 @@
-#INCFLAGS  = -I /usr/include/GL -I ./utilities/include
-#INCFLAGS += -I ~/programming/Computer_Graphics_Exs/Computer_Graphics/Ex0_MIT/mit-vecmath
+INCFLAGS  = -I /usr/include/GL -I ./utilities/include
 
-#INCFLAGS += -I /mit/6.837/public/include/vecmath
-
-#LINKFLAGS  = -lGL -lGLU -lassimp  -lSOIL
+#LINKFLAGS  = -lGL -lGLUassimp  -lSOIL
 LINKFLAGS  = -L ./lib/nix -lfreeimage -lGLEW
 
 
 CFLAGS    = -g -std=c++1y
 CC        = g++
 SRCS      = main.cpp \
+			Image.cpp \
 	    	Ray.cpp \
 	    	RayTracer.cpp \
 	    	Scene.cpp \

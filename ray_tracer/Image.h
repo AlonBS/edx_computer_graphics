@@ -13,6 +13,8 @@
 #include <FreeImage.h>
 #include <cassert>
 
+#include <glm/glm.hpp>
+
 class Pixel {
 
 public:
@@ -39,80 +41,34 @@ inline std::ostream& operator<< (std::ostream &out, const Pixel &pixel)
 class Image {
 private:
 
+	static int FreeImage_objs_cnt;
+
+
 	int width;
 	int height;
-public:
-	Pixel **image;
+
+	FIBITMAP* bitmap;
+
+	glm::vec3 clamp (glm::vec3& v);
 
 public:
 
-	Image (int height, int width)
-	:height(height), width(width)
-	{
-		image = new Pixel*[height];
-		for (int i = 0 ; i < height ; ++i) {
-			image[i] = new Pixel[width];
-		}
-	}
 
-	~Image() {
-		for (int i = 0 ; i < height; ++i) {
-			delete [] image[i];
-		}
+	Image (int height, int width);
 
-		delete [] image;
-	}
+	~Image();
 
-
-	Pixel& operator()(int row, int col) {
-		assert(row >= 0 && row < height);
-		assert(col >= 0 && col < width);
-
-		return image[row][col];
-	}
-
-
+	void setPixel(int row, int col, glm::vec3& rgbColors);
 
 	int getWidth() { return this->width; }
 	int getHeight() { return this->height; }
-	BYTE* toByteArray() { return (BYTE*)&image[0][0]; }
 
-	inline friend std::ostream& operator<< (std::ostream &out, const Image &image);
 
-	inline void tt()
-	{
+	const void saveImage(std::string& fileName) const;
 
-		Pixel p;
-		for (int i = 0 ; i < this->height ; ++i) {
-			for (int j = 0 ; j < this->width ; ++j) {
-
-				p = this->image[i][j];
-				int r = p.r;
-				int g = p.g;
-				int b = p.b;
-
-				//std::cout << "(" << r << "," << g << "," << b << ")";
-			}
-			//std::cout << std::endl;
-		}
-	}
+//	inline friend std::ostream& operator<< (std::ostream &out, const Image &image);
 
 };
-
-inline std::ostream& operator<< (std::ostream &out, const Image &image)
-{
-	for (int i = 0 ; i < image.height ; ++i) {
-		for (int j = 0 ; j < image.width ; ++j) {
-			//out << image.image[i][j].r;
-		}
-		out << std::endl;
-	}
-
-	return out;
-}
-
-
-
 
 
 #endif /* IMAGE_H_ */

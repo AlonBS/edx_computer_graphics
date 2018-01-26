@@ -49,8 +49,8 @@ public:
 		GLfloat hw = width / 2;
 		GLfloat hh = height / 2;
 
-		GLfloat alpha = tan(fovX / 2 ) * ( (j - hw) / hw );
-		GLfloat beta  = tan(fovY / 2 ) * ( (hh - i) / i );
+		GLfloat alpha = tan(fovX / 2 ) * ( (i - hw) / hw );
+		GLfloat beta  = tan(fovY / 2 ) * ( (hh - j) / hh);
 
 		vec3 origin = eyeInit;
 		vec3 direction = alpha * u + beta * v - w;
@@ -64,9 +64,12 @@ public:
 		cout << "\tEye init: (" << eyeInit.x << "," << eyeInit.y << "," << eyeInit.z << ")" << endl;
 		cout << "\tCenter: (" << center.x << "," << center.y << "," << center.z << ")" << endl;
 		cout << "\tUp init: (" << upInit.x << "," << upInit.y << "," << upInit.z << ")" << endl;
+		cout << "\tW: (" << w.x << "," << w.y << "," << w.z << ")" << endl;
+		cout << "\tU: (" << u.x << "," << u.y << "," << u.z << ")" << endl;
+		cout << "\tV: (" << v.x << "," << v.y << "," << v.z << ")" << endl;
 		cout << "\tFov X: " << fovX << ". Fov Y: " << fovY << endl;
 		cout << "\t(w,h) = (" << width << "," << height << ")" << endl;
-		std::cout << "**** Camera Info ****" << std::endl;
+		std::cout << "**** Camera Info END ****" << std::endl;
 	}
 
 

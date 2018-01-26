@@ -29,24 +29,14 @@ Image* RayTracer::rayTrace(Camera & camera, Scene & scene, GLuint height, GLuint
 	for (int i = 0 ; i < height ; ++i) {
 		for (int j = 0 ; j < width ; ++j) {
 
-			Ray ray = camera.generateRay(i , j );
+			Ray ray = camera.generateRay(i, j);
 
-			//ray.print();
+			//Intersection hit = Intersect(ray, scene);
 
 			if (intersectScene(scene, ray)) {
-
-				(*image)(i,j) = Pixel(0,0,0);
-
+				vec3 a = vec3(1.0f, 0.0f, 0.0f);
+				image->setPixel(i, j, a);
 			}
-			else {
-				//std::cout << "NO" << std::endl;
-				(*image)(i,j) = Pixel(255,255,255);
-			}
-
-			//Ray ray = camera.generateRay(i, j);
-			//Intersection hit = Intersect(ray, scene);
-			//image(i,j) = FindColor(Pixel(0,0,0));
-			//(*image)(i,j) = Pixel(0,0,0);
 		}
 	}
 

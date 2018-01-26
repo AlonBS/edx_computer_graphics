@@ -158,10 +158,7 @@ readFile(const char* fileName, RenderInfo& renderInfo)
 			renderInfo.maxDepth = values[0];
 
 		} else if (cmd == Commands.output) {
-
-			readValues(s, 1, values);
-			renderInfo.outputFile = values[0];
-
+			s >> renderInfo.outputFile;
 		} else if (cmd == Commands.camera) {
 
 			readValues(s, 10, values);

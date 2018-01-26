@@ -74,3 +74,44 @@ const void Sphere::print() const
 
 }
 
+
+/*
+vec3 center = vec3(0.0f, 0.0f, 0.0f);
+	GLfloat radius = 1;
+	Sphere ss(center, radius);
+	GLfloat dist;
+	vec3 normal;
+
+	vec3 tt = glm::normalize(glm::vec3(5.0, 3, 2));
+	cout << "DOTTT: " << glm::dot(tt,tt) << endl;
+
+
+	vec3 o1 = vec3(0, 0, -0.5); vec3 d1 = vec3(0, 0, 1);
+	vec3 o2 = vec3(0, -2, 0); vec3 d2 = vec3(0, 1, 0);
+	vec3 o3 = vec3(-2, 0, 0); vec3 d3 = vec3(1, 0, 0);
+
+	vec3 o4 = vec3(0, 0, -0.5); vec3 d4 = vec3(0, 0, -1);
+	vec3 o5 = vec3(0, -2, 0); vec3 d5 = vec3(0, -1, 0);
+	vec3 o6 = vec3(-2, 0, 0); vec3 d6 = vec3(-1, 0, 0);
+
+
+	Ray r1(o1, d1), r2(o2, d2), r3(o3, d3);
+	Ray r4(o4, d4), r5(o5, d5), r6(o6, d6);
+
+
+	std::vector<Ray> vecs;
+	vecs.push_back(r1); vecs.push_back(r2); vecs.push_back(r3);
+	vecs.push_back(r4); vecs.push_back(r5); vecs.push_back(r6);
+
+	for (Ray r : vecs) {
+
+		if (ss.intersectsRay(r, dist, normal) ) {
+
+			cout << "Int. Dist: " << dist << " . Normal: " << normal.x << ", " << normal.y << " ," << normal.z << "." << std::endl;
+		}
+		else {
+			std::cout << "No intersection!" << std::endl;
+		}
+
+	}
+ */

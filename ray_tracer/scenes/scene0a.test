@@ -1,9 +1,10 @@
 # Test Scene 0
-size 100 100 
+size 200 200
+output ./alon 
 
 # Now specify the camera.  This is what you should implement.
 # This file has 4 camera positions.  Render your scene for all 4.
-camera 0 0 2 0 0 0 0 1 0 30
+camera 0 0 -8 0 0 0 0 1 0 30
 
 # Now specify the geometry 
 # Again, for initial testing, maybe you want to implement a dummy 
@@ -12,4 +13,5 @@ camera 0 0 2 0 0 0 0 1 0 30
 # parts of the assignment.
 
 sphere 0 0 0 1
+sphere -3 0 0 2
 
