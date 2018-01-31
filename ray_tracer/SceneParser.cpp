@@ -34,6 +34,7 @@
 #include "Camera.h"
 #include "Object.h"
 #include "Sphere.h"
+#include "Triangle.h"
 
 using namespace std;
 
@@ -172,8 +173,48 @@ readFile(const char* fileName, RenderInfo& renderInfo)
 
 		else if (cmd == Commands.sphere) {
 			readValues(s, 4, values);
-			Object *object = new Sphere(glm::vec3(values[0], values[1], values[2]), values[3]);
-			renderInfo.scene.addObject(object);
+			Object *sphere = new Sphere(glm::vec3(values[0], values[1], values[2]), values[3]);
+			renderInfo.scene.addObject(sphere);
+		}
+
+		else if (cmd == Commands.maxverts) {
+			// New object is comming
+			renderInfo.vertcies.clear();
+		}
+
+		else if (cmd == Commands.maxvertnorms) {
+			// New Object is coming
+			renderInfo.vertciesNormals.clear();
+		}
+
+		else if (cmd == Commands.vertex) {
+			readValues(s, 3, values);
+			renderInfo.vertcies.push_back(vec3(values[0], values[1], values[2]));
+		}
+
+		else if (cmd == Commands.vertexnormal) {
+			readValues(s, 6, values);
+			renderInfo.vertciesNormals.push_back(vec3(values[0], values[1], values[2]));
+			renderInfo.vertciesNormals.push_back(vec3(values[3], values[4], values[5]));
+		}
+
+		else if (cmd == Commands.tri) {
+			readValues(s, 3, values);
+			Object *triangle = new Triangle(renderInfo.vertcies[values[0]],
+											renderInfo.vertcies[values[1]],
+											renderInfo.vertcies[values[2]]);
+			renderInfo.scene.addObject(triangle);
+		}
+
+		else if (cmd == Commands.trinormal) {
+			readValues(s, 3, values);
+			Object *triangle = new Triangle(renderInfo.vertcies[values[0] * 2],
+											renderInfo.vertcies[values[1] * 2],
+											renderInfo.vertcies[values[2] * 2],
+											renderInfo.vertcies[values[0] * 2 - 1],
+											renderInfo.vertcies[values[1] * 2 - 1],
+											renderInfo.vertcies[values[2] * 2 - 1]);
+			renderInfo.scene.addObject(triangle);
 		}
 
 	}

@@ -41,7 +41,9 @@ public:
 		u = glm::normalize(glm::cross(upInit, w));
 		v = glm::cross(w,u);
 
-		fovX = fovY; // TODO -  Change
+		float aspect = (float)width / (float)height;
+
+		fovX = 2 * glm::atan(glm::tan(fovY * 0.5f) * aspect);
 	}
 
 	Ray generateRay(GLfloat i, GLfloat j) {

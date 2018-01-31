@@ -26,6 +26,10 @@ struct RenderInfo {
 
 	Scene scene;
 
+	vector<glm::vec3> vertcies;
+	vector<glm::vec3> vertciesNormals;
+
+
 
 };
 

@@ -11,6 +11,19 @@ Triangle::Triangle(vec3& va, vec3& vb, vec3& vc)
 : A(va), B(vb), C(vc)
 {
 	N = normalize(cross(C-A,B-A)); // Compute the face normal
+	AN = vec3(0.0f, 0.0f, 0.0f);
+	BN = vec3(0.0f, 0.0f, 0.0f);
+	CN = vec3(0.0f, 0.0f, 0.0f);
+
+	color = vec3((GLfloat) rand() / (GLfloat) RAND_MAX,
+				 (GLfloat) rand() / (GLfloat) RAND_MAX,
+				 (GLfloat) rand() / (GLfloat) RAND_MAX);
+}
+
+Triangle::Triangle(vec3& va, vec3& vb, vec3& vc, vec3& vaNorm, vec3& vbNorm, vec3& vcNorm)
+: A(va), B(vb), C(vc), AN(vaNorm), BN(vbNorm), CN(vcNorm)
+{
+	N = normalize(cross(C-A,B-A)); // Compute the face normal
 }
 
 Triangle::~Triangle()
@@ -20,7 +33,43 @@ Triangle::~Triangle()
 
 bool Triangle::intersectsRay(Ray &r, GLfloat &dist, glm::vec3& normal)
 {
+	GLfloat dist1, dist2;
+	vec3	norm1, norm2;
+	bool    res1, res2;
 
+	// This is used for implemantation stages - we use the other intersection as back up -
+	// will be removed later on
+	res1 = __iRay(r, dist1, norm1);
+//	res2 = __iRay2(r, dist2, norm2);
+//
+//	assert(res1 == res2);
+//
+//	if (res1 != res2) {
+//		std::cout << "Result of intersections differ: " << res1 << " " << res2 << std::endl;
+//		exit(-1);
+//	}
+//
+//	if (glm::abs(dist1 - dist2) > EPSILON)  {
+//		std::cout << "DIst 1 and 2 differ: " << dist1 << " " << dist2 << std::endl;
+//		exit(-1);
+//	}
+//
+//
+//	if (glm::abs(glm::length(norm1) - glm::length(norm2)) > EPSILON)  {
+//		std::cout << "Normal differ: " << std::endl;
+//		std::cout << "NORMAL1: (" << norm1.x << "," << norm1.y << "," << norm1.z << ")" << std::endl;
+//		std::cout << "NORMAL2: (" << norm2.x << "," << norm2.y << "," << norm2.z << ")" << std::endl;
+//		exit(-1);
+//	}
+
+	dist = dist1;
+	normal = norm1;
+	return res1;
+}
+
+
+bool Triangle::__iRay(Ray &r, GLfloat &dist, glm::vec3& normal)
+{
 	// We do that in two steps:
 	// 	- First, we intersect the ray with the plane this triangle lays in
 	//  - If there's an intersection - the we check if the intersection point is within our triangle
@@ -40,7 +89,10 @@ bool Triangle::intersectsRay(Ray &r, GLfloat &dist, glm::vec3& normal)
 	GLfloat t;
 	vec3    P; // Intersection point
 	vec3    AP, AB, AC;
-	GLfloat alpha, beta, gamma;
+	GLfloat	dot_ACAC, dot_ACAB, dot_ACAP, dot_ABAB, dot_ABAP;
+	GLfloat invDenom, alpha, beta, gamma;
+
+
 
 	// First - find intersection point
 	d_dot_n = dot(r.direction, N);
@@ -60,49 +112,54 @@ bool Triangle::intersectsRay(Ray &r, GLfloat &dist, glm::vec3& normal)
 	//		 A, B, C are this triangles vertices, and a,b,y are alpha beta and gamma from barycentric coordinates.
 	P = r.origin + t*r.direction;
 
+	// Compute vectors
+	AC = C - A;
+	AB = B - A;
+	AP = P - A;
 
+	// Compute dot products
 
-	// After some algebra, we get the following equation: gamma  = (PAYBAX-BAYPAX) / (CAYBAX-CAXBAY)
-	AP = P-A; AB = B-A; AC = C-A;
+	dot_ACAC, dot_ACAB, dot_ACAP, dot_ABAB, dot_ABAP;
 
-	std::cout << AP.y << std::endl;
-	std::cout << AB.x << std::endl;
-	std::cout << AB.y << std::endl;
-	std::cout << AP.x << std::endl;
+	dot_ACAC = dot(AC, AC);
+	dot_ACAB = dot(AC, AB);
+	dot_ACAP = dot(AC, AP);
+	dot_ABAB = dot(AB, AB);
+	dot_ABAP = dot(AB, AP);
 
-	std::cout << (AP.y*AB.x)-(AB.y*AP.x) << std::endl;
-	std::cout << (AC.y*AB.x)-(AC.x*AB.y) << std::endl;
+	// Compute barycentric coordinates
+	invDenom = 1 / (dot_ACAC * dot_ABAB - dot_ACAB * dot_ACAB);
+	beta = (dot_ABAB * dot_ACAP - dot_ACAB * dot_ABAP) * invDenom;
+	gamma = (dot_ACAC * dot_ABAP - dot_ACAB * dot_ACAP) * invDenom;
 
-	gamma = ( (AP.y*AB.x)-(AB.y*AP.x) )/( (AC.y*AB.x)-(AC.x*AB.y) );
-	beta = (AP.z-(gamma*AC.z))/AB.z;
-
-	std::cout<< " BETA 1 " << beta << std::endl;
-	std::cout<< " GAMMA 1 " << gamma << std::endl;
-
-	if (gamma >= 0 && beta >= 0 && gamma+beta <= 1) {
-
-		normal = N;
+	// Check if point is in triangle
+	if ( (beta >= 0) && (gamma >= 0) && (beta + gamma < 1) ){
 		dist = t;
+		normal = N;
 		return true;
 	}
 
+	// No intersection - make sure values are irrelevant
+	dist = 0;
+	normal = vec3(0.0f, 0.0f, 0.0f);
 	return false;
 }
 
 
-bool Triangle::intersectsRay2(Ray &r, GLfloat &dist, glm::vec3& normal)
+bool Triangle::__iRay2(Ray &r, GLfloat &dist, glm::vec3& normal)
 {
-
-	// Anoter close computation - to check validity of the other
+	// Another close computation - to check validity of the other
 
 	GLfloat a_dot_n;
 	GLfloat o_dot_n;
 	GLfloat d_dot_n;
-	GLfloat t;
+	GLfloat t = 0;
 	vec3    P; // Intersection point
 	vec3    AB, AC;
 	vec3    PA, PB, PC;
 	GLfloat ABC2, alpha, beta, gamma;
+
+	normal = vec3(0.0f, 0.0f, 0.0f);
 
 	// First - find intersection point
 	d_dot_n = dot(r.direction, N);
@@ -131,6 +188,9 @@ bool Triangle::intersectsRay2(Ray &r, GLfloat &dist, glm::vec3& normal)
 	gamma = 1 - alpha - beta;
 
 	if ( alpha < 0 || alpha > 1 || beta < 0 || beta > 1 || gamma < 0 || gamma > 1) {
+		// No intersection - make sure values are irrelevant
+		dist = 0;
+		normal = vec3(0.0f, 0.0f, 0.0f);
 		return false;
 	}
 

@@ -59,6 +59,7 @@ bool RayTracer::intersectScene(Scene & scene, Ray& ray)
 			}
 		}
 		else {
+
 		}
 	}
 
