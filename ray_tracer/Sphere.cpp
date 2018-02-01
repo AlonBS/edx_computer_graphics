@@ -11,7 +11,7 @@ using namespace glm;
 
 
 
-bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& normal)
+bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& normal, vec3& color)
 {
 	// To find intersection between Ray and Sphere represented the following way:
 	// 	Sphere: (P - C )^2 - r^2 = 0
@@ -63,8 +63,10 @@ bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& normal)
 		// there's no intersection.
 		return false;
 	}
+
 	intersection_point = r.origin + x * r.direction;
 	normal = glm::normalize(intersection_point - center);
+	color = ambientColor;
 	return true;
 }
 

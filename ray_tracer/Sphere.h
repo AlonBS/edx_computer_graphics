@@ -23,12 +23,17 @@ private:
 	glm::vec3 center;
 	GLfloat radius;
 
+
 public:
 
-	Sphere(const glm::vec3 & center, GLfloat &radius) : center(center), radius(radius) {}
+	Sphere(const glm::vec3 & center, GLfloat &radius, vec3& ambientColor)
+	: center(center), radius(radius), Object(ambientColor)
+	{
+
+	}
 	virtual ~Sphere() {}
 
-	virtual bool intersectsRay(Ray &r, GLfloat &dist, glm::vec3& normal);
+	virtual bool intersectsRay(Ray &r, GLfloat &dist, glm::vec3& normal, vec3& color);
 
 	virtual const void print() const;
 };

@@ -34,16 +34,29 @@ public:
 	{}
 
 	Camera(vec3& eyeInit, vec3& center, vec3& upInit, GLfloat fovY, GLuint width, GLuint height)
-	:eyeInit(eyeInit), center(center), upInit(upInit), fovY(fovY)
+	:eyeInit(eyeInit), center(center), upInit(upInit), fovY(glm::radians(fovY))
 	,width(width), height(height)
 	{
 		w = glm::normalize(eyeInit - center);
 		u = glm::normalize(glm::cross(upInit, w));
 		v = glm::cross(w,u);
 
-		float aspect = (float)width / (float)height;
+		// Calculate FovX
+		//Given:
+		// 	tan(FOVY / 2) = top / near;
+		//  tan(FOVX / 2) = left / near;
+		//  aspect = (2*left = width / 2*top = height) = left / top
+		//
+		//  Therefore:
+		//	FOVX = 2 * atan(l / n)
+		//  n = t / tan(FOVY /2)
+		// -->
+		//  FOVX = 2 * atan(l / (t / tan(FOVY /2)) = 2 * atan(tan(FOVY/2) * (l/t))
+		//  -->  = 2 * atan(tan(FovY/2) * aspect);
 
-		fovX = 2 * glm::atan(glm::tan(fovY * 0.5f) * aspect);
+
+		GLfloat aspect = (GLfloat)width / (GLfloat)height;
+		this->fovX = 2 * glm::atan(glm::tan(this->fovY * 0.5f) * aspect);
 	}
 
 	Ray generateRay(GLfloat i, GLfloat j) {
@@ -51,11 +64,11 @@ public:
 		GLfloat hw = width / 2;
 		GLfloat hh = height / 2;
 
-		GLfloat alpha = tan(fovX / 2 ) * ( (i - hw) / hw );
-		GLfloat beta  = tan(fovY / 2 ) * ( (hh - j) / hh);
+		GLfloat alpha = tan(fovX * 0.5f ) * ( (j - hw) / hw );
+		GLfloat beta  = tan(fovY * 0.5f ) * ( (i - hh) / hh ); // This is not a mistake - this is so FreeImage works a little different
 
 		vec3 origin = eyeInit;
-		vec3 direction = alpha * u + beta * v - w;
+		vec3 direction =  alpha * u + beta * v - w;
 		return Ray(origin, direction);
 	}
 
@@ -69,7 +82,7 @@ public:
 		cout << "\tW: (" << w.x << "," << w.y << "," << w.z << ")" << endl;
 		cout << "\tU: (" << u.x << "," << u.y << "," << u.z << ")" << endl;
 		cout << "\tV: (" << v.x << "," << v.y << "," << v.z << ")" << endl;
-		cout << "\tFov X: " << fovX << ". Fov Y: " << fovY << endl;
+		cout << "\tFov X: " << glm::degrees(fovX) << ". Fov Y: " << glm::degrees(fovY) << endl;
 		cout << "\t(w,h) = (" << width << "," << height << ")" << endl;
 		std::cout << "**** Camera Info END ****" << std::endl;
 	}

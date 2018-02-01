@@ -22,9 +22,9 @@ glm::vec3 Image::clamp (glm::vec3& v)
 {
 	glm::vec3 clampedV = v;
 
-	(clampedV.r > 1.0f) ? clampedV.r = 1.0f : (clampedV.r < 1.0f) ? clampedV.r = 0.0f : clampedV.r;
-	(clampedV.g > 1.0f) ? clampedV.g = 1.0f : (clampedV.g < 1.0f) ? clampedV.g = 0.0f : clampedV.g;
-	(clampedV.b > 1.0f) ? clampedV.b = 1.0f : (clampedV.b < 1.0f) ? clampedV.b = 0.0f : clampedV.b;
+	(clampedV.r > 1.0f) ? clampedV.r = 1.0f : (clampedV.r < 0.0f) ? clampedV.r = 0.0f : clampedV.r;
+	(clampedV.g > 1.0f) ? clampedV.g = 1.0f : (clampedV.g < 0.0f) ? clampedV.g = 0.0f : clampedV.g;
+	(clampedV.b > 1.0f) ? clampedV.b = 1.0f : (clampedV.b < 0.0f) ? clampedV.b = 0.0f : clampedV.b;
 
 	return clampedV;
 }
@@ -67,12 +67,13 @@ void Image::setPixel(int row, int col, glm::vec3& rgbColors)
 	color.rgbGreen = clampedValue.g * 255;
 	color.rgbBlue = clampedValue.b * 255;
 
-	FreeImage_SetPixelColor(this->bitmap, row, col, &color);
+	FreeImage_SetPixelColor(this->bitmap, col, row, &color);
 }
 
 
 const void Image::saveImage(std::string& fileName) const
 {
-	FreeImage_Save(FIF_PNG, bitmap, fileName.c_str(), 0);
+	//FIF_PNG
+	FreeImage_Save(FIF_JPEG, bitmap, fileName.c_str(), 0);
 	std::cout << "Image saved to: " << fileName << std::endl;
 }

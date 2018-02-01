@@ -7,21 +7,21 @@
 
 #include "Triangle.h"
 
-Triangle::Triangle(vec3& va, vec3& vb, vec3& vc)
-: A(va), B(vb), C(vc)
+Triangle::Triangle(vec3& va, vec3& vb, vec3& vc, vec3& ambientTerm)
+: A(va), B(vb), C(vc), Object(ambientTerm)
 {
 	N = normalize(cross(C-A,B-A)); // Compute the face normal
 	AN = vec3(0.0f, 0.0f, 0.0f);
 	BN = vec3(0.0f, 0.0f, 0.0f);
 	CN = vec3(0.0f, 0.0f, 0.0f);
 
-	color = vec3((GLfloat) rand() / (GLfloat) RAND_MAX,
-				 (GLfloat) rand() / (GLfloat) RAND_MAX,
-				 (GLfloat) rand() / (GLfloat) RAND_MAX);
+//	color = vec3((GLfloat) rand() / (GLfloat) RAND_MAX,
+//				 (GLfloat) rand() / (GLfloat) RAND_MAX,
+//				 (GLfloat) rand() / (GLfloat) RAND_MAX);
 }
 
-Triangle::Triangle(vec3& va, vec3& vb, vec3& vc, vec3& vaNorm, vec3& vbNorm, vec3& vcNorm)
-: A(va), B(vb), C(vc), AN(vaNorm), BN(vbNorm), CN(vcNorm)
+Triangle::Triangle(vec3& va, vec3& vb, vec3& vc, vec3& vaNorm, vec3& vbNorm, vec3& vcNorm, vec3& ambientTerm)
+: A(va), B(vb), C(vc), AN(vaNorm), BN(vbNorm), CN(vcNorm), Object(ambientTerm)
 {
 	N = normalize(cross(C-A,B-A)); // Compute the face normal
 }
@@ -31,16 +31,17 @@ Triangle::~Triangle()
 }
 
 
-bool Triangle::intersectsRay(Ray &r, GLfloat &dist, glm::vec3& normal)
+bool Triangle::intersectsRay(Ray &r, GLfloat &dist, glm::vec3& normal, vec3& color)
 {
 	GLfloat dist1, dist2;
 	vec3	norm1, norm2;
+	vec3 	color1, color2;
 	bool    res1, res2;
 
-	// This is used for implemantation stages - we use the other intersection as back up -
+	// This is used for implementation stages - we use the other intersection as back up -
 	// will be removed later on
-	res1 = __iRay(r, dist1, norm1);
-//	res2 = __iRay2(r, dist2, norm2);
+	res1 = __iRay(r, dist1, norm1, color1);
+//	res2 = __iRay2(r, dist2, norm2, color2);
 //
 //	assert(res1 == res2);
 //
@@ -62,13 +63,21 @@ bool Triangle::intersectsRay(Ray &r, GLfloat &dist, glm::vec3& normal)
 //		exit(-1);
 //	}
 
+//	if (glm::abs(glm::length(color1) - glm::length(color2)) > EPSILON)  {
+//		std::cout << "Colors differ: " << std::endl;
+//		std::cout << "COLOR1: (" << color1.x << "," << color1.y << "," << color1.z << ")" << std::endl;
+//		std::cout << "COLOR2: (" << color2.x << "," << color2.y << "," << color2.z << ")" << std::endl;
+//		exit(-1);
+//	}
+
 	dist = dist1;
 	normal = norm1;
+	color = color1;
 	return res1;
 }
 
 
-bool Triangle::__iRay(Ray &r, GLfloat &dist, glm::vec3& normal)
+bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& normal, vec3& color)
 {
 	// We do that in two steps:
 	// 	- First, we intersect the ray with the plane this triangle lays in
@@ -136,17 +145,80 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, glm::vec3& normal)
 	if ( (beta >= 0) && (gamma >= 0) && (beta + gamma < 1) ){
 		dist = t;
 		normal = N;
+		color = this->ambientColor;
 		return true;
 	}
 
 	// No intersection - make sure values are irrelevant
 	dist = 0;
 	normal = vec3(0.0f, 0.0f, 0.0f);
+	color = vec3(0.0f, 0.0f, 0.0f);
 	return false;
 }
 
 
-bool Triangle::__iRay2(Ray &r, GLfloat &dist, glm::vec3& normal)
+bool Triangle::__iRay2(Ray &r, GLfloat &dist, glm::vec3& normal, vec3& color)
+{
+	// Another close computation - to check validity of the other
+
+	GLfloat a_dot_n;
+	GLfloat o_dot_n;
+	GLfloat d_dot_n;
+	GLfloat t = 0;
+	vec3    P; // Intersection point
+
+	vec3 APn, BPn, CPn;
+	GLfloat APw, BPw, CPw;
+	GLfloat alpha, beta, gamma;
+
+	normal = vec3(0.0f, 0.0f, 0.0f);
+
+	// First - find intersection point
+	d_dot_n = dot(r.direction, N);
+	if (d_dot_n - EPSILON == 0 ) {
+		// No intersection, or very close to no intersection
+		return false;
+	}
+
+	a_dot_n = dot(A, N);
+	o_dot_n = dot(r.origin, N);
+	t = (a_dot_n - o_dot_n) / d_dot_n;
+
+	// Now check if intersection point given by: o + td is inside the triangle.
+	// We do this using barycentric coordinates
+	// That is that:
+	// 		(P-A) = b(B-A)+y(C-A). WHere P is the intersection point,
+	//		 A, B, C are this triangles vertices, and a,b,y are alpha beta and gamma from barycentric coordinates.
+	P = r.origin + t*r.direction;
+
+	APn = cross(N, C-B) / (dot(cross(N, C-B), A-C));
+	APw = dot(-APn, C);
+	BPn = cross(N, A-C) / (dot(cross(N, A-C), B-A));
+	BPw = dot(-BPn, A);
+	CPn = cross(N, B-A) / (dot(cross(N, B-A), C-B));
+	CPw = dot(-CPn, B);
+
+	alpha = dot(APn, P) + APw;
+	beta  = dot(BPn, P) + BPw;
+	gamma = dot(CPn, P) + CPw;
+
+	if (alpha >= 0 && alpha <= 1 && beta >= 0 && beta <= 1 && gamma >= 0 && gamma <= 1) {
+		dist = t;
+		normal = this->N;
+		color = this->ambientColor;
+		return true;
+	}
+
+	dist = 0;
+	normal = vec3(0.0f, 0.0f, 0.0f);
+	color = vec3(0.0f, 0.0f, 0.0f);
+	return false;
+
+}
+
+
+/*
+bool Triangle::__iRay3(Ray &r, GLfloat &dist, glm::vec3& normal)
 {
 	// Another close computation - to check validity of the other
 
@@ -198,5 +270,6 @@ bool Triangle::__iRay2(Ray &r, GLfloat &dist, glm::vec3& normal)
 	normal = N;
 	return true;
 }
+*/
 
 

@@ -14,6 +14,16 @@
 #include "Camera.h"
 #include "Ray.h"
 
+typedef struct Intersection {
+
+	bool isValid;
+
+	vec3 normal;
+	vec3 color;
+
+}Intersection;
+
+
 class RayTracer {
 public:
 	RayTracer();
@@ -24,7 +34,7 @@ public:
 
 private:
 
-	bool intersectScene(Scene & scene, Ray& ray);
+	Intersection intersectScene(Scene & scene, Ray& ray);
 
 };
 

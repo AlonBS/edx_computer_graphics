@@ -15,13 +15,20 @@
 using namespace glm;
 
 class Object {
+
+protected:
+
+	vec3 ambientColor;
+
+	//vec3& ambientColor() { return ambientColor; }
+
 public:
 
 
-	Object() {}
+	Object(vec3& ambientC):ambientColor(ambientC) {}
 	virtual ~Object() {}
 
-	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& normal) = 0;
+	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& normal, vec3& color) = 0;
 
 	friend std::ostream& operator<< (std::ostream& out, const Object & obj);
 

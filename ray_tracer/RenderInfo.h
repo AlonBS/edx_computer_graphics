@@ -12,6 +12,9 @@
 #include "Camera.h"
 #include "Scene.h"
 
+//#define PRINT_VEC3(name, x) std:cout << name << ":(" << x.x << "," << x.y << "," << x.z << ")" << std::endl;
+
+
 
 struct RenderInfo {
 
@@ -22,7 +25,7 @@ struct RenderInfo {
 
 	std::string outputFile;
 
-	Camera camera;
+	Camera* camera = nullptr;
 
 	Scene scene;
 

@@ -119,6 +119,7 @@ readFile(const char* fileName, RenderInfo& renderInfo)
 {
 	string str, cmd;
 	ifstream in;
+	vec3 ambient = vec3(0.2f, 0.2f, 0.2f);
 	GLfloat values[MAX_POSSIBLE_VALUES] = {};
 
 
@@ -167,13 +168,15 @@ readFile(const char* fileName, RenderInfo& renderInfo)
 			glm::vec3 center  = glm::vec3(values[3], values[4], values[5]);
 			glm::vec3 upInit  = glm::vec3(values[6], values[7], values[8]);
 			//upinit = Transform::upvector(upinit, eyeinit);
-			float fovy = values[9];
-			renderInfo.camera = Camera(eyeInit, center, upInit, fovy, renderInfo.width, renderInfo.height);
+			GLfloat fovy = values[9];
+			renderInfo.camera = new Camera(eyeInit, center, upInit, fovy, renderInfo.width, renderInfo.height);
 		}
 
 		else if (cmd == Commands.sphere) {
 			readValues(s, 4, values);
-			Object *sphere = new Sphere(glm::vec3(values[0], values[1], values[2]), values[3]);
+			vec3 center = glm::vec3(values[0], values[1], values[2]);
+			GLfloat radius = values[3];
+			Object *sphere = new Sphere(center, radius, ambient);
 			renderInfo.scene.addObject(sphere);
 		}
 
@@ -202,7 +205,8 @@ readFile(const char* fileName, RenderInfo& renderInfo)
 			readValues(s, 3, values);
 			Object *triangle = new Triangle(renderInfo.vertcies[values[0]],
 											renderInfo.vertcies[values[1]],
-											renderInfo.vertcies[values[2]]);
+											renderInfo.vertcies[values[2]],
+											ambient);
 			renderInfo.scene.addObject(triangle);
 		}
 
@@ -213,9 +217,21 @@ readFile(const char* fileName, RenderInfo& renderInfo)
 											renderInfo.vertcies[values[2] * 2],
 											renderInfo.vertcies[values[0] * 2 - 1],
 											renderInfo.vertcies[values[1] * 2 - 1],
-											renderInfo.vertcies[values[2] * 2 - 1]);
+											renderInfo.vertcies[values[2] * 2 - 1],
+											ambient);
 			renderInfo.scene.addObject(triangle);
 		}
+
+		/* Lights */
+
+		else if (cmd == Commands.ambient) {
+			readValues(s, 3, values);
+			ambient = vec3(values[0], values[1], values[2]);
+		}
+
+		/* Material */
+
+
 
 	}
 

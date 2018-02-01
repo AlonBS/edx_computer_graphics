@@ -20,22 +20,23 @@ RayTracer::~RayTracer() {
 }
 
 
-Image* RayTracer::rayTrace(Camera & camera, Scene & scene, GLuint height, GLuint width)
+Image* RayTracer::rayTrace(Camera & camera, Scene & scene, GLuint width, GLuint height)
 {
-	Image *image = new Image(height, width);
+	Image *image = new Image(width, height);
+
+	vec3 color;
 
 
 	// Render loop
 	for (int i = 0 ; i < height ; ++i) {
 		for (int j = 0 ; j < width ; ++j) {
 
-			Ray ray = camera.generateRay(i, j);
+			Ray ray = camera.generateRay(i + .5, j + .5);
+			Intersection hit = intersectScene(scene, ray);
 
-			//Intersection hit = Intersect(ray, scene);
-
-			if (intersectScene(scene, ray)) {
-				vec3 a = vec3(1.0f, 0.0f, 0.0f);
-				image->setPixel(i, j, a);
+			if (hit.isValid) {
+				color = hit.color;
+				image->setPixel(i, j, color);
 			}
 		}
 	}
@@ -44,28 +45,36 @@ Image* RayTracer::rayTrace(Camera & camera, Scene & scene, GLuint height, GLuint
 }
 
 
-bool RayTracer::intersectScene(Scene & scene, Ray& ray)
+Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 {
 	GLfloat minDist = FLT_MAX;
 	GLfloat dist;
 	vec3 normal;
+	vec3 color;
+
+	Intersection hit;
 
 	for (Object *object : scene.getObjects()) {
 
-		if (object->intersectsRay(ray, dist, normal)) {
+		if (object->intersectsRay(ray, dist, normal, color)) {
 
 			if (dist < minDist) {
-				minDist = dist;
-			}
-		}
-		else {
 
+//				std::cout << ":(" << color.x << "," << color.y << "," << color.z << ")" << std::endl;
+//				std::cout << ":(" << normal.x << "," << normal.y << "," << normal.z << ")" << std::endl;
+//				std::cout << "DIST:(" << dist << std::endl;
+
+				minDist = dist;
+				hit.color = color;
+				hit.normal = normal;
+				hit.isValid = true;
+			}
 		}
 	}
 
 	if (minDist == FLT_MAX) {
-		return FALSE;
+		hit.isValid = false;
 	}
 
-	return true;
+	return hit;
 }
