@@ -7,8 +7,8 @@
 
 #include "Triangle.h"
 
-Triangle::Triangle(vec3& va, vec3& vb, vec3& vc, vec3& ambientTerm)
-: A(va), B(vb), C(vc), Object(ambientTerm)
+Triangle::Triangle(vec3& va, vec3& vb, vec3& vc)
+: Object(), A(va), B(vb), C(vc)
 {
 	N = normalize(cross(C-A,B-A)); // Compute the face normal
 	AN = vec3(0.0f, 0.0f, 0.0f);
@@ -20,8 +20,8 @@ Triangle::Triangle(vec3& va, vec3& vb, vec3& vc, vec3& ambientTerm)
 //				 (GLfloat) rand() / (GLfloat) RAND_MAX);
 }
 
-Triangle::Triangle(vec3& va, vec3& vb, vec3& vc, vec3& vaNorm, vec3& vbNorm, vec3& vcNorm, vec3& ambientTerm)
-: A(va), B(vb), C(vc), AN(vaNorm), BN(vbNorm), CN(vcNorm), Object(ambientTerm)
+Triangle::Triangle(vec3& va, vec3& vb, vec3& vc, vec3& vaNorm, vec3& vbNorm, vec3& vcNorm)
+: Object(), A(va), B(vb), C(vc), AN(vaNorm), BN(vbNorm), CN(vcNorm)
 {
 	N = normalize(cross(C-A,B-A)); // Compute the face normal
 }
@@ -145,7 +145,7 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& normal, vec3& color)
 	if ( (beta >= 0) && (gamma >= 0) && (beta + gamma < 1) ){
 		dist = t;
 		normal = N;
-		color = this->ambientColor;
+		color = this->ambientVal();
 		return true;
 	}
 
@@ -205,7 +205,7 @@ bool Triangle::__iRay2(Ray &r, GLfloat &dist, glm::vec3& normal, vec3& color)
 	if (alpha >= 0 && alpha <= 1 && beta >= 0 && beta <= 1 && gamma >= 0 && gamma <= 1) {
 		dist = t;
 		normal = this->N;
-		color = this->ambientColor;
+		color = this->ambientVal();
 		return true;
 	}
 

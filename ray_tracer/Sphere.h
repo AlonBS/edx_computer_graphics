@@ -26,8 +26,8 @@ private:
 
 public:
 
-	Sphere(const glm::vec3 & center, GLfloat &radius, vec3& ambientColor)
-	: center(center), radius(radius), Object(ambientColor)
+	Sphere(const glm::vec3 & center, GLfloat &radius)
+	: Object(), center(center), radius(radius)
 	{
 
 	}

@@ -14,6 +14,7 @@
 #include <fstream>
 #include <sstream>
 #include <set>
+#include <stack>
 
 using namespace std;
 
@@ -45,8 +46,6 @@ public:
 
 private:
 
-	static bool readValues(std::stringstream &s, const int numValues, GLfloat *values);
-
 
 	static set<string> general;
 	static string 	   camera;
@@ -54,6 +53,8 @@ private:
 	static set<string> transformations;
 	static set<string> lights;
 	static set<string> materials;
+
+	static stack<mat4> transformsStack;
 
 	static bool inSet(set<string> &, string&);
 
@@ -66,6 +67,9 @@ private:
 
 	static CommandType identifyCommand(std::string &);
 
+	static void rightMultiply(const mat4 & M, stack<mat4> &transfstack);
+	static bool readValues(std::stringstream &s, const int numValues, GLfloat *values);
+
 
 	static void handleGeneralCommand(stringstream&, string&);
 	static void handleCameraCommand(stringstream&, string&);
@@ -76,6 +80,10 @@ private:
 
 
 	static vec3 ambient;
+	static vec3 diffuse;
+	static vec3 specular;
+	static vec3 emission;
+	static GLfloat shininess;
 	static GLfloat values[MAX_POSSIBLE_VALUES];
 
 	static RenderInfo renderInfo;

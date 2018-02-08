@@ -26,8 +26,8 @@ private:
 
 public:
 
-	Triangle(vec3& va, vec3& vb, vec3& vc, vec3& ambientColor);
-	Triangle(vec3& va, vec3& vb, vec3& vc, vec3& vaNorm, vec3& vbNorm, vec3& vcNorm, vec3& ambientColor);
+	Triangle(vec3& va, vec3& vb, vec3& vc);
+	Triangle(vec3& va, vec3& vb, vec3& vc, vec3& vaNorm, vec3& vbNorm, vec3& vcNorm);
 
 	virtual ~Triangle();
 

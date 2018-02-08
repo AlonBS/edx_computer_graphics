@@ -16,23 +16,38 @@ using namespace glm;
 
 class Object {
 
+private:
+
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
+	vec3 emission;
+	GLfloat shininess;
+
+	mat4x4 transform;
+
 protected:
 
-	vec3 ambientColor;
-
-	//vec3& ambientColor() { return ambientColor; }
 
 public:
 
 
-	Object(vec3& ambientC):ambientColor(ambientC) {}
-	virtual ~Object() {}
+	Object();
+	virtual ~Object();
 
 	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& normal, vec3& color) = 0;
 
 	friend std::ostream& operator<< (std::ostream& out, const Object & obj);
 
 	virtual const void print() const = 0;
+
+	vec3& ambientVal () { return ambient; }
+	vec3& diffuseVal () { return diffuse; }
+	vec3& specularVal() { return specular; }
+	vec3& emissionVal() { return emission; }
+	GLfloat& shininessVal() { return shininess; }
+
+	mat4x4& transformMat() { return transform; }
 
 
 protected:

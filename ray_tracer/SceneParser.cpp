@@ -25,8 +25,6 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <deque>
-#include <stack>
 #include <set>
 #include <GL/glew.h>
 #include <GL/glut.h>
@@ -36,6 +34,9 @@
 #include "Object.h"
 #include "Sphere.h"
 #include "Triangle.h"
+
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 using namespace std;
 
@@ -96,9 +97,15 @@ set<string> SceneParser::lights = {Commands.directional, Commands.point, Command
 set<string> SceneParser::materials = {Commands.ambient, Commands.diffuse, Commands.specular, Commands.shininess, Commands.emission};
 
 
-vec3 SceneParser::ambient = vec3(0.2f, 0.2f, 0.2f);
+vec3 SceneParser::ambient  = vec3(0.2f, 0.2f, 0.2f);
+vec3 SceneParser::diffuse  = vec3(0.0f, 0.0f, 0.0f);
+vec3 SceneParser::specular = vec3(0.0f, 0.0f, 0.0f);
+vec3 SceneParser::emission = vec3(0.0f, 0.0f, 0.0f);
+GLfloat SceneParser::shininess = 0.0f;
 GLfloat SceneParser::values[MAX_POSSIBLE_VALUES] = {};
 RenderInfo SceneParser::renderInfo = {};
+
+stack<mat4> SceneParser::transformsStack;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,7 +118,7 @@ SceneParser::inSet(set<string>& set, string& cmd)
 bool
 SceneParser::isGeneralCommand(std::string& cmd)
 {
-	return SceneParser::inSet(SceneParser::general, cmd);
+	return inSet(general, cmd);
 }
 
 bool
@@ -122,43 +129,43 @@ SceneParser::isCameraCommand(std::string& cmd)
 bool
 SceneParser::isGeometryCommand(std::string& cmd)
 {
-	return SceneParser::inSet(SceneParser::geometry, cmd);
+	return inSet(geometry, cmd);
 }
 bool
 SceneParser::isTransformationsCommand(std::string& cmd)
 {
-	return SceneParser::inSet(SceneParser::transformations, cmd);
+	return inSet(transformations, cmd);
 }
 bool
 SceneParser::isLightsCommand(std::string& cmd)
 {
-	return SceneParser::inSet(SceneParser::lights, cmd);
+	return inSet(lights, cmd);
 }
 bool
 SceneParser::isMaterialsCommand(std::string& cmd)
 {
-	return SceneParser::inSet(SceneParser::materials, cmd);
+	return inSet(materials, cmd);
 }
 
 CommandType
 SceneParser::identifyCommand(std::string & cmd)
 {
-	if (SceneParser::isGeneralCommand(cmd)) {
+	if (isGeneralCommand(cmd)) {
 		return GENERAL;
 	}
-	else if (SceneParser::isCameraCommand(cmd)) {
+	else if (isCameraCommand(cmd)) {
 		return CAMERA;
 	}
-	else if (SceneParser::isGeometryCommand(cmd)) {
+	else if (isGeometryCommand(cmd)) {
 		return GEOMETRY;
 	}
-	else if (SceneParser::isTransformationsCommand(cmd)) {
+	else if (isTransformationsCommand(cmd)) {
 		return TRANSFORMATIONS;
 	}
-	else if (SceneParser::isLightsCommand(cmd)) {
+	else if (isLightsCommand(cmd)) {
 		return LIGHTS;
 	}
-	else if (SceneParser::isMaterialsCommand(cmd)) {
+	else if (isMaterialsCommand(cmd)) {
 		return MATERIALS;
 	}
 	return UNKNOWN_COMMAND;
@@ -182,11 +189,13 @@ SceneParser::identifyCommand(std::string & cmd)
 //	for (int i = 0; i < 4; i++) values[i] = newval[i];
 //}
 //
-//void rightmultiply(const mat4 & M, stack<mat4> &transfstack)
-//{
-//	mat4 &T = transfstack.top();
-//	T = T * M;
-//}
+void
+rightMultiply(const mat4 & M, stack<mat4> &transfstack)
+{
+	mat4 &T = transfstack.top();
+	T = T * M;
+
+}
 
 bool
 SceneParser::readValues(stringstream &s, const int numOfVals, GLfloat* values)
@@ -238,27 +247,27 @@ SceneParser::readFile(const char* fileName)
 		CommandType command = SceneParser::identifyCommand(cmd);
 		switch (command) {
 		case GENERAL:
-			SceneParser::handleGeneralCommand(s, cmd);
+			handleGeneralCommand(s, cmd);
 			break;
 
 		case CAMERA:
-			SceneParser::handleCameraCommand(s, cmd);
+			handleCameraCommand(s, cmd);
 			break;
 
 		case GEOMETRY:
-			SceneParser::handleGeometryCommand(s, cmd);
+			handleGeometryCommand(s, cmd);
 			break;
 
 		case TRANSFORMATIONS:
-			SceneParser::handleTransformationsCommand(s, cmd);
+			handleTransformationsCommand(s, cmd);
 			break;
 
 		case LIGHTS:
-			SceneParser::handleLightsCommand(s, cmd);
+			handleLightsCommand(s, cmd);
 			break;
 
 		case MATERIALS:
-			SceneParser::handleMaterialsCommand(s, cmd);
+			handleMaterialsCommand(s, cmd);
 			break;
 
 		case UNKNOWN_COMMAND:
@@ -283,7 +292,7 @@ SceneParser::handleGeneralCommand(stringstream& s, string& cmd)
 {
 	if (cmd == Commands.size) {
 
-		SceneParser::readValues(s, 2, values);
+		readValues(s, 2, values);
 		renderInfo.width = values[0];
 		renderInfo.height = values[1];
 	} else if (cmd == Commands.maxdepth) {
@@ -297,17 +306,19 @@ SceneParser::handleGeneralCommand(stringstream& s, string& cmd)
 
 }
 
+
 void
 SceneParser::handleCameraCommand(stringstream& s, string& cmd)
 {
 	readValues(s, 10, values);
-	glm::vec3 eyeInit = glm::vec3(values[0], values[1], values[2]);
-	glm::vec3 center  = glm::vec3(values[3], values[4], values[5]);
-	glm::vec3 upInit  = glm::vec3(values[6], values[7], values[8]);
+	vec3 eyeInit = glm::vec3(values[0], values[1], values[2]);
+	vec3 center  = glm::vec3(values[3], values[4], values[5]);
+	vec3 upInit  = glm::vec3(values[6], values[7], values[8]);
 	//upinit = Transform::upvector(upinit, eyeinit);
 	GLfloat fovy = values[9];
 	renderInfo.camera = new Camera(eyeInit, center, upInit, fovy, renderInfo.width, renderInfo.height);
 }
+
 
 void
 SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
@@ -316,7 +327,13 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 		readValues(s, 4, values);
 		vec3 center = glm::vec3(values[0], values[1], values[2]);
 		GLfloat radius = values[3];
-		Object *sphere = new Sphere(center, radius, ambient);
+		Object *sphere = new Sphere(center, radius);
+		sphere->ambientVal() = ambient;
+		sphere->specularVal() = specular;
+		sphere->diffuseVal() = diffuse;
+		sphere->emissionVal() = emission;
+		sphere->shininessVal() = shininess;
+		sphere->transformMat() = transformsStack.top();
 		renderInfo.scene.addObject(sphere);
 	}
 
@@ -344,9 +361,13 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 	else if (cmd == Commands.tri) {
 		readValues(s, 3, values);
 		Object *triangle = new Triangle(renderInfo.vertcies[values[0]],
-				renderInfo.vertcies[values[1]],
-				renderInfo.vertcies[values[2]],
-				ambient);
+										renderInfo.vertcies[values[1]],
+										renderInfo.vertcies[values[2]]);
+		triangle->ambientVal() = ambient;
+		triangle->specularVal() = specular;
+		triangle->diffuseVal() = diffuse;
+		triangle->emissionVal() = emission;
+		triangle->shininessVal() = shininess;
 		renderInfo.scene.addObject(triangle);
 	}
 
@@ -357,24 +378,84 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 				renderInfo.vertcies[values[2] * 2],
 				renderInfo.vertcies[values[0] * 2 - 1],
 				renderInfo.vertcies[values[1] * 2 - 1],
-				renderInfo.vertcies[values[2] * 2 - 1],
-				ambient);
+				renderInfo.vertcies[values[2] * 2 - 1]);
 		renderInfo.scene.addObject(triangle);
 	}
 }
-void SceneParser::handleTransformationsCommand(stringstream& s, string& cmd)
+
+
+void
+SceneParser::handleTransformationsCommand(stringstream& s, string& cmd)
+{
+	static bool firstTime = true;
+	if (firstTime) {
+		transformsStack.push(mat4(1.0));
+		firstTime = false;
+	}
+
+	if (cmd == Commands.translate) {
+		readValues(s,3,values);
+		transformsStack.top() = glm::translate(transformsStack.top(), vec3(values[0], values[1], values[2]));
+	}
+
+	else if (cmd == Commands.scale) {
+		readValues(s,3,values);
+		transformsStack.top() = glm::scale(transformsStack.top(), vec3(values[0], values[1], values[2]));
+	}
+
+	else if (cmd == Commands.rotate) {
+		readValues(s,4,values);
+		transformsStack.top() = glm::rotate(transformsStack.top(), values[3], vec3(values[0], values[1], values[2]));
+	}
+
+	else if (cmd == Commands.pushTransform) {
+		transformsStack.push(transformsStack.top());
+	}
+
+	else if (cmd == Commands.popTransform) {
+		if (transformsStack.size() <= 1) {
+			cerr << "Stack has no elements.  Cannot Pop\n";
+		} else {
+			transformsStack.pop();
+		}
+	}
+}
+
+
+void
+SceneParser::handleLightsCommand(stringstream& s, string& cmd)
 {
 
 }
-void SceneParser::handleLightsCommand(stringstream& s, string& cmd)
-{
 
-}
-void SceneParser::handleMaterialsCommand(stringstream& s, string& cmd)
+
+void
+SceneParser::handleMaterialsCommand(stringstream& s, string& cmd)
 {
 	if (cmd == Commands.ambient) {
 		readValues(s, 3, values);
 		ambient = vec3(values[0], values[1], values[2]);
+	}
+
+	else if (cmd == Commands.diffuse) {
+		readValues(s, 3, values);
+		diffuse = vec3(values[0], values[1], values[2]);
+
+	}
+
+	else if (cmd == Commands.specular) {
+		readValues(s, 3, values);
+		specular = vec3(values[0], values[1], values[2]);
+	}
+
+	else if (cmd == Commands.emission) {
+		readValues(s, 3, values);
+		emission = vec3(values[0], values[1], values[2]);
+	}
+
+	else if (cmd == Commands.shininess) {
+		readValues(s, 1, values);
+		shininess = values[0];
 	}
 }
 
@@ -434,39 +515,7 @@ void SceneParser::handleMaterialsCommand(stringstream& s, string& cmd)
 			// the skeleton, also as a hint of how to do the more complex ones.
 			// Note that no transforms/stacks are applied to the colors.
 
-			else if (cmd == "ambient") {
-				validinput = readvals(s, 4, values); // colors
-				if (validinput) {
-					for (i = 0; i < 4; i++) {
-						ambient[i] = values[i];
-					}
-				}
-			} else if (cmd == "diffuse") {
-				validinput = readvals(s, 4, values);
-				if (validinput) {
-					for (i = 0; i < 4; i++) {
-						diffuse[i] = values[i];
-					}
-				}
-			} else if (cmd == "specular") {
-				validinput = readvals(s, 4, values);
-				if (validinput) {
-					for (i = 0; i < 4; i++) {
-						specular[i] = values[i];
-					}
-				}
-			} else if (cmd == "emission") {
-				validinput = readvals(s, 4, values);
-				if (validinput) {
-					for (i = 0; i < 4; i++) {
-						emission[i] = values[i];
-					}
-				}
-			} else if (cmd == "shininess") {
-				validinput = readvals(s, 1, values);
-				if (validinput) {
-					shininess = values[0];
-				}
+
 			} else if (cmd == "size") {
 				validinput = readvals(s,2,values);
 				if (validinput) {

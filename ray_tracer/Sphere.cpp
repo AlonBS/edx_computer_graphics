@@ -66,7 +66,7 @@ bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& normal, vec3& color)
 
 	intersection_point = r.origin + x * r.direction;
 	normal = glm::normalize(intersection_point - center);
-	color = ambientColor;
+	color = this->ambientVal();
 	return true;
 }
 
