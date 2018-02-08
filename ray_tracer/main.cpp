@@ -17,8 +17,7 @@ int main()
 	cout << "Ray Tracer working..." << endl;
 
 	string fileName = "./scenes/scene2.test";
-	RenderInfo renderInfo;
-	readFile(fileName.c_str(), renderInfo);
+	RenderInfo renderInfo = SceneParser::readFile(fileName.c_str());
 
 	renderInfo.camera->print();
 

@@ -27,6 +27,7 @@
 #include <sstream>
 #include <deque>
 #include <stack>
+#include <set>
 #include <GL/glew.h>
 #include <GL/glut.h>
 
@@ -38,7 +39,8 @@
 
 using namespace std;
 
-#define MAX_POSSIBLE_VALUES 10
+
+
 
 struct Commands {
 
@@ -46,6 +48,8 @@ struct Commands {
 	const string size          = "size";
 	const string maxdepth      = "maxdepth";
 	const string output        = "output";
+
+	// Camera
 	const string camera        = "camera";
 
 	// Geometry and objects
@@ -68,15 +72,100 @@ struct Commands {
 	const string directional   = "directional";
 	const string point         = "point";
 	const string attenuation   = "attenuation";
-	const string ambient       = "ambient";
 
 	// Materials
-	const string diffue        = "diffuse";
+	const string ambient       = "ambient"; // As this is per object - and not per scene
+	const string diffuse       = "diffuse";
 	const string specular      = "specular";
 	const string shininess     = "shininess";
 	const string emission      = "emission";
 
 }Commands;
+
+
+/////////////////////////////////////INIT STATIC MEMBERS ///////////////////////////////////////////////////
+
+set<string> SceneParser::general = {Commands.size, Commands.maxdepth, Commands.output};
+string 	    SceneParser::camera = Commands.camera;
+set<string> SceneParser::geometry = {Commands.sphere, Commands.maxverts, Commands.maxvertnorms,
+									 Commands.vertex, Commands.vertexnormal, Commands.tri,
+									 Commands.trinormal};
+set<string> SceneParser::transformations = {Commands.translate, Commands.rotate, Commands.scale,
+											Commands.pushTransform, Commands.popTransform};
+set<string> SceneParser::lights = {Commands.directional, Commands.point, Commands.attenuation};
+set<string> SceneParser::materials = {Commands.ambient, Commands.diffuse, Commands.specular, Commands.shininess, Commands.emission};
+
+
+vec3 SceneParser::ambient = vec3(0.2f, 0.2f, 0.2f);
+GLfloat SceneParser::values[MAX_POSSIBLE_VALUES] = {};
+RenderInfo SceneParser::renderInfo = {};
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool
+SceneParser::inSet(set<string>& set, string& cmd)
+{
+	return set.find(cmd) != set.end();
+}
+bool
+SceneParser::isGeneralCommand(std::string& cmd)
+{
+	return SceneParser::inSet(SceneParser::general, cmd);
+}
+
+bool
+SceneParser::isCameraCommand(std::string& cmd)
+{
+	return cmd == SceneParser::camera;
+}
+bool
+SceneParser::isGeometryCommand(std::string& cmd)
+{
+	return SceneParser::inSet(SceneParser::geometry, cmd);
+}
+bool
+SceneParser::isTransformationsCommand(std::string& cmd)
+{
+	return SceneParser::inSet(SceneParser::transformations, cmd);
+}
+bool
+SceneParser::isLightsCommand(std::string& cmd)
+{
+	return SceneParser::inSet(SceneParser::lights, cmd);
+}
+bool
+SceneParser::isMaterialsCommand(std::string& cmd)
+{
+	return SceneParser::inSet(SceneParser::materials, cmd);
+}
+
+CommandType
+SceneParser::identifyCommand(std::string & cmd)
+{
+	if (SceneParser::isGeneralCommand(cmd)) {
+		return GENERAL;
+	}
+	else if (SceneParser::isCameraCommand(cmd)) {
+		return CAMERA;
+	}
+	else if (SceneParser::isGeometryCommand(cmd)) {
+		return GEOMETRY;
+	}
+	else if (SceneParser::isTransformationsCommand(cmd)) {
+		return TRANSFORMATIONS;
+	}
+	else if (SceneParser::isLightsCommand(cmd)) {
+		return LIGHTS;
+	}
+	else if (SceneParser::isMaterialsCommand(cmd)) {
+		return MATERIALS;
+	}
+	return UNKNOWN_COMMAND;
+}
+
+
+
 
 //cout << Commands::camera;
 
@@ -100,7 +189,7 @@ struct Commands {
 //}
 
 bool
-readValues(stringstream &s, const int numOfVals, GLfloat* values)
+SceneParser::readValues(stringstream &s, const int numOfVals, GLfloat* values)
 {
 	for (int i = 0; i < numOfVals; ++i) {
 		s >> values[i];
@@ -114,14 +203,11 @@ readValues(stringstream &s, const int numOfVals, GLfloat* values)
 
 
 
-void
-readFile(const char* fileName, RenderInfo& renderInfo)
+RenderInfo
+SceneParser::readFile(const char* fileName)
 {
 	string str, cmd;
 	ifstream in;
-	vec3 ambient = vec3(0.2f, 0.2f, 0.2f);
-	GLfloat values[MAX_POSSIBLE_VALUES] = {};
-
 
 	in.open(fileName);
 	if (!in.is_open()) {
@@ -149,94 +235,151 @@ readFile(const char* fileName, RenderInfo& renderInfo)
 		//			const string output        = "output";
 		//			const string camera        = "camera";
 
-		if (cmd == Commands.size) {
+		CommandType command = SceneParser::identifyCommand(cmd);
+		switch (command) {
+		case GENERAL:
+			SceneParser::handleGeneralCommand(s, cmd);
+			break;
 
-			readValues(s, 2, values);
-			renderInfo.width = values[0];
-			renderInfo.height = values[1];
-		} else if (cmd == Commands.maxdepth) {
+		case CAMERA:
+			SceneParser::handleCameraCommand(s, cmd);
+			break;
 
-			readValues(s, 1, values);
-			renderInfo.maxDepth = values[0];
+		case GEOMETRY:
+			SceneParser::handleGeometryCommand(s, cmd);
+			break;
 
-		} else if (cmd == Commands.output) {
-			s >> renderInfo.outputFile;
-		} else if (cmd == Commands.camera) {
+		case TRANSFORMATIONS:
+			SceneParser::handleTransformationsCommand(s, cmd);
+			break;
 
-			readValues(s, 10, values);
-			glm::vec3 eyeInit = glm::vec3(values[0], values[1], values[2]);
-			glm::vec3 center  = glm::vec3(values[3], values[4], values[5]);
-			glm::vec3 upInit  = glm::vec3(values[6], values[7], values[8]);
-			//upinit = Transform::upvector(upinit, eyeinit);
-			GLfloat fovy = values[9];
-			renderInfo.camera = new Camera(eyeInit, center, upInit, fovy, renderInfo.width, renderInfo.height);
+		case LIGHTS:
+			SceneParser::handleLightsCommand(s, cmd);
+			break;
+
+		case MATERIALS:
+			SceneParser::handleMaterialsCommand(s, cmd);
+			break;
+
+		case UNKNOWN_COMMAND:
+		default:
+
+			cout << "Unknown command: " << cmd << ".\n Skipped. " << endl;
+			break;
 		}
-
-		else if (cmd == Commands.sphere) {
-			readValues(s, 4, values);
-			vec3 center = glm::vec3(values[0], values[1], values[2]);
-			GLfloat radius = values[3];
-			Object *sphere = new Sphere(center, radius, ambient);
-			renderInfo.scene.addObject(sphere);
-		}
-
-		else if (cmd == Commands.maxverts) {
-			// New object is comming
-			renderInfo.vertcies.clear();
-		}
-
-		else if (cmd == Commands.maxvertnorms) {
-			// New Object is coming
-			renderInfo.vertciesNormals.clear();
-		}
-
-		else if (cmd == Commands.vertex) {
-			readValues(s, 3, values);
-			renderInfo.vertcies.push_back(vec3(values[0], values[1], values[2]));
-		}
-
-		else if (cmd == Commands.vertexnormal) {
-			readValues(s, 6, values);
-			renderInfo.vertciesNormals.push_back(vec3(values[0], values[1], values[2]));
-			renderInfo.vertciesNormals.push_back(vec3(values[3], values[4], values[5]));
-		}
-
-		else if (cmd == Commands.tri) {
-			readValues(s, 3, values);
-			Object *triangle = new Triangle(renderInfo.vertcies[values[0]],
-											renderInfo.vertcies[values[1]],
-											renderInfo.vertcies[values[2]],
-											ambient);
-			renderInfo.scene.addObject(triangle);
-		}
-
-		else if (cmd == Commands.trinormal) {
-			readValues(s, 3, values);
-			Object *triangle = new Triangle(renderInfo.vertcies[values[0] * 2],
-											renderInfo.vertcies[values[1] * 2],
-											renderInfo.vertcies[values[2] * 2],
-											renderInfo.vertcies[values[0] * 2 - 1],
-											renderInfo.vertcies[values[1] * 2 - 1],
-											renderInfo.vertcies[values[2] * 2 - 1],
-											ambient);
-			renderInfo.scene.addObject(triangle);
-		}
-
-		/* Lights */
-
-		else if (cmd == Commands.ambient) {
-			readValues(s, 3, values);
-			ambient = vec3(values[0], values[1], values[2]);
-		}
-
-		/* Material */
-
-
 
 	}
 
 	in.close();
+
+	return SceneParser::renderInfo;
 }
+
+
+
+
+void
+SceneParser::handleGeneralCommand(stringstream& s, string& cmd)
+{
+	if (cmd == Commands.size) {
+
+		SceneParser::readValues(s, 2, values);
+		renderInfo.width = values[0];
+		renderInfo.height = values[1];
+	} else if (cmd == Commands.maxdepth) {
+
+		readValues(s, 1, values);
+		renderInfo.maxDepth = values[0];
+
+	} else if (cmd == Commands.output) {
+		s >> renderInfo.outputFile;
+	}
+
+}
+
+void
+SceneParser::handleCameraCommand(stringstream& s, string& cmd)
+{
+	readValues(s, 10, values);
+	glm::vec3 eyeInit = glm::vec3(values[0], values[1], values[2]);
+	glm::vec3 center  = glm::vec3(values[3], values[4], values[5]);
+	glm::vec3 upInit  = glm::vec3(values[6], values[7], values[8]);
+	//upinit = Transform::upvector(upinit, eyeinit);
+	GLfloat fovy = values[9];
+	renderInfo.camera = new Camera(eyeInit, center, upInit, fovy, renderInfo.width, renderInfo.height);
+}
+
+void
+SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
+{
+	if (cmd == Commands.sphere) {
+		readValues(s, 4, values);
+		vec3 center = glm::vec3(values[0], values[1], values[2]);
+		GLfloat radius = values[3];
+		Object *sphere = new Sphere(center, radius, ambient);
+		renderInfo.scene.addObject(sphere);
+	}
+
+	else if (cmd == Commands.maxverts) {
+		// New object is coming
+		renderInfo.vertcies.clear();
+	}
+
+	else if (cmd == Commands.maxvertnorms) {
+		// New Object is coming
+		renderInfo.vertciesNormals.clear();
+	}
+
+	else if (cmd == Commands.vertex) {
+		readValues(s, 3, values);
+		renderInfo.vertcies.push_back(vec3(values[0], values[1], values[2]));
+	}
+
+	else if (cmd == Commands.vertexnormal) {
+		readValues(s, 6, values);
+		renderInfo.vertciesNormals.push_back(vec3(values[0], values[1], values[2]));
+		renderInfo.vertciesNormals.push_back(vec3(values[3], values[4], values[5]));
+	}
+
+	else if (cmd == Commands.tri) {
+		readValues(s, 3, values);
+		Object *triangle = new Triangle(renderInfo.vertcies[values[0]],
+				renderInfo.vertcies[values[1]],
+				renderInfo.vertcies[values[2]],
+				ambient);
+		renderInfo.scene.addObject(triangle);
+	}
+
+	else if (cmd == Commands.trinormal) {
+		readValues(s, 3, values);
+		Object *triangle = new Triangle(renderInfo.vertcies[values[0] * 2],
+				renderInfo.vertcies[values[1] * 2],
+				renderInfo.vertcies[values[2] * 2],
+				renderInfo.vertcies[values[0] * 2 - 1],
+				renderInfo.vertcies[values[1] * 2 - 1],
+				renderInfo.vertcies[values[2] * 2 - 1],
+				ambient);
+		renderInfo.scene.addObject(triangle);
+	}
+}
+void SceneParser::handleTransformationsCommand(stringstream& s, string& cmd)
+{
+
+}
+void SceneParser::handleLightsCommand(stringstream& s, string& cmd)
+{
+
+}
+void SceneParser::handleMaterialsCommand(stringstream& s, string& cmd)
+{
+	if (cmd == Commands.ambient) {
+		readValues(s, 3, values);
+		ambient = vec3(values[0], values[1], values[2]);
+	}
+}
+
+
+
 
 
 	/*
@@ -439,3 +582,5 @@ readFile(const char* fileName, RenderInfo& renderInfo)
 }
 
 	 */
+
+
