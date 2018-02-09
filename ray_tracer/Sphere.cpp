@@ -64,11 +64,11 @@ bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& normal, vec3& color)
 		return false;
 	}
 
-	dist = x ;
 
-	//intersection_point = tr.origin + x * tr.direction;
-	intersection_point = tr.origin + dist * tr.direction;
+	intersection_point = tr.origin + x * tr.direction;
 	intersection_point = vec3(this->transformMat() * vec4(intersection_point, 1.0f));
+	// The distance is the length of the original intersection point with the origin of the non transformed ray.
+	dist = length(intersection_point - r.origin);
 
 	//mat4(transpose(inverse
 	vec4 n = vec4(intersection_point - center, 0.0f);

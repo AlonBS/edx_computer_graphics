@@ -420,7 +420,7 @@ SceneParser::handleTransformationsCommand(stringstream& s, string& cmd)
 
 	else if (cmd == Commands.rotate) {
 		readValues(s,4,values);
-		transformsStack.top() = glm::rotate(transformsStack.top(), (values[3]), vec3(values[0], values[1], values[2]));
+		transformsStack.top() = glm::rotate(transformsStack.top(), radians(values[3]), vec3(values[0], values[1], values[2]));
 	}
 
 	else if (cmd == Commands.pushTransform) {
