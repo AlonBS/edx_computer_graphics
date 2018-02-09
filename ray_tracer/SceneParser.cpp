@@ -225,16 +225,16 @@ SceneParser::readFile(const char* fileName)
 		std::cout << "Given file name was: " << fileName << std::endl;
 	}
 
+	transformsStack.push(mat4(1.0));
+
 	while (in) {
 
 		getline(in, str);
+
 		// Ignore comments and white spaces of any kind
-		if ((str.find_first_of(" \t\r\n") == string::npos) || (str[0] == '#')) {
-			//cout << str << endl;;
+		if ( !((str.find_first_not_of(" \t\r\n") != string::npos) && (str[0] != '#') ))  {
 			continue;
 		}
-
-		cout << str << endl;
 
 		stringstream s(str);
 		s >> cmd;
@@ -317,6 +317,7 @@ SceneParser::handleCameraCommand(stringstream& s, string& cmd)
 	//upinit = Transform::upvector(upinit, eyeinit);
 	GLfloat fovy = values[9];
 	renderInfo.camera = new Camera(eyeInit, center, upInit, fovy, renderInfo.width, renderInfo.height);
+	//transformsStack.top() = lookAt(eyeInit,center,upInit);
 }
 
 
@@ -334,6 +335,17 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 		sphere->emissionVal() = emission;
 		sphere->shininessVal() = shininess;
 		sphere->transformMat() = transformsStack.top();
+
+		for (int i = 0 ; i < 4 ; ++i) {
+			for (int j = 0 ; j < 4 ; j++) {
+				cout << transformsStack.top()[i][j] << " ";
+			}
+			cout << endl;
+		}
+
+
+		sphere->invTransformMat() = inverse(sphere->transformMat());
+		sphere->invTransposeTransMat() = transpose(sphere->invTransformMat());
 		renderInfo.scene.addObject(sphere);
 	}
 
@@ -360,14 +372,23 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 
 	else if (cmd == Commands.tri) {
 		readValues(s, 3, values);
-		Object *triangle = new Triangle(renderInfo.vertcies[values[0]],
-										renderInfo.vertcies[values[1]],
-										renderInfo.vertcies[values[2]]);
+		vec3 A = vec3 (transformsStack.top() * vec4(renderInfo.vertcies[values[0]], 1.0f));
+		vec3 B = vec3 (transformsStack.top() * vec4(renderInfo.vertcies[values[1]], 1.0f));
+		vec3 C = vec3 (transformsStack.top() * vec4(renderInfo.vertcies[values[2]], 1.0f));
+		Object *triangle = new Triangle(A, B, C);
+
+//		Object *triangle = new Triangle(renderInfo.vertcies[values[0]],
+//												renderInfo.vertcies[values[1]],
+//												renderInfo.vertcies[values[2]]);
+
 		triangle->ambientVal() = ambient;
 		triangle->specularVal() = specular;
 		triangle->diffuseVal() = diffuse;
 		triangle->emissionVal() = emission;
 		triangle->shininessVal() = shininess;
+		triangle->transformMat() = transformsStack.top();
+		triangle->invTransformMat() = inverse(triangle->transformMat());
+		triangle->invTransposeTransMat() = transpose(triangle->invTransformMat());
 		renderInfo.scene.addObject(triangle);
 	}
 
@@ -387,12 +408,6 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 void
 SceneParser::handleTransformationsCommand(stringstream& s, string& cmd)
 {
-	static bool firstTime = true;
-	if (firstTime) {
-		transformsStack.push(mat4(1.0));
-		firstTime = false;
-	}
-
 	if (cmd == Commands.translate) {
 		readValues(s,3,values);
 		transformsStack.top() = glm::translate(transformsStack.top(), vec3(values[0], values[1], values[2]));
@@ -405,7 +420,7 @@ SceneParser::handleTransformationsCommand(stringstream& s, string& cmd)
 
 	else if (cmd == Commands.rotate) {
 		readValues(s,4,values);
-		transformsStack.top() = glm::rotate(transformsStack.top(), values[3], vec3(values[0], values[1], values[2]));
+		transformsStack.top() = glm::rotate(transformsStack.top(), (values[3]), vec3(values[0], values[1], values[2]));
 	}
 
 	else if (cmd == Commands.pushTransform) {

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <FreeImage.h>
 //
+#include "Object.h"
 #include "SceneParser.h"
 #include "Camera.h"
 #include "RenderInfo.h"
@@ -16,10 +17,42 @@ int main()
 {
 	cout << "Ray Tracer working..." << endl;
 
-	string fileName = "./scenes/scene0b.test";
+	string fileName = "./scenes/scene3.test";
 	RenderInfo renderInfo = SceneParser::readFile(fileName.c_str());
 
 	renderInfo.camera->print();
+
+//	for (Object* o : renderInfo.scene.getObjects()) {
+//
+//		for (int i = 0 ; i < 4 ; ++i) {
+//			for (int j = 0 ; j < 4 ; j++) {
+//				cout << o->transformMat()[i][j] << " ";
+//			}
+//			cout << endl;
+//		}
+//
+//		cout << endl;
+//
+//		for (int i = 0 ; i < 4 ; ++i) {
+//			for (int j = 0 ; j < 4 ; j++) {
+//				cout << o->invTransformMat()[i][j] << " ";
+//			}
+//			cout << endl;
+//		}
+//
+//		cout << endl;
+//
+//		mat4 id = o->transformMat() * o->invTransformMat();
+//		for (int i = 0 ; i < 4 ; ++i) {
+//			for (int j = 0 ; j < 4 ; j++) {
+//				cout << id[i][j] << " ";
+//			}
+//			cout << endl;
+//		}
+//
+//
+//
+//	}
 
 	RayTracer rayTracer;
 	Image *img = rayTracer.rayTrace(*renderInfo.camera, renderInfo.scene, renderInfo.width, renderInfo.height);
@@ -33,6 +66,25 @@ int main()
 	cout << "Done " << endl;
 	return 0;
 }
+
+
+
+//#include <glm/glm.hpp>
+//#include <glm/gtc/matrix_transform.hpp>
+
+//int main()
+//{
+//	vec3 o1 = vec3(0.0, 0.0, 0.0);
+//	vec3 d1 = vec3(1.0, -1.0, 1.0);
+//	Ray r1(o1, d1);
+//
+//	glm::mat4 translate = glm::translate(glm::mat4(1.0f), vec3(5.0, 0.0, 0.0));
+//
+//	Ray r2 = translate * r1;
+//	r1.print();
+//	r2.print();
+//
+//}
 
 //
 //#define WIDTH 200

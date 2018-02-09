@@ -21,14 +21,16 @@ bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& normal, vec3& color)
 	//  B: 2 * d * (o - c)
 	// 	C: (o -c)^2 - r^2
 
+	Ray tr = this->invTransformMat() * r; // Transformed ray
 	GLfloat A, B, C;
 	GLfloat discriminant, disc_root;
 	GLfloat x1, x2, x;
 	vec3    intersection_point;
 
-	A = glm::dot(r.direction, r.direction);
-	B = 2 * glm::dot(r.direction, (r.origin - center));
-	C = glm::dot((r.origin - center), (r.origin - center)) - (radius * radius);
+
+	A = glm::dot(tr.direction, tr.direction);
+	B = 2 * glm::dot(tr.direction, (tr.origin - center));
+	C = glm::dot((tr.origin - center), (tr.origin - center)) - (radius * radius);
 
 	discriminant = B*B - 4*A*C;
 	if (discriminant < 0) {
@@ -40,7 +42,7 @@ bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& normal, vec3& color)
 	x1 = (-B + disc_root) / (2*A);
 	x2 = (-B - disc_root) / (2*A);
 
-	if (x1 - x2 < EPSILON) {
+	if (abs(x1 - x2) < EPSILON) {
 		// same solution
 		x = x1;
 	}
@@ -54,9 +56,7 @@ bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& normal, vec3& color)
 		x = glm::max(x1, x2);
 	}
 
-	dist = x;
-
-	if (dist < EPSILON) {
+	if (x < EPSILON) {
 		// If dist is a negative values (accounting for floating point errors)
 		// then both solutions were negative. Meaning we have to go back from the origin of
 		// the ray (against its direction) to the intersection point - which means of course that
@@ -64,8 +64,15 @@ bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& normal, vec3& color)
 		return false;
 	}
 
-	intersection_point = r.origin + x * r.direction;
-	normal = glm::normalize(intersection_point - center);
+	dist = x ;
+
+	//intersection_point = tr.origin + x * tr.direction;
+	intersection_point = tr.origin + dist * tr.direction;
+	intersection_point = vec3(this->transformMat() * vec4(intersection_point, 1.0f));
+
+	//mat4(transpose(inverse
+	vec4 n = vec4(intersection_point - center, 0.0f);
+	normal = normalize(vec3(this->invTransposeTransMat() * n));
 	color = this->ambientVal();
 	return true;
 }

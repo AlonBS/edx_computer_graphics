@@ -1,26 +1,34 @@
-size 500 500
-camera 0 -2 2 0 0 0 0 1 1 30.0
-pushTransform 
-translate 0 0 -5.2 
-# Teapot
-# Materials first 
-# Do all object transforms within a push/pop
-  pushTransform
-        translate 1.0 0 0.1 
-        rotate 1 0 0 50 
-        sphere 0.0 0.0 0.0 2
-  popTransform
+# Test Scene 1 
+# A simple quad viewed from different camera positions
 
-  pushTransform
-        scale 5.0 22 3.1 
-        sphere 3.0 2.0 0.0 0.5
-  popTransform
+size 640 480 
 
+# Now specify the camera.  This is what you should implement.
+# This file has 4 camera positions.  Render your scene for all 4.
+
+
+camera 0 0 4 0 0 0 0 1 0 30
+#camera 0 -3 3 0 0 0 0 1 0 30
+#camera -4 0 1 0 0 1 0 0 1 45
+#camera -4 -4 4 1 0 0 0 1 0 30
+
+
+ambient .9 .6 .1
+
+maxverts 4 
+vertex -1 -1 0 
+vertex +1 -1 0
+vertex +1 +1 0
+vertex -1 +1 0
+
+tri 0 1 2
+tri 0 2 3
+
+ambient .1 .2 .7
+pushTransform
+	translate 0 0 -1.8	
+	scale 2 1 1
+	
+	sphere 0.0 0.0 0 1
 popTransform
-
-#pushTransform 
-#translate 0 0 -15.8
-#scale 1 1 1 
-#teapot 2 
-#popTransform
 

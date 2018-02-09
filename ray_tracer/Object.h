@@ -25,6 +25,8 @@ private:
 	GLfloat shininess;
 
 	mat4x4 transform;
+	mat4x4 invTransform;	  // We compute it once, instead of each intersection test
+	mat4x4 invTransposeTrans; // We compute it once, instead of each intersection test
 
 protected:
 
@@ -48,6 +50,8 @@ public:
 	GLfloat& shininessVal() { return shininess; }
 
 	mat4x4& transformMat() { return transform; }
+	mat4x4& invTransformMat() { return invTransform; }
+	mat4x4& invTransposeTransMat() { return invTransposeTrans; }
 
 
 protected:

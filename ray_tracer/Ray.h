@@ -19,6 +19,8 @@ public:
 	Ray(glm::vec3& origin, glm::vec3& direction);
 	virtual ~Ray();
 
+	friend Ray operator* (const glm::mat4& M, const Ray& r);
+
 	const void print() const
 	{
 		std::cout << "O: (" << origin.x << "," << origin.y << "," << origin.z << ") |" ;
