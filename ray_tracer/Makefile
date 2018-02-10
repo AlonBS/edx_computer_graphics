@@ -14,7 +14,9 @@ SRCS      = main.cpp \
             SceneParser.cpp \
             Object.cpp \
             Sphere.cpp \
-            Triangle.cpp
+            Triangle.cpp \
+            Lights.cpp
+            
 	    
 
 OBJS      = $(SRCS:.cpp=.o)

@@ -18,6 +18,7 @@ typedef struct Intersection {
 
 	bool isValid;
 
+	vec3 point;
 	vec3 normal;
 	vec3 color;
 
@@ -35,6 +36,8 @@ public:
 private:
 
 	Intersection intersectScene(Scene & scene, Ray& ray);
+
+	vec3 computeLight(Scene & scene, Intersection& hit);
 
 };
 

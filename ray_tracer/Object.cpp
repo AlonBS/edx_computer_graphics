@@ -9,13 +9,16 @@
 
 Object::Object() {
 
-	ambient = vec3(0.0f, 0.0f, 0.0f);
-	diffuse = vec3(0.0f, 0.0f, 0.0f);
-	specular = vec3(0.0f, 0.0f, 0.0f);
-	emission = vec3(0.0f, 0.0f, 0.0f);
-	shininess = 0.0f;
+	_ambient = vec3(0.0f, 0.0f, 0.0f);
+	_diffuse = vec3(0.0f, 0.0f, 0.0f);
+	_specular = vec3(0.0f, 0.0f, 0.0f);
+	_emission = vec3(0.0f, 0.0f, 0.0f);
+	_shininess = 0.0f;
 
-	transform = mat4(1.0f);
+	_transform = mat4(1.0f);
+	_invTransform = mat4(1.0f);
+	_invTransposeTrans = mat3(1.0f);
+
 }
 
 Object::~Object() {

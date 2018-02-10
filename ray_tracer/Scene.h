@@ -10,6 +10,8 @@
 
 #include <vector>
 #include "Object.h"
+#include "Lights.h"
+
 
 
 
@@ -17,7 +19,14 @@ class Scene {
 
 private:
 
-	std::vector<Object*> objects;
+	std::vector<Object*> 	  		objects;
+	std::vector<PointLight*>  		pointLights;
+	std::vector<DirectionalLight*>  directionalLights;
+
+	// Attenuation values
+
+	Attenuation attenuation;
+
 
 
 
@@ -26,8 +35,18 @@ public:
 	virtual ~Scene();
 
 	void addObject(Object *obj) { objects.push_back(obj); }
+	void addPointLight(PointLight *light) { pointLights.push_back(light); }
+	void addDirectionalLight(DirectionalLight *light) { directionalLights.push_back(light); }
+
+	void setAttenuation(Attenuation& atten) { this->attenuation = atten; }
+
 
 	std::vector<Object*>& getObjects() { return objects; }
+	std::vector<PointLight*>& getPointLights() { return pointLights; }
+	std::vector<DirectionalLight*>& getDirectionalLights() { return directionalLights; }
+
+	Attenuation& getAttenuation() { return attenuation; }
+
 
 
 };

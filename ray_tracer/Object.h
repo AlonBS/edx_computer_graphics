@@ -12,21 +12,23 @@
 #include <cstdint>
 #include <GL/glew.h>
 
+#define EPSILON 0.000001f
+
 using namespace glm;
 
 class Object {
 
 private:
 
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
-	vec3 emission;
-	GLfloat shininess;
+	vec3 _ambient;
+	vec3 _diffuse;
+	vec3 _specular;
+	vec3 _emission;
+	GLfloat _shininess;
 
-	mat4x4 transform;
-	mat4x4 invTransform;	  // We compute it once, instead of each intersection test
-	mat4x4 invTransposeTrans; // We compute it once, instead of each intersection test
+	mat4 _transform;
+	mat4 _invTransform;	  	 // We compute it once, instead of each intersection test
+	mat3 _invTransposeTrans; // For normals transforms - notice 3x3
 
 protected:
 
@@ -37,26 +39,26 @@ public:
 	Object();
 	virtual ~Object();
 
-	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& normal, vec3& color) = 0;
+	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec3& color) = 0;
 
 	friend std::ostream& operator<< (std::ostream& out, const Object & obj);
 
 	virtual const void print() const = 0;
 
-	vec3& ambientVal () { return ambient; }
-	vec3& diffuseVal () { return diffuse; }
-	vec3& specularVal() { return specular; }
-	vec3& emissionVal() { return emission; }
-	GLfloat& shininessVal() { return shininess; }
+	vec3& ambient () { return _ambient; }
+	vec3& diffuse () { return _diffuse; }
+	vec3& specular() { return _specular; }
+	vec3& emission() { return _emission; }
+	GLfloat& shininess() { return _shininess; }
 
-	mat4x4& transformMat() { return transform; }
-	mat4x4& invTransformMat() { return invTransform; }
-	mat4x4& invTransposeTransMat() { return invTransposeTrans; }
+	mat4& transform() { return _transform; }
+	mat4& invTransform() { return _invTransform; }
+	mat3& invTransposeTrans() { return _invTransposeTrans; }
 
 
 protected:
 	const GLfloat INFINITE = FLT_MAX;
-	const GLfloat EPSILON = 0.000001f;
+
 };
 
 

@@ -16,7 +16,10 @@ public:
 
 	glm::vec3 origin;
 	glm::vec3 direction;
+	Ray();
 	Ray(glm::vec3& origin, glm::vec3& direction);
+	Ray(const Ray& ray);
+
 	virtual ~Ray();
 
 	friend Ray operator* (const glm::mat4& M, const Ray& r);

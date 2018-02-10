@@ -329,23 +329,14 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 		vec3 center = glm::vec3(values[0], values[1], values[2]);
 		GLfloat radius = values[3];
 		Object *sphere = new Sphere(center, radius);
-		sphere->ambientVal() = ambient;
-		sphere->specularVal() = specular;
-		sphere->diffuseVal() = diffuse;
-		sphere->emissionVal() = emission;
-		sphere->shininessVal() = shininess;
-		sphere->transformMat() = transformsStack.top();
-
-		for (int i = 0 ; i < 4 ; ++i) {
-			for (int j = 0 ; j < 4 ; j++) {
-				cout << transformsStack.top()[i][j] << " ";
-			}
-			cout << endl;
-		}
-
-
-		sphere->invTransformMat() = inverse(sphere->transformMat());
-		sphere->invTransposeTransMat() = transpose(sphere->invTransformMat());
+		sphere->ambient() = ambient;
+		sphere->specular() = specular;
+		sphere->diffuse() = diffuse;
+		sphere->emission() = emission;
+		sphere->shininess() = shininess;
+		sphere->transform() = transformsStack.top();
+		sphere->invTransform() = inverse(sphere->transform());
+		sphere->invTransposeTrans() = mat3(transpose(sphere->invTransform()));
 		renderInfo.scene.addObject(sphere);
 	}
 
@@ -381,19 +372,20 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 //												renderInfo.vertcies[values[1]],
 //												renderInfo.vertcies[values[2]]);
 
-		triangle->ambientVal() = ambient;
-		triangle->specularVal() = specular;
-		triangle->diffuseVal() = diffuse;
-		triangle->emissionVal() = emission;
-		triangle->shininessVal() = shininess;
-		triangle->transformMat() = transformsStack.top();
-		triangle->invTransformMat() = inverse(triangle->transformMat());
-		triangle->invTransposeTransMat() = transpose(triangle->invTransformMat());
+		triangle->ambient() = ambient;
+		triangle->specular() = specular;
+		triangle->diffuse() = diffuse;
+		triangle->emission() = emission;
+		triangle->shininess() = shininess;
+//		triangle->transform() = transformsStack.top();
+//		triangle->invTransform() = inverse(triangle->transformMat);
+//		triangle->invTransposeTrans() = transpose(triangle->invTransformMat);
 		renderInfo.scene.addObject(triangle);
 	}
 
 	else if (cmd == Commands.trinormal) {
 		readValues(s, 3, values);
+		// TODO - need to transform normals too ?
 		Object *triangle = new Triangle(renderInfo.vertcies[values[0] * 2],
 				renderInfo.vertcies[values[1] * 2],
 				renderInfo.vertcies[values[2] * 2],
@@ -440,6 +432,32 @@ SceneParser::handleTransformationsCommand(stringstream& s, string& cmd)
 void
 SceneParser::handleLightsCommand(stringstream& s, string& cmd)
 {
+	if (cmd == Commands.directional) {
+		readValues(s, 6, values);
+		vec3 dir = vec3(transformsStack.top() * vec4(values[0], values[1], values[2], 0.0f));
+		vec3 color = vec3(values[3], values[4], values[5]);
+		DirectionalLight *dirLight = new DirectionalLight(color, dir);
+		renderInfo.scene.addDirectionalLight(dirLight);
+	}
+
+	else if (cmd == Commands.point) {
+		readValues(s, 6, values);
+		vec3 pos = vec3(transformsStack.top() * vec4(values[0], values[1], values[2], 1.0f));
+		vec3 color = vec3(values[3], values[4], values[5]);
+		PointLight *pointLight = new PointLight(color, pos);
+		renderInfo.scene.addPointLight(pointLight);
+	}
+
+	else if (cmd == Commands.attenuation) {
+		readValues(s, 3, values);
+		Attenuation atten = {
+				.constant = values[0],
+				.linear = values[1],
+				.quadratic = values[2]
+		};
+
+		renderInfo.scene.setAttenuation(atten);
+	}
 
 }
 
@@ -473,178 +491,5 @@ SceneParser::handleMaterialsCommand(stringstream& s, string& cmd)
 		shininess = values[0];
 	}
 }
-
-
-
-
-
-	/*
-
-		throw IOException
-
-
-		// I need to implement a matrix stack to store transforms.
-		// This is done using standard STL Templates
-		stack <mat4> transfstack;
-	transfstack.push(mat4(1.0));  // identity
-
-	getline (in, str);
-	while (in) {
-		if ((str.find_first_not_of(" \t\r\n") != string::npos) && (str[0] != '#')) {
-			// Ruled out comment and blank lines
-
-			stringstream s(str);
-			s >> cmd;
-			int i;
-			GLfloat values[10]; // Position and color for light, colors for others
-			// Up to 10 params for cameras.
-			bool validinput; // Validity of input
-
-			// Process the light, add it to database.
-			// Lighting Command
-			if (cmd == "light") {
-				if (numused == numLights) { // No more Lights
-					cerr << "Reached Maximum Number of Lights " << numused << " Will ignore further lights\n";
-				} else {
-					validinput = readvals(s, 8, values); // Position/color for lts.
-					if (validinput) {
-
-						lightposn[4 * numused + 0] = values[0];
-						lightposn[4 * numused + 1] = values[1];
-						lightposn[4 * numused + 2] = values[2];
-						lightposn[4 * numused + 3] = values[3];
-
-						lightcolor[4 * numused + 0] = values[4];
-						lightcolor[4 * numused + 1] = values[5];
-						lightcolor[4 * numused + 2] = values[6];
-						lightcolor[4 * numused + 3] = values[7];
-
-						++numused;
-					}
-				}
-			}
-
-			// Material Commands
-			// Ambient, diffuse, specular, shininess properties for each object.
-			// Filling this in is pretty straightforward, so I've left it in
-			// the skeleton, also as a hint of how to do the more complex ones.
-			// Note that no transforms/stacks are applied to the colors.
-
-
-			} else if (cmd == "size") {
-				validinput = readvals(s,2,values);
-				if (validinput) {
-					w = (int) values[0]; h = (int) values[1];
-				}
-			} else if (cmd == "camera") {
-				validinput = readvals(s,10,values); // 10 values eye cen up fov
-				if (validinput) {
-
-					eyeinit = glm::vec3(values[0], values[1], values[2]);
-					center  = glm::vec3(values[3], values[4], values[5]);
-					upinit  = glm::vec3(values[6], values[7], values[8]);
-					upinit = Transform::upvector(upinit, eyeinit);
-					fovy = values[9];
-				}
-			}
-
-			// I've left the code for loading objects in the skeleton, so
-			// you can get a sense of how this works.
-			// Also look at demo.txt to get a sense of why things are done this way.
-			else if (cmd == "sphere" || cmd == "cube" || cmd == "teapot") {
-				if (numobjects == maxobjects) { // No more objects
-					cerr << "Reached Maximum Number of Objects " << numobjects << " Will ignore further objects\n";
-				} else {
-					validinput = readvals(s, 1, values);
-					if (validinput) {
-						object * obj = &(objects[numobjects]);
-						obj->size = values[0];
-
-						// Set the object's light properties
-						for (i = 0; i < 4; i++) {
-							(obj->ambient)[i] = ambient[i];
-							(obj->diffuse)[i] = diffuse[i];
-							(obj->specular)[i] = specular[i];
-							(obj->emission)[i] = emission[i];
-						}
-						obj->shininess = shininess;
-
-						// Set the object's transform
-						obj->transform = transfstack.top();
-
-						// Set the object's type
-						if (cmd == "sphere") {
-							obj->type = sphere;
-						} else if (cmd == "cube") {
-							obj->type = cube;
-						} else if (cmd == "teapot") {
-							obj->type = teapot;
-						}
-					}
-					++numobjects;
-				}
-			}
-
-			else if (cmd == "translate") {
-				validinput = readvals(s,3,values);
-				if (validinput) {
-
-					rightmultiply(Transform::translate(values[0], values[1], values[2]), transfstack);
-				}
-			}
-			else if (cmd == "scale") {
-				validinput = readvals(s,3,values);
-				if (validinput) {
-
-					rightmultiply(Transform::scale(values[0], values[1], values[2]), transfstack);
-				}
-			}
-			else if (cmd == "rotate") {
-				validinput = readvals(s,4,values);
-				if (validinput) {
-
-					glm::mat3x3 rotate3x3 = Transform::rotate(values[3], glm::vec3(values[0], values[1], values[2]));
-					glm::mat4x4 rotate4x4 = glm::mat4x4(vec4(rotate3x3[0], 0.0f),
-							vec4(rotate3x3[1], 0.0f),
-							vec4(rotate3x3[2], 0.0f),
-							vec4(0.0f, 0.0f, 0.0f, 1.0f));
-					rightmultiply(glm::transpose(rotate4x4), transfstack);
-				}
-			}
-
-			// I include the basic push/pop code for matrix stacks
-			else if (cmd == "pushTransform") {
-				transfstack.push(transfstack.top());
-			} else if (cmd == "popTransform") {
-				if (transfstack.size() <= 1) {
-					cerr << "Stack has no elements.  Cannot Pop\n";
-				} else {
-					transfstack.pop();
-				}
-			}
-
-			else {
-				cerr << "Unknown Command: " << cmd << " Skipping \n";
-			}
-		}
-
-		getline (in, str);
-	}
-
-	eye = eyeinit;
-	up = upinit;
-	amount = amountinit;
-	sx = sy = 1.0;  // keyboard controlled scales in x and y
-	tx = ty = 0.0;  // keyboard controllled translation in x and y
-	useGlu = false; // don't use the glu perspective/lookat fns
-
-	glEnable(GL_DEPTH_TEST);
-} else {
-	cerr << "Unable to Open Input Data File " << filename << "\n";
-	throw 2;
-}
-}
-
-	 */
 
 

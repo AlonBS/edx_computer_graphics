@@ -35,7 +35,7 @@ Image* RayTracer::rayTrace(Camera & camera, Scene & scene, GLuint width, GLuint 
 			Intersection hit = intersectScene(scene, ray);
 
 			if (hit.isValid) {
-				color = hit.color;
+				color = computeLight(scene, hit);
 				image->setPixel(i, j, color);
 			}
 		}
@@ -49,6 +49,7 @@ Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 {
 	GLfloat minDist = FLT_MAX;
 	GLfloat dist;
+	vec3 point;
 	vec3 normal;
 	vec3 color;
 
@@ -56,7 +57,7 @@ Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 
 	for (Object *object : scene.getObjects()) {
 
-		if (object->intersectsRay(ray, dist, normal, color)) {
+		if (object->intersectsRay(ray, dist, point, normal, color)) {
 
 			if (dist < minDist) {
 
@@ -65,8 +66,9 @@ Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 //				std::cout << "DIST:(" << dist << std::endl;
 
 				minDist = dist;
-				hit.color = color;
+				hit.point = point;
 				hit.normal = normal;
+				hit.color = color;
 				hit.isValid = true;
 			}
 		}
@@ -77,4 +79,11 @@ Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 	}
 
 	return hit;
+}
+
+
+vec3 RayTracer::computeLight(Scene& scene, Intersection& hit)
+{
+
+	return vec3(1.0f);
 }
