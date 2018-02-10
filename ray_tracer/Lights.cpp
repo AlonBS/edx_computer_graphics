@@ -18,10 +18,6 @@ Light::Light(vec3& color)
 {
 }
 
-Light::~Light()
-{
-}
-
 
 PointLight::PointLight(vec3& color, vec3& pos)
 : Light(color), position(pos)

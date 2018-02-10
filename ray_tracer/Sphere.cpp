@@ -21,7 +21,7 @@ bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec
 	//  B: 2 * d * (o - c)
 	// 	C: (o -c)^2 - r^2
 
-	Ray tr = this->invTransformMat() * r; // Transformed ray
+	Ray tr = this->invTransform() * r; // Transformed ray
 	GLfloat A, B, C;
 	GLfloat discriminant, disc_root;
 	GLfloat x1, x2, x;
@@ -69,9 +69,10 @@ bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec
 	intersection_point = vec3(this->transform() * vec4(intersection_point, 1.0f));
 	// The distance is the length of the original intersection point with the origin of the non transformed ray.
 	dist = length(intersection_point - r.origin);
-
-	//mat4(transpose(inverse
 	vec3 n = vec3(intersection_point - center);
+
+
+	point = intersection_point;
 	normal = normalize(vec3(this->invTransposeTrans() * n));
 	color = this->ambient();
 	return true;

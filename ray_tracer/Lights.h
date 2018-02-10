@@ -11,6 +11,8 @@
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 
+using namespace glm;
+
 typedef struct Attenuation {
 
 	GLfloat constant;
@@ -26,8 +28,8 @@ private:
 
 public:
 
-	Light(vec3& color): color(color) {}
-	virtual ~Light() {}
+	Light(vec3& color);
+	virtual ~Light() {};
 
 };
 
@@ -39,8 +41,8 @@ private:
 
 public:
 
-	PointLight(vec3& color, vec3& pos) : Light(color), position(pos) {}
-	virtual ~PointLight();
+	PointLight(vec3& color, vec3& pos);
+	virtual ~PointLight() {}
 };
 
 class DirectionalLight : Light {
@@ -50,8 +52,8 @@ private:
 
 public:
 
-	DirectionalLight(vec3& color, vec3& dir) : Light(color), direction(dir) {}
-	virtual ~DirectionalLight();
+	DirectionalLight(vec3& color, vec3& dir);
+	virtual ~DirectionalLight() {}
 };
 
 

@@ -31,17 +31,18 @@ Triangle::~Triangle()
 }
 
 
-bool Triangle::intersectsRay(Ray &r, GLfloat &dist, glm::vec3& normal, vec3& color)
+bool Triangle::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec3& color)
 {
 	GLfloat dist1, dist2;
+	vec3    point1, point2;
 	vec3	norm1, norm2;
 	vec3 	color1, color2;
 	bool    res1, res2;
 
 	// This is used for implementation stages - we use the other intersection as back up -
 	// will be removed later on
-	res1 = __iRay(r, dist1, norm1, color1);
-//	res2 = __iRay2(r, dist2, norm2, color2);
+	res1 = __iRay(r, dist1, point1, norm1, color1);
+//	res2 = __iRay2(r, dist2, point2, norm2, color2);
 //
 //	assert(res1 == res2);
 //
@@ -54,7 +55,15 @@ bool Triangle::intersectsRay(Ray &r, GLfloat &dist, glm::vec3& normal, vec3& col
 //		std::cout << "DIst 1 and 2 differ: " << dist1 << " " << dist2 << std::endl;
 //		exit(-1);
 //	}
-//
+
+//	if (glm::abs(glm::length(point1) - glm::length(point2) > EPSILON)  {
+//		std::cout << "Points differ: " << std::endl;
+//		std::cout << "POINT1: (" << point1.x << "," << point1.y << "," << point1.z << ")" << std::endl;
+//		std::cout << "POINT2: (" << point2.x << "," << point2.y << "," << point2.z << ")" << std::endl;
+//		exit(-1);
+//	}
+
+	//
 //
 //	if (glm::abs(glm::length(norm1) - glm::length(norm2)) > EPSILON)  {
 //		std::cout << "Normal differ: " << std::endl;
@@ -71,13 +80,14 @@ bool Triangle::intersectsRay(Ray &r, GLfloat &dist, glm::vec3& normal, vec3& col
 //	}
 
 	dist = dist1;
+	point = point1;
 	normal = norm1;
 	color = color1;
 	return res1;
 }
 
 
-bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& normal, vec3& color)
+bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec3& color)
 {
 	// We do that in two steps:
 	// 	- First, we intersect the ray with the plane this triangle lays in
@@ -144,20 +154,22 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& normal, vec3& color)
 	// Check if point is in triangle
 	if ( (beta >= 0) && (gamma >= 0) && (beta + gamma < 1) ){
 		dist = t;
+		point = P;
 		normal = N;
-		color = this->ambientVal();
+		color = this->ambient();
 		return true;
 	}
 
 	// No intersection - make sure values are irrelevant
 	dist = 0;
+	point = vec3(0.0f, 0.0f, 0.0f);
 	normal = vec3(0.0f, 0.0f, 0.0f);
 	color = vec3(0.0f, 0.0f, 0.0f);
 	return false;
 }
 
 
-bool Triangle::__iRay2(Ray &r, GLfloat &dist, glm::vec3& normal, vec3& color)
+bool Triangle::__iRay2(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec3& color)
 {
 	// Another close computation - to check validity of the other
 
@@ -204,12 +216,14 @@ bool Triangle::__iRay2(Ray &r, GLfloat &dist, glm::vec3& normal, vec3& color)
 
 	if (alpha >= 0 && alpha <= 1 && beta >= 0 && beta <= 1 && gamma >= 0 && gamma <= 1) {
 		dist = t;
+		point = P;
 		normal = this->N;
-		color = this->ambientVal();
+		color = this->ambient();
 		return true;
 	}
 
 	dist = 0;
+	point  = vec3(0.0f, 0.0f, 0.0f);
 	normal = vec3(0.0f, 0.0f, 0.0f);
 	color = vec3(0.0f, 0.0f, 0.0f);
 	return false;
