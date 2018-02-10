@@ -117,6 +117,7 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 	t = (a_dot_n - o_dot_n) / d_dot_n;
 
 	if (t < 0) {
+		// if t < 0, then the triangle is behind the ray, thus no intersecion
 		return false;
 	}
 
