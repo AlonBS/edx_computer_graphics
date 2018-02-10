@@ -56,13 +56,11 @@ bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 		x = glm::max(x1, x2);
 	}
 
-	if (x < EPSILON) {
+	if (x < 0) {
 		// If dist is a negative values (accounting for floating point errors)
 		// then both solutions were negative. Meaning we have to go back from the origin of
 		// the ray (against its direction) to the intersection point - which means of course that
 		// there's no intersection.
-		point = vec3(0.0f, 0.0f, 0.0f);
-		normal = vec3(0.0f, 0.0f, 0.0f);
 		return false;
 	}
 

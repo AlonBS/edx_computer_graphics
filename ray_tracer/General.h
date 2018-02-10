@@ -11,11 +11,33 @@
 #include <cstdint>
 #include <glm/glm.hpp>
 #include <GL/glew.h>
+#include <iostream>
 
-
-
-const GLfloat EPSILON  = 0.000001f;
+const GLfloat EPSILON  = 0.0001f;
 const GLfloat INFINITE = FLT_MAX;
+
+using namespace glm;
+using namespace std;
+
+inline void
+printVec3(const string& name, const vec3& vec)
+{
+	cout << name << ": " << vec.x << "," << vec.y << "," << vec.z << endl;
+}
+
+inline void
+printMat4(const string& name, const mat4& mat)
+{
+	cout << name << ":" << endl;
+	for (int i = 0; i < 4 ; ++i) {
+		for (int j = 0 ; j < 4 ; ++j) {
+
+			cout << "\t" << mat[i][j];
+		}
+		cout << endl;
+	}
+}
+
 
 
 

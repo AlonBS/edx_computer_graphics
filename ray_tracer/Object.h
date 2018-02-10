@@ -10,6 +10,7 @@
 
 #include "Ray.h"
 #include <GL/glew.h>
+#include "General.h"
 
 using namespace glm;
 

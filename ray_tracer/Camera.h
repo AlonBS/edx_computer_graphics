@@ -29,8 +29,8 @@ class Camera {
 public:
 
 	Camera()
-	:eyeInit(vec3(0,0,0)), center(vec3(0,0,0)), upInit(vec3(0,0,0)), fovY(0)
-	,width(0), height(0), fovX(0)
+	:eyeInit(vec3(0,0,0)), center(vec3(0,0,0)), upInit(vec3(0,0,0)), fovY(0), fovX(0)
+	,width(0), height(0)
 	{}
 
 	Camera(vec3& eyeInit, vec3& center, vec3& upInit, GLfloat fovY, GLuint width, GLuint height)

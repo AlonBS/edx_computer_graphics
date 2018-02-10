@@ -101,7 +101,7 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 	vec3    P; // Intersection point
 	vec3    AP, AB, AC;
 	GLfloat	dot_ACAC, dot_ACAB, dot_ACAP, dot_ABAB, dot_ABAP;
-	GLfloat invDenom, alpha, beta, gamma;
+	GLfloat invDenom, beta, gamma;
 
 
 
@@ -115,6 +115,10 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 	a_dot_n = dot(A, N);
 	o_dot_n = dot(r.origin, N);
 	t = (a_dot_n - o_dot_n) / d_dot_n;
+
+	if (t < 0) {
+		return false;
+	}
 
 	// Now check if intersection point given by: o + td is inside the triangle.
 	// We do this using barycentric coordinates
@@ -130,7 +134,6 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 
 	// Compute dot products
 
-	dot_ACAC, dot_ACAB, dot_ACAP, dot_ABAB, dot_ABAP;
 
 	dot_ACAC = dot(AC, AC);
 	dot_ACAB = dot(AC, AB);
@@ -152,9 +155,6 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 	}
 
 	// No intersection - make sure values are irrelevant
-	dist = 0;
-	point = vec3(0.0f, 0.0f, 0.0f);
-	normal = vec3(0.0f, 0.0f, 0.0f);
 	return false;
 }
 
@@ -186,6 +186,7 @@ bool Triangle::__iRay2(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 	o_dot_n = dot(r.origin, N);
 	t = (a_dot_n - o_dot_n) / d_dot_n;
 
+
 	// Now check if intersection point given by: o + td is inside the triangle.
 	// We do this using barycentric coordinates
 	// That is that:
@@ -211,9 +212,6 @@ bool Triangle::__iRay2(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 		return true;
 	}
 
-	dist = 0;
-	point  = vec3(0.0f, 0.0f, 0.0f);
-	normal = vec3(0.0f, 0.0f, 0.0f);
 	return false;
 
 }

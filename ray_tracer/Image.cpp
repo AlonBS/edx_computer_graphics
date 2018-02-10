@@ -10,6 +10,7 @@
 #include <iostream>
 #include <cassert>
 #include "Image.h"
+#include "General.h"
 #include "glm/glm.hpp"
 
 using namespace std;

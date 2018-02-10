@@ -17,42 +17,10 @@ int main()
 {
 	cout << "Ray Tracer working..." << endl;
 
-	string fileName = "./scenes/scene0d.test";
+	string fileName = "./scenes/scene3.test";
 	RenderInfo renderInfo = SceneParser::readFile(fileName.c_str());
 
 	renderInfo.camera->print();
-
-//	for (Object* o : renderInfo.scene.getObjects()) {
-//
-//		for (int i = 0 ; i < 4 ; ++i) {
-//			for (int j = 0 ; j < 4 ; j++) {
-//				cout << o->transformMat()[i][j] << " ";
-//			}
-//			cout << endl;
-//		}
-//
-//		cout << endl;
-//
-//		for (int i = 0 ; i < 4 ; ++i) {
-//			for (int j = 0 ; j < 4 ; j++) {
-//				cout << o->invTransformMat()[i][j] << " ";
-//			}
-//			cout << endl;
-//		}
-//
-//		cout << endl;
-//
-//		mat4 id = o->transformMat() * o->invTransformMat();
-//		for (int i = 0 ; i < 4 ; ++i) {
-//			for (int j = 0 ; j < 4 ; j++) {
-//				cout << id[i][j] << " ";
-//			}
-//			cout << endl;
-//		}
-//
-//
-//
-//	}
 
 	RayTracer rayTracer;
 	Image *img = rayTracer.rayTrace(*renderInfo.camera, renderInfo.scene, renderInfo.width, renderInfo.height);

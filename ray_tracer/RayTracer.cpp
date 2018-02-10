@@ -30,14 +30,15 @@ Image* RayTracer::rayTrace(Camera & camera, Scene & scene, GLuint width, GLuint 
 
 
 	// Render loop
-	for (int i = 0 ; i < height ; ++i) {
-		for (int j = 0 ; j < width ; ++j) {
+	for (GLuint i = 0 ; i < height ; ++i) {
+		for (GLuint j = 0 ; j < width ; ++j) {
 
 			Ray ray = camera.generateRay(i + .5, j + .5);
 			Intersection hit = intersectScene(scene, ray);
 
 			if (hit.isValid) {
 				color = computeLight(scene, hit);
+
 				//color = hit.object->ambient();
 				image->setPixel(i, j, color);
 			}
@@ -54,7 +55,6 @@ Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 	GLfloat dist;
 	vec3 point;
 	vec3 normal;
-	vec3 color;
 
 	Intersection hit;
 
@@ -98,24 +98,23 @@ vec3 RayTracer::computeLight(Scene& scene, Intersection& hit)
 
 		srDir = normalize(p->_position - hit.point);
 		srOrigin = hit.point + EPSILON * srDir; // Move a little to avoid floating point errors
-		shadowRay = Ray(srDir , srOrigin);
-
+		shadowRay = Ray(srOrigin, srDir);
 		maxDist = length(p->_position - hit.point);
 
 		if (isVisibleToLight(scene.getObjects(), shadowRay, maxDist)) {
 
 			// compute bling-phong lighting
-
 			color += p->_color;
 			//color += computeLight()
 		}
 	}
 
+
 	for (DirectionalLight* p : scene.getDirectionalLights()) {
 
 		srDir = -p->_direction;
 		srOrigin = hit.point + EPSILON * srDir; // Move a little to avoid floating point errors
-		shadowRay = Ray(srDir , srOrigin);
+		shadowRay = Ray(srOrigin, srDir);
 		maxDist = INFINITE;
 
 		if (isVisibleToLight(scene.getObjects(), shadowRay, maxDist)) {
@@ -126,7 +125,7 @@ vec3 RayTracer::computeLight(Scene& scene, Intersection& hit)
 		}
 	}
 
-	return hit.object->ambient() + color;
+	return hit.object->ambient() + hit.object->emission() + color;
 }
 
 
@@ -141,6 +140,7 @@ bool RayTracer::isVisibleToLight(vector<Object*>& objects, Ray& shadowRay, GLflo
 			// If there's a intersection to a object which is within limit (no 'after' the light)
 			// then there's no visibility
 			if (dist < limit) {
+
 				return false;
 			}
 		}
@@ -148,5 +148,4 @@ bool RayTracer::isVisibleToLight(vector<Object*>& objects, Ray& shadowRay, GLflo
 	}
 
 	return true;
-
 }

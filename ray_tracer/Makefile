@@ -4,7 +4,7 @@ INCFLAGS  = -I /usr/include/GL -I ./utilities/include
 LINKFLAGS  = -L ./lib/nix -lfreeimage -lGLEW
 
 
-CFLAGS    = -g -std=c++1y
+CFLAGS    = -g -std=c++1y 
 CC        = g++
 SRCS      = main.cpp \
 			Image.cpp \
