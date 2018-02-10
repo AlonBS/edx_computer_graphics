@@ -14,13 +14,17 @@
 #include "Camera.h"
 #include "Ray.h"
 
+#include <vector>
+
+
 typedef struct Intersection {
 
 	bool isValid;
 
 	vec3 point;
 	vec3 normal;
-	vec3 color;
+
+	Object *object; // The object the ray intersected
 
 }Intersection;
 
@@ -38,6 +42,8 @@ private:
 	Intersection intersectScene(Scene & scene, Ray& ray);
 
 	vec3 computeLight(Scene & scene, Intersection& hit);
+
+	bool isVisibleToLight(vector<Object*>& objects, Ray& shadowRay, GLfloat limit);
 
 };
 

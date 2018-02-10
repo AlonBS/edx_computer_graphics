@@ -7,6 +7,8 @@
 
 #include "RayTracer.h"
 #include <iostream>
+#include <vector>
+#include "General.h"
 
 
 
@@ -36,6 +38,7 @@ Image* RayTracer::rayTrace(Camera & camera, Scene & scene, GLuint width, GLuint 
 
 			if (hit.isValid) {
 				color = computeLight(scene, hit);
+				//color = hit.object->ambient();
 				image->setPixel(i, j, color);
 			}
 		}
@@ -57,18 +60,18 @@ Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 
 	for (Object *object : scene.getObjects()) {
 
-		if (object->intersectsRay(ray, dist, point, normal, color)) {
+		if (object->intersectsRay(ray, dist, point, normal)) {
 
 			if (dist < minDist) {
 
-//				std::cout << ":(" << color.x << "," << color.y << "," << color.z << ")" << std::endl;
-//				std::cout << ":(" << normal.x << "," << normal.y << "," << normal.z << ")" << std::endl;
-//				std::cout << "DIST:(" << dist << std::endl;
+				//				std::cout << ":(" << color.x << "," << color.y << "," << color.z << ")" << std::endl;
+				//				std::cout << ":(" << normal.x << "," << normal.y << "," << normal.z << ")" << std::endl;
+				//				std::cout << "DIST:(" << dist << std::endl;
 
 				minDist = dist;
 				hit.point = point;
 				hit.normal = normal;
-				hit.color = color;
+				hit.object = object;
 				hit.isValid = true;
 			}
 		}
@@ -84,6 +87,66 @@ Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 
 vec3 RayTracer::computeLight(Scene& scene, Intersection& hit)
 {
+	vec3 color = vec3(0.0f, 0.0f, 0.0f);
+	Ray shadowRay = Ray();
+	vec3 srOrigin;
+	vec3 srDir;
+	GLfloat maxDist;
 
-	return vec3(1.0f);
+
+	for (PointLight* p : scene.getPointLights()) {
+
+		srDir = normalize(p->_position - hit.point);
+		srOrigin = hit.point + EPSILON * srDir; // Move a little to avoid floating point errors
+		shadowRay = Ray(srDir , srOrigin);
+
+		maxDist = length(p->_position - hit.point);
+
+		if (isVisibleToLight(scene.getObjects(), shadowRay, maxDist)) {
+
+			// compute bling-phong lighting
+
+			color += p->_color;
+			//color += computeLight()
+		}
+	}
+
+	for (DirectionalLight* p : scene.getDirectionalLights()) {
+
+		srDir = -p->_direction;
+		srOrigin = hit.point + EPSILON * srDir; // Move a little to avoid floating point errors
+		shadowRay = Ray(srDir , srOrigin);
+		maxDist = INFINITE;
+
+		if (isVisibleToLight(scene.getObjects(), shadowRay, maxDist)) {
+
+			// compute bling-phong lighting
+			color += p->_color;
+			//color += computeLight()
+		}
+	}
+
+	return hit.object->ambient() + color;
+}
+
+
+bool RayTracer::isVisibleToLight(vector<Object*>& objects, Ray& shadowRay, GLfloat limit)
+{
+	GLfloat dist;
+	vec3 point, normal;
+	for (Object * o : objects) {
+
+		if (o->intersectsRay(shadowRay, dist, point, normal)) {
+
+			// If there's a intersection to a object which is within limit (no 'after' the light)
+			// then there's no visibility
+			if (dist < limit) {
+				return false;
+			}
+		}
+
+	}
+
+	return true;
+
 }

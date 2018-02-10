@@ -9,11 +9,23 @@
 
 using namespace glm;
 
+Ray::Ray()
+:origin(vec3(0.0f, 0.0f, 0.0f)), direction(vec3(0.0f, 0.0f, 0.0f))
+{
+
+}
+
 Ray::Ray(vec3& origin, vec3& direction)
 :origin(origin), direction(normalize(direction))
 {
 
 	// TODO - consider changing origin a bit - due to floating point errors
+}
+
+Ray::Ray(const Ray& otherRay)
+:origin(otherRay.origin), direction(otherRay.direction)
+{
+
 }
 
 

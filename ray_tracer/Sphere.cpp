@@ -11,7 +11,7 @@ using namespace glm;
 
 
 
-bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec3& color)
+bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 {
 	// To find intersection between Ray and Sphere represented the following way:
 	// 	Sphere: (P - C )^2 - r^2 = 0
@@ -61,6 +61,8 @@ bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec
 		// then both solutions were negative. Meaning we have to go back from the origin of
 		// the ray (against its direction) to the intersection point - which means of course that
 		// there's no intersection.
+		point = vec3(0.0f, 0.0f, 0.0f);
+		normal = vec3(0.0f, 0.0f, 0.0f);
 		return false;
 	}
 
@@ -74,7 +76,6 @@ bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec
 
 	point = intersection_point;
 	normal = normalize(vec3(this->invTransposeTrans() * n));
-	color = this->ambient();
 	return true;
 }
 

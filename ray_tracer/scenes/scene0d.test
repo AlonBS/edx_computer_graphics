@@ -1,0 +1,32 @@
+
+size 640 480 
+
+camera 0 4 8 0 0 0 0 1 0 45
+
+# lighting/material definitions
+# for initial testing, you should get the geometry right
+# you may want to use dummy (constant) shading, ignoring these lines
+
+
+#directional 0 0 1 .5 .5 .5 
+point 0 5 0 1 0 0
+#diffuse 1 0 0 
+#specular 0 0 0
+
+maxverts 4 
+
+vertex +2 0 +2 
+vertex +2 0 -2
+vertex -2 0 +2
+vertex -2 0 -2 
+
+ambient .9 .6 .1
+tri 0 1 2
+tri 1 2 3
+
+
+ambient .3 1 .3
+sphere 0 2 0 0.5
+
+
+

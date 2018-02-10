@@ -33,7 +33,7 @@ public:
 	}
 	virtual ~Sphere() {}
 
-	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec3& color);
+	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal);
 
 	virtual const void print() const;
 };

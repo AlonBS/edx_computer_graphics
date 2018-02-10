@@ -23,34 +23,29 @@ typedef struct Attenuation {
 
 class Light {
 
-private:
-	vec3 color;
-
 public:
+
+	vec3 _color;
 
 	Light(vec3& color);
 	virtual ~Light() {};
 
 };
 
-class PointLight : Light {
-
-private:
-
-	vec3 position;
+class PointLight : public Light {
 
 public:
+	vec3 _position;
 
 	PointLight(vec3& color, vec3& pos);
 	virtual ~PointLight() {}
 };
 
-class DirectionalLight : Light {
-
-private:
-	vec3 direction;
+class DirectionalLight : public Light {
 
 public:
+	vec3 _direction;
+
 
 	DirectionalLight(vec3& color, vec3& dir);
 	virtual ~DirectionalLight() {}

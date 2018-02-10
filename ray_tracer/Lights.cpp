@@ -14,18 +14,18 @@ using namespace glm;
 
 
 Light::Light(vec3& color)
-:color(color)
+:_color(color)
 {
 }
 
 
 PointLight::PointLight(vec3& color, vec3& pos)
-: Light(color), position(pos)
+: Light(color), _position(pos)
 {
 }
 
 
 DirectionalLight::DirectionalLight(vec3& color, vec3& dir)
-: Light(color), direction(dir)
+: Light(color), _direction(normalize(dir))
 {
 }

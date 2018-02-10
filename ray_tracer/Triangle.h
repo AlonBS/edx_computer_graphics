@@ -21,8 +21,8 @@ private:
 		vec3 AN,BN,CN ; // Normals to the above vertices, respectively.
 		vec3 N;     	// Face normal to the triangle
 
-		bool __iRay (Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec3& color);
-		bool __iRay2(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec3& color);
+		bool __iRay (Ray &r, GLfloat &dist, vec3& point, vec3& normal);
+		bool __iRay2(Ray &r, GLfloat &dist, vec3& point, vec3& normal);
 
 public:
 
@@ -31,7 +31,7 @@ public:
 
 	virtual ~Triangle();
 
-	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec3& color);
+	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal);
 
 
 	virtual const void print() const {};

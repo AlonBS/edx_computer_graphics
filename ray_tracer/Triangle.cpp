@@ -31,18 +31,17 @@ Triangle::~Triangle()
 }
 
 
-bool Triangle::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec3& color)
+bool Triangle::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 {
 	GLfloat dist1, dist2;
 	vec3    point1, point2;
 	vec3	norm1, norm2;
-	vec3 	color1, color2;
 	bool    res1, res2;
 
 	// This is used for implementation stages - we use the other intersection as back up -
 	// will be removed later on
-	res1 = __iRay(r, dist1, point1, norm1, color1);
-//	res2 = __iRay2(r, dist2, point2, norm2, color2);
+	res1 = __iRay(r, dist1, point1, norm1);
+//	res2 = __iRay2(r, dist2, point2, norm2);
 //
 //	assert(res1 == res2);
 //
@@ -72,22 +71,15 @@ bool Triangle::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal, v
 //		exit(-1);
 //	}
 
-//	if (glm::abs(glm::length(color1) - glm::length(color2)) > EPSILON)  {
-//		std::cout << "Colors differ: " << std::endl;
-//		std::cout << "COLOR1: (" << color1.x << "," << color1.y << "," << color1.z << ")" << std::endl;
-//		std::cout << "COLOR2: (" << color2.x << "," << color2.y << "," << color2.z << ")" << std::endl;
-//		exit(-1);
-//	}
 
 	dist = dist1;
 	point = point1;
 	normal = norm1;
-	color = color1;
 	return res1;
 }
 
 
-bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec3& color)
+bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 {
 	// We do that in two steps:
 	// 	- First, we intersect the ray with the plane this triangle lays in
@@ -156,7 +148,6 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec3& co
 		dist = t;
 		point = P;
 		normal = N;
-		color = this->ambient();
 		return true;
 	}
 
@@ -164,12 +155,11 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec3& co
 	dist = 0;
 	point = vec3(0.0f, 0.0f, 0.0f);
 	normal = vec3(0.0f, 0.0f, 0.0f);
-	color = vec3(0.0f, 0.0f, 0.0f);
 	return false;
 }
 
 
-bool Triangle::__iRay2(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec3& color)
+bool Triangle::__iRay2(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 {
 	// Another close computation - to check validity of the other
 
@@ -218,14 +208,12 @@ bool Triangle::__iRay2(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec3& c
 		dist = t;
 		point = P;
 		normal = this->N;
-		color = this->ambient();
 		return true;
 	}
 
 	dist = 0;
 	point  = vec3(0.0f, 0.0f, 0.0f);
 	normal = vec3(0.0f, 0.0f, 0.0f);
-	color = vec3(0.0f, 0.0f, 0.0f);
 	return false;
 
 }

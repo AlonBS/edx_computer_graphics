@@ -9,10 +9,7 @@
 #define OBJECT_H_
 
 #include "Ray.h"
-#include <cstdint>
 #include <GL/glew.h>
-
-#define EPSILON 0.000001f
 
 using namespace glm;
 
@@ -39,7 +36,7 @@ public:
 	Object();
 	virtual ~Object();
 
-	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal, vec3& color) = 0;
+	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal) = 0;
 
 	friend std::ostream& operator<< (std::ostream& out, const Object & obj);
 
@@ -54,10 +51,6 @@ public:
 	mat4& transform() { return _transform; }
 	mat4& invTransform() { return _invTransform; }
 	mat3& invTransposeTrans() { return _invTransposeTrans; }
-
-
-protected:
-	const GLfloat INFINITE = FLT_MAX;
 
 };
 
