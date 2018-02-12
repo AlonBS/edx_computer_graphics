@@ -105,6 +105,8 @@ GLfloat SceneParser::shininess = 0.0f;
 GLfloat SceneParser::values[MAX_POSSIBLE_VALUES] = {};
 RenderInfo SceneParser::renderInfo = {};
 
+Attenuation SceneParser::attenuation = { .constant = 1.0f, .linear = 0.0f, .quadratic = 0.0f};
+
 stack<mat4> SceneParser::transformsStack;
 
 
@@ -225,7 +227,11 @@ SceneParser::readFile(const char* fileName)
 		std::cout << "Given file name was: " << fileName << std::endl;
 	}
 
+	// Default transform
 	transformsStack.push(mat4(1.0));
+
+	// Default attenuation
+	renderInfo.scene.setAttenuation(attenuation);
 
 	while (in) {
 
@@ -377,6 +383,8 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 		triangle->diffuse() = diffuse;
 		triangle->emission() = emission;
 		triangle->shininess() = shininess;
+
+		cout << "TTTT" << triangle->specular().x << endl;
 //		triangle->transform() = transformsStack.top();
 //		triangle->invTransform() = inverse(triangle->transformMat);
 //		triangle->invTransposeTrans() = transpose(triangle->invTransformMat);

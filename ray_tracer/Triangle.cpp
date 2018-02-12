@@ -116,8 +116,8 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 	o_dot_n = dot(r.origin, N);
 	t = (a_dot_n - o_dot_n) / d_dot_n;
 
-	if (t < 0) {
-		// if t < 0, then the triangle is behind the ray, thus no intersecion
+	if (t < EPSILON) {
+		// if t < 0, then the triangle is behind the ray, thus no intersection
 		return false;
 	}
 
@@ -186,6 +186,11 @@ bool Triangle::__iRay2(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 	a_dot_n = dot(A, N);
 	o_dot_n = dot(r.origin, N);
 	t = (a_dot_n - o_dot_n) / d_dot_n;
+
+	if (t < EPSILON) {
+		// if t < 0, then the triangle is behind the ray, thus no intersection
+		return false;
+	}
 
 
 	// Now check if intersection point given by: o + td is inside the triangle.

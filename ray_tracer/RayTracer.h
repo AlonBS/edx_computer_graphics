@@ -41,9 +41,12 @@ private:
 
 	Intersection intersectScene(Scene & scene, Ray& ray);
 
-	vec3 computeLight(Scene & scene, Intersection& hit);
+	vec3 computeLight(Scene & scene, Ray& r, Intersection& hit);
 
 	bool isVisibleToLight(vector<Object*>& objects, Ray& shadowRay, GLfloat limit);
+
+
+	vec3 __blinn_phong(Object* obj, vec3& lightColor, vec3& lightDir, vec3& normal, vec3& halfAng);
 
 };
 

@@ -13,7 +13,7 @@
 #include <GL/glew.h>
 #include <iostream>
 
-const GLfloat EPSILON  = 0.0001f;
+const GLfloat EPSILON  = 0.001f;
 const GLfloat INFINITE = FLT_MAX;
 
 using namespace glm;

@@ -86,6 +86,8 @@ private:
 	static GLfloat shininess;
 	static GLfloat values[MAX_POSSIBLE_VALUES];
 
+	static Attenuation attenuation;
+
 	static RenderInfo renderInfo;
 
 

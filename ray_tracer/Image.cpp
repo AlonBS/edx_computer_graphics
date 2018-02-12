@@ -75,6 +75,6 @@ void Image::setPixel(int row, int col, glm::vec3& rgbColors)
 const void Image::saveImage(std::string& fileName) const
 {
 	//FIF_PNG
-	FreeImage_Save(FIF_JPEG, bitmap, fileName.c_str(), 0);
+	FreeImage_Save(FIF_PNG, bitmap, fileName.c_str(), 0);
 	std::cout << "Image saved to: " << fileName << std::endl;
 }

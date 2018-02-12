@@ -37,9 +37,7 @@ Image* RayTracer::rayTrace(Camera & camera, Scene & scene, GLuint width, GLuint 
 			Intersection hit = intersectScene(scene, ray);
 
 			if (hit.isValid) {
-				color = computeLight(scene, hit);
-
-				//color = hit.object->ambient();
+				color = computeLight(scene, ray, hit);
 				image->setPixel(i, j, color);
 			}
 		}
@@ -85,16 +83,27 @@ Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 }
 
 
-vec3 RayTracer::computeLight(Scene& scene, Intersection& hit)
+vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 {
 	vec3 color = vec3(0.0f, 0.0f, 0.0f);
-	Ray shadowRay = Ray();
+	Ray shadowRay;
 	vec3 srOrigin;
 	vec3 srDir;
 	GLfloat maxDist;
 
+	vec3 eyeDir;
+	vec3 halfAng;
 
+
+	// The 'eye' direction is where the current ray was shot from, and hit.
+	eyeDir = normalize(r.origin - hit.point);
+
+	//Ambient & Emission - regardless of lights
+	color = hit.object->ambient() + hit.object->emission();
+
+	// Add point lights
 	for (PointLight* p : scene.getPointLights()) {
+
 
 		srDir = normalize(p->_position - hit.point);
 		srOrigin = hit.point + EPSILON * srDir; // Move a little to avoid floating point errors
@@ -103,29 +112,29 @@ vec3 RayTracer::computeLight(Scene& scene, Intersection& hit)
 
 		if (isVisibleToLight(scene.getObjects(), shadowRay, maxDist)) {
 
-			// compute bling-phong lighting
-			color += p->_color;
-			//color += computeLight()
+			halfAng = normalize(srDir + eyeDir);
+			color += __blinn_phong(hit.object, p->_color, srDir, hit.normal, halfAng);
+			color = (color) / (scene.getAttenuation().constant + scene.getAttenuation().linear * maxDist + scene.getAttenuation().quadratic * maxDist * maxDist);
 		}
 	}
 
+	// take attenuation into acount
 
 	for (DirectionalLight* p : scene.getDirectionalLights()) {
 
-		srDir = -p->_direction;
+		srDir = normalize(-p->_direction);
 		srOrigin = hit.point + EPSILON * srDir; // Move a little to avoid floating point errors
 		shadowRay = Ray(srOrigin, srDir);
 		maxDist = INFINITE;
 
 		if (isVisibleToLight(scene.getObjects(), shadowRay, maxDist)) {
 
-			// compute bling-phong lighting
-			color += p->_color;
-			//color += computeLight()
+			halfAng = normalize(srDir + eyeDir);
+			color += __blinn_phong(hit.object, p->_color, srDir, hit.normal, halfAng);
 		}
 	}
 
-	return hit.object->ambient() + hit.object->emission() + color;
+	return color;
 }
 
 
@@ -139,7 +148,10 @@ bool RayTracer::isVisibleToLight(vector<Object*>& objects, Ray& shadowRay, GLflo
 
 			// If there's a intersection to a object which is within limit (no 'after' the light)
 			// then there's no visibility
+			cout << "HERE" << endl;
+//			cout << "LIMIT" << limit << endl;
 			if (dist < limit) {
+				cout << " HERUEHRUERIh" << endl;
 
 				return false;
 			}
@@ -148,4 +160,20 @@ bool RayTracer::isVisibleToLight(vector<Object*>& objects, Ray& shadowRay, GLflo
 	}
 
 	return true;
+}
+
+vec3 RayTracer::__blinn_phong(Object* obj, vec3& lightColor, vec3& lightDir, vec3& normal, vec3& halfAng)
+{
+	vec3 result = vec3(0.0, 0.0, 0.0);
+
+
+	// DIffuse
+	GLfloat diff = glm::max(dot(normal, lightDir), 0.0f);
+	vec3 diffuse = diff * obj->diffuse();
+
+	// Specular
+	GLfloat spec = glm::pow(glm::max(dot(halfAng, normal), 0.0f), obj->shininess());
+	vec3 specular = spec * obj->specular();
+
+	return (diffuse + specular) * lightColor;
 }
