@@ -25,12 +25,12 @@ private:
 
 	// Attenuation values
 
-	Attenuation attenuation;
+	Attenuation_t attenuation;
 
-
-
+	int a;
 
 public:
+
 	Scene();
 	virtual ~Scene();
 
@@ -38,16 +38,16 @@ public:
 	void addPointLight(PointLight *light) { pointLights.push_back(light); }
 	void addDirectionalLight(DirectionalLight *light) { directionalLights.push_back(light); }
 
-	void setAttenuation(Attenuation& atten) { this->attenuation = atten; }
+	//void setAttenuation(Attenuation& atten) { this->attenuation = atten; }
 
 
 	std::vector<Object*>& getObjects() { return objects; }
 	std::vector<PointLight*>& getPointLights() { return pointLights; }
 	std::vector<DirectionalLight*>& getDirectionalLights() { return directionalLights; }
 
-	Attenuation& getAttenuation() { return attenuation; }
+	Attenuation_t& Attenuation() { return attenuation; }
 
-
+	int& A() { return a; }
 
 };
 

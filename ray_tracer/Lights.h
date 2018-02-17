@@ -19,7 +19,7 @@ typedef struct Attenuation {
 	GLfloat linear;
 	GLfloat quadratic;
 
-}Attenuation;
+}Attenuation_t;
 
 class Light {
 

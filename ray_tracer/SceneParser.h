@@ -87,6 +87,7 @@ private:
 	static GLfloat values[MAX_POSSIBLE_VALUES];
 
 	static Attenuation attenuation;
+	static GLuint maxDepth;
 
 	static RenderInfo renderInfo;
 

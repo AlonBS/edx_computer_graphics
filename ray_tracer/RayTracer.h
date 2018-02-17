@@ -35,9 +35,11 @@ public:
 	virtual ~RayTracer();
 
 
-	Image* rayTrace(Camera & camera, Scene & scene, GLuint width, GLuint height);
+	Image* rayTrace(Camera & camera, Scene & scene, GLuint width, GLuint height, GLuint maxDepth);
 
 private:
+
+	vec3 recursiveRayTrace(Scene& scene, Ray& ray, GLuint depth);
 
 	Intersection intersectScene(Scene & scene, Ray& ray);
 

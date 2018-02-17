@@ -106,6 +106,7 @@ GLfloat SceneParser::values[MAX_POSSIBLE_VALUES] = {};
 RenderInfo SceneParser::renderInfo = {};
 
 Attenuation SceneParser::attenuation = { .constant = 1.0f, .linear = 0.0f, .quadratic = 0.0f};
+GLuint 		SceneParser::maxDepth = 1;
 
 stack<mat4> SceneParser::transformsStack;
 
@@ -231,7 +232,8 @@ SceneParser::readFile(const char* fileName)
 	transformsStack.push(mat4(1.0));
 
 	// Default attenuation
-	renderInfo.scene.setAttenuation(attenuation);
+	renderInfo.scene.Attenuation() = attenuation;
+	renderInfo.maxDepth = maxDepth;
 
 	while (in) {
 
@@ -244,11 +246,6 @@ SceneParser::readFile(const char* fileName)
 
 		stringstream s(str);
 		s >> cmd;
-
-		//		const string size          = "size";
-		//			const string maxdepth      = "maxdepth";
-		//			const string output        = "output";
-		//			const string camera        = "camera";
 
 		CommandType command = SceneParser::identifyCommand(cmd);
 		switch (command) {
@@ -343,7 +340,10 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 		sphere->transform() = transformsStack.top();
 		sphere->invTransform() = inverse(sphere->transform());
 		sphere->invTransposeTrans() = mat3(transpose(sphere->invTransform()));
+//		sphere->invTransposeTrans() = mat3(inverse(transpose(transformsStack.top())));
 		renderInfo.scene.addObject(sphere);
+
+		sphere->print();
 	}
 
 	else if (cmd == Commands.maxverts) {
@@ -377,14 +377,12 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 //		Object *triangle = new Triangle(renderInfo.vertcies[values[0]],
 //												renderInfo.vertcies[values[1]],
 //												renderInfo.vertcies[values[2]]);
-
 		triangle->ambient() = ambient;
 		triangle->specular() = specular;
 		triangle->diffuse() = diffuse;
 		triangle->emission() = emission;
 		triangle->shininess() = shininess;
 
-		cout << "TTTT" << triangle->specular().x << endl;
 //		triangle->transform() = transformsStack.top();
 //		triangle->invTransform() = inverse(triangle->transformMat);
 //		triangle->invTransposeTrans() = transpose(triangle->invTransformMat);
@@ -450,6 +448,7 @@ SceneParser::handleLightsCommand(stringstream& s, string& cmd)
 
 	else if (cmd == Commands.point) {
 		readValues(s, 6, values);
+		//TODO CHECK
 		vec3 pos = vec3(transformsStack.top() * vec4(values[0], values[1], values[2], 1.0f));
 		vec3 color = vec3(values[3], values[4], values[5]);
 		PointLight *pointLight = new PointLight(color, pos);
@@ -464,7 +463,7 @@ SceneParser::handleLightsCommand(stringstream& s, string& cmd)
 				.quadratic = values[2]
 		};
 
-		renderInfo.scene.setAttenuation(atten);
+		renderInfo.scene.Attenuation() = atten;
 	}
 
 }

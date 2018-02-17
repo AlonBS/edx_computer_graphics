@@ -31,3 +31,12 @@ std::ostream& operator<< (std::ostream& out, const Object & obj)
 	return out;
 }
 
+const void Object::print() const
+{
+	printVec3("Ambient", _ambient);
+	printVec3("_diffuse", _diffuse);
+	printVec3("_specular", _specular);
+	printVec3("_emission", _emission);
+	cout << "Shininess: " << _shininess << endl;
+}
+

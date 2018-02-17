@@ -34,7 +34,7 @@ public:
 	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal);
 
 
-	virtual const void print() const {};
+	virtual const void print() const;
 };
 
 #endif /* TRIANGLE_H_ */

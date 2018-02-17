@@ -15,15 +15,16 @@ using namespace std;
 
 int main()
 {
+
 	cout << "Ray Tracer working..." << endl;
 
-	string fileName = "./scenes/scene0c.test";
+	string fileName = "./scenes/scene4-diffuse.test";
 	RenderInfo renderInfo = SceneParser::readFile(fileName.c_str());
 
 	renderInfo.camera->print();
 
 	RayTracer rayTracer;
-	Image *img = rayTracer.rayTrace(*renderInfo.camera, renderInfo.scene, renderInfo.width, renderInfo.height);
+	Image *img = rayTracer.rayTrace(*renderInfo.camera, renderInfo.scene, renderInfo.width, renderInfo.height, renderInfo.maxDepth);
 
 	//img->saveImage(renderInfo.outputFile);
 	string output = "./scenes/scene1.test_result";

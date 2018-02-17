@@ -64,23 +64,43 @@ bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 		return false;
 	}
 
+//
+//	intersection_point = tr.origin + x * tr.direction;
+//	intersection_point = vec3(this->invTransform() * vec4(intersection_point, 1.0f));
+//	// The distance is the length of the original intersection point with the origin of the non transformed ray.
+//	dist = length(intersection_point - r.origin);
+////	vec3 n = vec3(intersection_point - center);
+//
+//	vec3 n = vec3(intersection_point -center);
+//
+//
+//	point = intersection_point;
+//	//normal = normalize(vec3(this->invTransposeTrans() * n));
+//	normal = normalize(vec3(mat3(this->invTransform()) * n));
+//	return true;
+
+
 
 	intersection_point = tr.origin + x * tr.direction;
 	intersection_point = vec3(this->transform() * vec4(intersection_point, 1.0f));
 	// The distance is the length of the original intersection point with the origin of the non transformed ray.
 	dist = length(intersection_point - r.origin);
-	vec3 n = vec3(intersection_point - center);
+//	vec3 n = vec3(intersection_point - center);
+
+	vec3 n = vec3(intersection_point - vec3(this->transform() * vec4(center, 1.0f)));
 
 
 	point = intersection_point;
 	normal = normalize(vec3(this->invTransposeTrans() * n));
 	return true;
+
+
 }
 
 const void Sphere::print() const
 {
 	std::cout << "Center: (" << center.x << "," << center.y << "," << center.z << ") | Radius: " << radius << std::endl;
-
+	Object::print();
 }
 
 

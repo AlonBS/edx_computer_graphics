@@ -10,10 +10,13 @@
 Triangle::Triangle(vec3& va, vec3& vb, vec3& vc)
 : Object(), A(va), B(vb), C(vc)
 {
-	N = normalize(cross(C-A,B-A)); // Compute the face normal
+//	N = normalize(cross(C-A,B-A)); // Compute the face normal
+	N = normalize(cross(C-B,A-B)); // Compute the face normal
 	AN = vec3(0.0f, 0.0f, 0.0f);
 	BN = vec3(0.0f, 0.0f, 0.0f);
 	CN = vec3(0.0f, 0.0f, 0.0f);
+
+	printVec3("NORMA", N);
 
 //	color = vec3((GLfloat) rand() / (GLfloat) RAND_MAX,
 //				 (GLfloat) rand() / (GLfloat) RAND_MAX,
@@ -23,7 +26,8 @@ Triangle::Triangle(vec3& va, vec3& vb, vec3& vc)
 Triangle::Triangle(vec3& va, vec3& vb, vec3& vc, vec3& vaNorm, vec3& vbNorm, vec3& vcNorm)
 : Object(), A(va), B(vb), C(vc), AN(vaNorm), BN(vbNorm), CN(vcNorm)
 {
-	N = normalize(cross(C-A,B-A)); // Compute the face normal
+	N = normalize(cross(C-B,A-B)); // Compute the face normal
+
 }
 
 Triangle::~Triangle()
@@ -40,8 +44,8 @@ bool Triangle::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 
 	// This is used for implementation stages - we use the other intersection as back up -
 	// will be removed later on
-	res1 = __iRay(r, dist1, point1, norm1);
-//	res2 = __iRay2(r, dist2, point2, norm2);
+//	res1 = __iRay(r, dist1, point1, norm1);
+	res2 = __iRay2(r, dist2, point2, norm2);
 //
 //	assert(res1 == res2);
 //
@@ -72,10 +76,10 @@ bool Triangle::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 //	}
 
 
-	dist = dist1;
-	point = point1;
-	normal = norm1;
-	return res1;
+	dist = dist2;
+	point = point2;
+	normal = norm2;
+	return res2;
 }
 
 
@@ -277,5 +281,12 @@ bool Triangle::__iRay3(Ray &r, GLfloat &dist, glm::vec3& normal)
 	return true;
 }
 */
+
+const void Triangle::print() const
+{
+
+	cout << "TRIANGLE" << endl;
+	Object::print();
+}
 
 

@@ -41,7 +41,7 @@ public:
 
 	friend std::ostream& operator<< (std::ostream& out, const Object & obj);
 
-	virtual const void print() const = 0;
+	virtual const void print() const;
 
 	vec3& ambient () { return _ambient; }
 	vec3& diffuse () { return _diffuse; }
