@@ -1,7 +1,7 @@
 INCFLAGS  = -I /usr/include/GL -I ./utilities/include -I /usr/include/boost
 
 #LINKFLAGS  = -lGL -lGLUassimp  -lSOIL
-LINKFLAGS  = -L ./lib/nix -lfreeimage -lGLEW
+LINKFLAGS  = -L ./lib/nix -lfreeimage -lGLEW -L /usr/lib/x86_64-linux-gnu/ -lboost_filesystem -lboost_system
 
 
 CFLAGS    = -g -std=c++1y 

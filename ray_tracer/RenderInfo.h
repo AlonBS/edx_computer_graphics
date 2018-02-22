@@ -25,7 +25,7 @@ struct RenderInfo {
 
 	std::string outputFile;
 
-	Camera* camera = nullptr;
+	Camera camera;
 
 	Scene scene;
 

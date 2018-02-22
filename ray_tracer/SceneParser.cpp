@@ -106,7 +106,7 @@ GLfloat SceneParser::values[MAX_POSSIBLE_VALUES] = {};
 RenderInfo SceneParser::renderInfo = {};
 
 Attenuation SceneParser::attenuation = { .constant = 1.0f, .linear = 0.0f, .quadratic = 0.0f};
-GLuint 		SceneParser::maxDepth = 1;
+GLuint 		SceneParser::maxDepth = 100;
 
 stack<mat4> SceneParser::transformsStack;
 
@@ -221,6 +221,8 @@ SceneParser::readFile(const char* fileName)
 	string str, cmd;
 	ifstream in;
 
+	renderInfo = {};
+
 	in.open(fileName);
 	if (!in.is_open()) {
 
@@ -319,7 +321,7 @@ SceneParser::handleCameraCommand(stringstream& s, string& cmd)
 	vec3 upInit  = glm::vec3(values[6], values[7], values[8]);
 	//upinit = Transform::upvector(upinit, eyeinit);
 	GLfloat fovy = values[9];
-	renderInfo.camera = new Camera(eyeInit, center, upInit, fovy, renderInfo.width, renderInfo.height);
+	renderInfo.camera = Camera(eyeInit, center, upInit, fovy, renderInfo.width, renderInfo.height);
 	//transformsStack.top() = lookAt(eyeInit,center,upInit);
 }
 
@@ -341,8 +343,6 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 		sphere->invTransform() = inverse(sphere->transform());
 		sphere->invTransposeTrans() = mat3(transpose(sphere->invTransform()));
 		renderInfo.scene.addObject(sphere);
-
-		sphere->print();
 	}
 
 	else if (cmd == Commands.maxverts) {

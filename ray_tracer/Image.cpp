@@ -17,7 +17,6 @@ using namespace std;
 
 #define RGBSIZE 24
 
-int Image::FreeImage_objs_cnt = 0;
 
 glm::vec3 Image::clamp (glm::vec3& v)
 {
@@ -36,24 +35,13 @@ glm::vec3 Image::clamp (glm::vec3& v)
 Image::Image(int width, int height)
 :width(width), height(height)
 {
-	if (FreeImage_objs_cnt == 0) {
-		// First Image
-		FreeImage_Initialise();
-	}
-
 	this->bitmap = FreeImage_Allocate(width, height, RGBSIZE);
-	++FreeImage_objs_cnt;
 }
 
 
 Image::~Image() {
 
-	--FreeImage_objs_cnt;
 	FreeImage_Unload(this->bitmap);
-	if (FreeImage_objs_cnt == 0) {
-		// Last image
-		FreeImage_DeInitialise();
-	}
 }
 
 void Image::setPixel(int row, int col, glm::vec3& rgbColors)

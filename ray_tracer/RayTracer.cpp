@@ -10,6 +10,8 @@
 #include <vector>
 #include "General.h"
 
+#include <iomanip>
+
 
 
 RayTracer::RayTracer() {
@@ -22,10 +24,11 @@ RayTracer::~RayTracer() {
 }
 
 
-Image* RayTracer::rayTrace(Camera & camera, Scene & scene, GLuint width, GLuint height, GLuint maxDepth)
+Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLuint width, GLuint height, GLuint maxDepth)
 {
 	Image *image = new Image(width, height);
 	vec3 color;
+	GLfloat completed;
 
 	// Render loop
 	for (GLuint i = 0 ; i < height ; ++i) {
@@ -35,26 +38,29 @@ Image* RayTracer::rayTrace(Camera & camera, Scene & scene, GLuint width, GLuint 
 			color = recursiveRayTrace(scene, ray, maxDepth);
 			image->setPixel(i, j, color);
 		}
+
+		completed = (i / (GLfloat)height) * 100;
+		std::cout << "\r" << "Rendering " << fileName << ": " << completed << setprecision(2) << std::fixed << "% Completed.     " <<  std::flush;
 	}
+
+	std::cout << "\r" << "Rendering " << fileName << ": 100% completed.        " << endl;
 
 	return image;
 }
 
 
-vec3 RayTracer::recursiveRayTrace(Scene& scene, Ray& ray, GLuint depth)
+vec3 RayTracer::recursiveRayTrace(Scene& scene, Ray & ray, GLuint depth)
 {
 	vec3 color = vec3(0.0f, 0.0f, 0.0f);
 	ColorComponents co = {};
 
 	if (depth == 0) {
-
 		return vec3(0.0f, 0.0f, 0.0f);
 	}
 
-
 	Intersection hit = intersectScene(scene, ray);
 	if (!hit.isValid) {
-		return color;
+		return vec3(0.0f, 0.0f, 0.0f);
 	}
 
 	co = computeLight(scene, ray, hit);

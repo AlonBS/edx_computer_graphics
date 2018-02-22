@@ -41,8 +41,6 @@ inline std::ostream& operator<< (std::ostream &out, const Pixel &pixel)
 class Image {
 private:
 
-	static int FreeImage_objs_cnt;
-
 
 	int width;
 	int height;
@@ -66,7 +64,6 @@ public:
 
 	const void saveImage(std::string& fileName) const;
 
-//	inline friend std::ostream& operator<< (std::ostream &out, const Image &image);
 
 };
 

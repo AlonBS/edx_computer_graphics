@@ -10,17 +10,11 @@
 Triangle::Triangle(vec3& va, vec3& vb, vec3& vc)
 : Object(), A(va), B(vb), C(vc)
 {
-//	N = normalize(cross(C-A,B-A)); // Compute the face normal
 	N = normalize(cross(C-B,A-B)); // Compute the face normal
 	AN = vec3(0.0f, 0.0f, 0.0f);
 	BN = vec3(0.0f, 0.0f, 0.0f);
 	CN = vec3(0.0f, 0.0f, 0.0f);
 
-	printVec3("NORMA", N);
-
-//	color = vec3((GLfloat) rand() / (GLfloat) RAND_MAX,
-//				 (GLfloat) rand() / (GLfloat) RAND_MAX,
-//				 (GLfloat) rand() / (GLfloat) RAND_MAX);
 }
 
 Triangle::Triangle(vec3& va, vec3& vb, vec3& vc, vec3& vaNorm, vec3& vbNorm, vec3& vcNorm)

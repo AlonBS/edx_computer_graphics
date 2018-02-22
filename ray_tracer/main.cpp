@@ -2,6 +2,8 @@
 //
 #include <iostream>
 #include <FreeImage.h>
+#include <fstream>
+
 //
 #include "Object.h"
 #include "SceneParser.h"
@@ -9,6 +11,9 @@
 #include "RenderInfo.h"
 #include "Image.h"
 #include "RayTracer.h"
+
+#define BOOST_FILESYSTEM_VERSION 3
+#define BOOST_FILESYSTEM_NO_DEPRECATED
 
 #include <boost/filesystem.hpp>
 
@@ -18,7 +23,7 @@ namespace fs = ::boost::filesystem;
 
 // return the filenames of all files that have the specified extension
 // in the specified directory and all subdirectories
-void get_all_scenes(const fs::path& root, const string& ext, vector<fs::path>& ret)
+static void get_all_scenes(const fs::path& root, const string& ext, vector<fs::path>& ret)
 {
     if(!fs::exists(root) || !fs::is_directory(root)) return;
 
@@ -27,33 +32,59 @@ void get_all_scenes(const fs::path& root, const string& ext, vector<fs::path>& r
 
     while(it != endit)
     {
-        if(fs::is_regular_file(*it) && it->path().extension() == ext) ret.push_back(it->path().filename());
+        if(fs::is_regular_file(*it) && it->path().extension() == ext)
+        	ret.push_back(it->path());
         ++it;
-
     }
 
 }
 
+static void render_scene(string &fileName)
+{
+
+	RenderInfo renderInfo = SceneParser::readFile(fileName.c_str());
+
+	RayTracer rayTracer;
+	Image *img = rayTracer.rayTrace(fileName, renderInfo.camera, renderInfo.scene, renderInfo.width, renderInfo.height, renderInfo.maxDepth);
+
+	fs::path p = fileName;
+
+	string output;
+	if (renderInfo.outputFile.empty()) {
+		// No output file was given
+		output = fileName + "_result";
+	}
+	else {
+		output = p.parent_path().generic_string() + "/" + renderInfo.outputFile;
+	}
+
+	img->saveImage(output);
+
+	delete img;
+}
+
+
+
 int main()
 {
+	FreeImage_Initialise();
+
+	fs::path directory = "./scenes/a";
+	string ext = ".test";
+	vector<fs::path> files;
+	get_all_scenes(directory, ext, files);
+
+	Image *img = nullptr;
+	string fileName;
 
 	cout << "Ray Tracer working..." << endl;
 
-	string fileName = "./scenes/scene6.test";
-	RenderInfo renderInfo = SceneParser::readFile(fileName.c_str());
+	for (fs::path p : files) {
+		string file = p.generic_string();
+		render_scene(file);
+	}
 
-	renderInfo.camera->print();
-
-	RayTracer rayTracer;
-	Image *img = rayTracer.rayTrace(*renderInfo.camera, renderInfo.scene, renderInfo.width, renderInfo.height, renderInfo.maxDepth);
-
-	//img->saveImage(renderInfo.outputFile);
-	string output = "./scenes/scene1.test_result";
-	img->saveImage(output);
-	delete img;
-	delete renderInfo.camera;
-
-	cout << "Done " << endl;
+	FreeImage_DeInitialise();
 	return 0;
 }
 
