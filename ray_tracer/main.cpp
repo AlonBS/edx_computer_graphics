@@ -10,15 +10,36 @@
 #include "Image.h"
 #include "RayTracer.h"
 
+#include <boost/filesystem.hpp>
 
 using namespace std;
+
+namespace fs = ::boost::filesystem;
+
+// return the filenames of all files that have the specified extension
+// in the specified directory and all subdirectories
+void get_all_scenes(const fs::path& root, const string& ext, vector<fs::path>& ret)
+{
+    if(!fs::exists(root) || !fs::is_directory(root)) return;
+
+    fs::recursive_directory_iterator it(root);
+    fs::recursive_directory_iterator endit;
+
+    while(it != endit)
+    {
+        if(fs::is_regular_file(*it) && it->path().extension() == ext) ret.push_back(it->path().filename());
+        ++it;
+
+    }
+
+}
 
 int main()
 {
 
 	cout << "Ray Tracer working..." << endl;
 
-	string fileName = "./scenes/scene4-diffuse.test";
+	string fileName = "./scenes/scene6.test";
 	RenderInfo renderInfo = SceneParser::readFile(fileName.c_str());
 
 	renderInfo.camera->print();

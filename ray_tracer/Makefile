@@ -1,4 +1,4 @@
-INCFLAGS  = -I /usr/include/GL -I ./utilities/include
+INCFLAGS  = -I /usr/include/GL -I ./utilities/include -I /usr/include/boost
 
 #LINKFLAGS  = -lGL -lGLUassimp  -lSOIL
 LINKFLAGS  = -L ./lib/nix -lfreeimage -lGLEW

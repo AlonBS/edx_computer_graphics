@@ -340,7 +340,6 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 		sphere->transform() = transformsStack.top();
 		sphere->invTransform() = inverse(sphere->transform());
 		sphere->invTransposeTrans() = mat3(transpose(sphere->invTransform()));
-//		sphere->invTransposeTrans() = mat3(inverse(transpose(transformsStack.top())));
 		renderInfo.scene.addObject(sphere);
 
 		sphere->print();
