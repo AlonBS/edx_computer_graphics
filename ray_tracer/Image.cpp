@@ -64,5 +64,5 @@ const void Image::saveImage(std::string& fileName) const
 {
 	//FIF_PNG
 	FreeImage_Save(FIF_PNG, bitmap, fileName.c_str(), 0);
-	std::cout << "Image saved to: " << fileName << std::endl;
+	std::cout << "\tImage saved to: " << fileName << std::endl;
 }

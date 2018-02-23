@@ -52,7 +52,6 @@ Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLu
 vec3 RayTracer::recursiveRayTrace(Scene& scene, Ray & ray, GLuint depth)
 {
 	vec3 color = vec3(0.0f, 0.0f, 0.0f);
-	ColorComponents co = {};
 
 	if (depth == 0) {
 		return vec3(0.0f, 0.0f, 0.0f);
@@ -63,15 +62,14 @@ vec3 RayTracer::recursiveRayTrace(Scene& scene, Ray & ray, GLuint depth)
 		return vec3(0.0f, 0.0f, 0.0f);
 	}
 
-	co = computeLight(scene, ray, hit);
+	color = computeLight(scene, ray, hit);
 
 	vec3 reflectedRayOrigin = hit.point;
 	vec3 reflectedRayDir = glm::reflect(ray.direction, hit.normal);
 	reflectedRayOrigin = reflectedRayOrigin + EPSILON * reflectedRayDir;
 	Ray reflectedRay(reflectedRayOrigin , reflectedRayDir);
 
-	color = co.ambient + co.emission + co.diffuse + co.specular;
-	return color + co.specular * recursiveRayTrace(scene, reflectedRay, --depth);
+	return color + hit.object->specular() * recursiveRayTrace(scene, reflectedRay, --depth);
 
 }
 
@@ -112,11 +110,9 @@ Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 }
 
 
-ColorComponents RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
+vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 {
-	ColorComponents co = {};
-	vec3 diffuse = vec3(0.0f, 0.0f, 0.0f);
-	vec3 specular = vec3(0.0f, 0.0f, 0.0f);
+	vec3 color = vec3(0.0f, 0.0f, 0.0f), tempColor;
 
 	Ray shadowRay;
 	vec3 srOrigin;
@@ -127,17 +123,14 @@ ColorComponents RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 	vec3 halfAng;
 
 
-
 	// The 'eye' direction is where the current ray was shot from, and hit.
 	eyeDir = normalize(r.origin - hit.point);
 
 	//Ambient & Emission - regardless of lights
-	co.ambient = hit.object->ambient();
-	co.emission = hit.object->emission();
+	color += hit.object->ambient() + hit.object->emission();
 
 	// Add point lights
 	for (PointLight* p : scene.getPointLights()) {
-
 
 		srDir = normalize(p->_position - hit.point);
 		srOrigin = hit.point + EPSILON * srDir; // Move a little to avoid floating point errors
@@ -147,23 +140,21 @@ ColorComponents RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 		if (isVisibleToLight(scene.getObjects(), shadowRay, maxDist)) {
 
 			halfAng = normalize(srDir + eyeDir);
-			__blinn_phong(hit.object, p->_color, srDir, hit.normal, halfAng, diffuse, specular);
 
-			diffuse  /= (scene.Attenuation().constant + scene.Attenuation().linear * maxDist + scene.Attenuation().quadratic * maxDist * maxDist);
-			specular /= (scene.Attenuation().constant + scene.Attenuation().linear * maxDist + scene.Attenuation().quadratic * maxDist * maxDist);
-
-			co.diffuse += diffuse;
-			co.specular += specular;
-			//color = (color) / (scene.Attenuation().constant + scene.Attenuation().linear * maxDist + scene.Attenuation().quadratic * maxDist * maxDist);
+			tempColor = __blinn_phong(hit.object, p->_color, srDir, hit.normal, halfAng);
+			// take attenuation into account
+			GLfloat atten = 1 / (scene.Attenuation().constant + scene.Attenuation().linear * maxDist + scene.Attenuation().quadratic * maxDist * maxDist);
+			tempColor *= atten;
+			color += tempColor;
 		}
+
+
 	}
 
 
-	// take attenuation into account
-
 	for (DirectionalLight* p : scene.getDirectionalLights()) {
 
-		srDir = normalize(-p->_direction);
+		srDir = normalize(p->_direction);
 		srOrigin = hit.point + EPSILON * srDir; // Move a little to avoid floating point errors
 		shadowRay = Ray(srOrigin, srDir);
 		maxDist = INFINITE;
@@ -171,14 +162,13 @@ ColorComponents RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 		if (isVisibleToLight(scene.getObjects(), shadowRay, maxDist)) {
 
 			halfAng = normalize(srDir + eyeDir);
-			__blinn_phong(hit.object, p->_color, srDir, hit.normal, halfAng, diffuse, specular);
+			tempColor = __blinn_phong(hit.object, p->_color, srDir, hit.normal, halfAng);
 
-			co.diffuse += diffuse;
-			co.specular += specular;
+			color += tempColor;
 		}
 	}
 
-	return co;
+	return color;
 }
 
 
@@ -202,18 +192,16 @@ bool RayTracer::isVisibleToLight(vector<Object*>& objects, Ray& shadowRay, GLflo
 	return true;
 }
 
-void RayTracer::__blinn_phong(Object* obj, vec3& lightColor, vec3& lightDir, vec3& normal, vec3& halfAng, vec3& diffuse, vec3& specular)
+vec3 RayTracer::__blinn_phong(Object* obj, vec3& lightColor, vec3& lightDir, vec3& normal, vec3& halfAng)
 {
-	vec3 result = vec3(0.0, 0.0, 0.0);
-
 	// diffuse
 	GLfloat diff = glm::max(dot(normal, lightDir), 0.0f);
-	diffuse = diff * obj->diffuse();
+	vec3 diffuse = diff * obj->diffuse();
 	diffuse *= lightColor;
 
 	// Specular
 	GLfloat spec = glm::pow(glm::max(dot(halfAng, normal), 0.0f), obj->shininess());
-	specular = spec * obj->specular();
-	specular *= lightColor;
+	vec3 specular = spec * obj->specular();
 
+	return (diffuse + specular) * lightColor;
 }

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <FreeImage.h>
 #include <fstream>
+#include <ctime>
 
 //
 #include "Object.h"
@@ -67,6 +68,9 @@ static void render_scene(string &fileName)
 
 int main()
 {
+	clock_t begin, end;
+	GLfloat time, totalTime;
+
 	FreeImage_Initialise();
 
 	fs::path directory = "./scenes/a";
@@ -80,9 +84,21 @@ int main()
 	cout << "Ray Tracer working..." << endl;
 
 	for (fs::path p : files) {
+
+		begin = clock();
+
 		string file = p.generic_string();
 		render_scene(file);
+
+		end = clock();
+
+		time = GLfloat(end - begin) / CLOCKS_PER_SEC;
+		cout << "\tTime took: " << time << " seconds. " << endl;
+		totalTime += time;
 	}
+
+
+	cout << "Finished working. Total Time: " << totalTime / 60 << " minutes." << endl;
 
 	FreeImage_DeInitialise();
 	return 0;

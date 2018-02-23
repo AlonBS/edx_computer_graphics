@@ -28,15 +28,6 @@ typedef struct Intersection {
 
 }Intersection;
 
-typedef struct ColorComponents {
-
-	vec3 ambient;
-	vec3 emission;
-	vec3 diffuse;
-	vec3 specular;
-
-}ColorComponents;
-
 
 class RayTracer {
 public:
@@ -52,12 +43,12 @@ private:
 
 	Intersection intersectScene(Scene & scene, Ray& ray);
 
-	ColorComponents computeLight(Scene & scene, Ray& r, Intersection& hit);
+	vec3 computeLight(Scene & scene, Ray& r, Intersection& hit);
 
 	bool isVisibleToLight(vector<Object*>& objects, Ray& shadowRay, GLfloat limit);
 
 
-	void __blinn_phong(Object* obj, vec3& lightColor, vec3& lightDir, vec3& normal, vec3& halfAng, vec3& diffuse, vec3& specular);
+	vec3 __blinn_phong(Object* obj, vec3& lightColor, vec3& lightDir, vec3& normal, vec3& halfAng);
 
 };
 

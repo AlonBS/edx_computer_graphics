@@ -106,7 +106,7 @@ GLfloat SceneParser::values[MAX_POSSIBLE_VALUES] = {};
 RenderInfo SceneParser::renderInfo = {};
 
 Attenuation SceneParser::attenuation = { .constant = 1.0f, .linear = 0.0f, .quadratic = 0.0f};
-GLuint 		SceneParser::maxDepth = 100;
+GLuint 		SceneParser::maxDepth = 5;
 
 stack<mat4> SceneParser::transformsStack;
 
@@ -174,24 +174,6 @@ SceneParser::identifyCommand(std::string & cmd)
 	return UNKNOWN_COMMAND;
 }
 
-
-
-
-//cout << Commands::camera;
-
-
-//// You may not need to use the following two functions, but it is provided
-//// here for convenience
-//
-//// The function below applies the appropriate transform to a 4-vector
-//void matransform(stack<mat4> &transfstack, GLfloat* values)
-//{
-//	mat4 transform = transfstack.top();
-//	vec4 valvec = vec4(values[0],values[1],values[2],values[3]);
-//	vec4 newval = transform * valvec;
-//	for (int i = 0; i < 4; i++) values[i] = newval[i];
-//}
-//
 void
 rightMultiply(const mat4 & M, stack<mat4> &transfstack)
 {
