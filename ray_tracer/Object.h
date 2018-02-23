@@ -11,6 +11,7 @@
 #include "Ray.h"
 #include <GL/glew.h>
 #include "General.h"
+#include "Image.h"
 
 using namespace glm;
 
@@ -28,8 +29,12 @@ private:
 	mat4 _invTransform;	  	 // We compute it once, instead of each intersection test
 	mat3 _invTransposeTrans; // For normals transforms - notice 3x3
 
+
+
 protected:
 
+	bool _textured;
+	Image *texture;
 
 public:
 
@@ -37,7 +42,11 @@ public:
 	Object();
 	virtual ~Object();
 
+	void setTexture(Image *texture) { this->texture = texture; }
+
 	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal) = 0;
+
+	virtual vec3 getTextureColor(vec3& point) = 0;
 
 	friend std::ostream& operator<< (std::ostream& out, const Object & obj);
 

@@ -29,6 +29,11 @@ glm::vec3 Image::clamp (glm::vec3& v)
 	return clampedV;
 }
 
+glm::vec3 Image::clamp (glm::vec3& v) const
+{
+	return this->clamp(v);
+}
+
 
 
 
@@ -36,6 +41,16 @@ Image::Image(int width, int height)
 :width(width), height(height)
 {
 	this->bitmap = FreeImage_Allocate(width, height, RGBSIZE);
+}
+
+Image::Image(std::string& fileName)
+{
+
+	this->bitmap = FreeImage_Load(FIF_PNG, fileName.c_str());
+
+	this->height = FreeImage_GetHeight(this->bitmap);
+	this->width = FreeImage_GetWidth(this->bitmap);
+
 }
 
 
@@ -58,6 +73,20 @@ void Image::setPixel(int row, int col, glm::vec3& rgbColors)
 
 	FreeImage_SetPixelColor(this->bitmap, col, row, &color);
 }
+
+vec3 Image::getPixel(int row, int col) const
+{
+	vec3 color;
+	RGBQUAD pixel;
+
+	FreeImage_GetPixelColor(this->bitmap, col, row, &pixel);
+	color.r = pixel.rgbRed / 255;
+	color.g = pixel.rgbGreen / 255;
+	color.b = pixel.rgbBlue / 255;
+
+	return this->clamp(color);
+}
+
 
 
 const void Image::saveImage(std::string& fileName) const

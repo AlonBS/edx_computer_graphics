@@ -13,6 +13,26 @@ Scene::Scene() {
 }
 
 Scene::~Scene() {
-	// TODO Auto-generated destructor stub
+
+	for (auto* o : objects) {
+		delete o;
+	}
+
+	for (auto* t : textures) {
+		delete t;
+	}
+
+	for (auto* p : pointLights) {
+		delete p;
+	}
+
+	for (auto* d : directionalLights) {
+		delete d;
+	}
+
+	objects.clear();
+	textures.clear();
+	pointLights.clear();
+	directionalLights.clear();
 }
 

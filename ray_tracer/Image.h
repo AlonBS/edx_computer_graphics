@@ -48,15 +48,19 @@ private:
 	FIBITMAP* bitmap;
 
 	glm::vec3 clamp (glm::vec3& v);
+	glm::vec3 clamp (glm::vec3& v) const;
 
 public:
 
 
 	Image (int height, int width);
+	Image(std::string& fileName);
 
 	~Image();
 
 	void setPixel(int row, int col, glm::vec3& rgbColors);
+
+	glm::vec3 getPixel(int row, int col) const;
 
 	int getWidth() { return this->width; }
 	int getHeight() { return this->height; }

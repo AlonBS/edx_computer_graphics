@@ -3,9 +3,10 @@
 #include <iostream>
 #include <FreeImage.h>
 #include <fstream>
-#include <ctime>
+#include <omp.h>
+#include <sys/time.h>
+#include <iomanip>
 
-//
 #include "Object.h"
 #include "SceneParser.h"
 #include "Camera.h"
@@ -68,8 +69,11 @@ static void render_scene(string &fileName)
 
 int main()
 {
-	clock_t begin, end;
+
+	struct timeval start, end;
 	GLfloat time, totalTime;
+
+
 
 	FreeImage_Initialise();
 
@@ -83,22 +87,29 @@ int main()
 
 	cout << "Ray Tracer working..." << endl;
 
+	int tid;
+
 	for (fs::path p : files) {
 
-		begin = clock();
+		gettimeofday(&start, NULL);
 
+
+		std::cout << "\tRendering " << p.filename() << "..." << endl;
 		string file = p.generic_string();
 		render_scene(file);
 
-		end = clock();
+		std::cout << "\tFinished rendering " << p.filename() << "..." << endl;
 
-		time = GLfloat(end - begin) / CLOCKS_PER_SEC;
-		cout << "\tTime took: " << time << " seconds. " << endl;
+		gettimeofday(&end, NULL);
+
+		time = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+		cout << "\tTime took: " << time << setprecision(1) << " seconds. " << endl;
 		totalTime += time;
+
 	}
 
 
-	cout << "Finished working. Total Time: " << totalTime / 60 << " minutes." << endl;
+	cout << "Finished working. Total Time: " << totalTime / 60 << setprecision(2) << " minutes." << endl;
 
 	FreeImage_DeInitialise();
 	return 0;

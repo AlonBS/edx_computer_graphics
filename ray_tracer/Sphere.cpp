@@ -7,6 +7,7 @@
 
 #include "Sphere.h"
 
+
 using namespace glm;
 
 
@@ -77,11 +78,30 @@ bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 	return true;
 }
 
+
+vec3 Sphere::getTextureColor(vec3& point)
+{
+	int width = this->texture->getWidth();
+	int height = this->texture->getHeight();
+
+	vec3 d = normalize(point - center);
+
+	GLfloat u, v;
+
+	u = 0.5 + atan2(d.x, d.z) / (2 * PI);
+	v = 0.5 + 0.5 * d.y;
+
+	return this->texture->getPixel(width * u, height * v);
+}
+
+
 const void Sphere::print() const
 {
 	std::cout << "Center: (" << center.x << "," << center.y << "," << center.z << ") | Radius: " << radius << std::endl;
 	Object::print();
 }
+
+
 
 
 /*

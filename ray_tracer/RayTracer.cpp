@@ -10,8 +10,6 @@
 #include <vector>
 #include "General.h"
 
-#include <iomanip>
-
 
 
 RayTracer::RayTracer() {
@@ -31,19 +29,17 @@ Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLu
 	GLfloat completed;
 
 	// Render loop
-	for (GLuint i = 0 ; i < height ; ++i) {
-		for (GLuint j = 0 ; j < width ; ++j) {
+	{
+#pragma omp parallel for
+		for (GLuint i = 0 ; i < height ; ++i) {
+			for (GLuint j = 0 ; j < width ; ++j) {
 
-			Ray ray = camera.generateRay(i + .5, j + .5);
-			color = recursiveRayTrace(scene, ray, maxDepth);
-			image->setPixel(i, j, color);
+				Ray ray = camera.generateRay(i + .5, j + .5);
+				color = recursiveRayTrace(scene, ray, maxDepth);
+				image->setPixel(i, j, color);
+			}
 		}
-
-		completed = (i / (GLfloat)height) * 100;
-		std::cout << "\r" << "Rendering " << fileName << ": " << completed << setprecision(2) << std::fixed << "% Completed.     " <<  std::flush;
 	}
-
-	std::cout << "\r" << "Rendering " << fileName << ": 100% completed.        " << endl;
 
 	return image;
 }
@@ -80,6 +76,7 @@ Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 	GLfloat dist;
 	vec3 point;
 	vec3 normal;
+	vec3 texColor;
 
 	Intersection hit;
 
@@ -96,6 +93,8 @@ Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 				minDist = dist;
 				hit.point = point;
 				hit.normal = normal;
+				hit.texColor = texColor;
+
 				hit.object = object;
 				hit.isValid = true;
 			}
@@ -122,12 +121,16 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 	vec3 eyeDir;
 	vec3 halfAng;
 
+	cout << " HERE" << endl;
+
+	vec3 diffuseTexture = hit.object->getTextureColor(hit.point);
+
 
 	// The 'eye' direction is where the current ray was shot from, and hit.
 	eyeDir = normalize(r.origin - hit.point);
 
 	//Ambient & Emission - regardless of lights
-	color += hit.object->ambient() + hit.object->emission();
+
 
 	// Add point lights
 	for (PointLight* p : scene.getPointLights()) {
@@ -142,13 +145,12 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 			halfAng = normalize(srDir + eyeDir);
 
 			tempColor = __blinn_phong(hit.object, p->_color, srDir, hit.normal, halfAng);
+			tempColor *= diffuseTexture;
 			// take attenuation into account
 			GLfloat atten = 1 / (scene.Attenuation().constant + scene.Attenuation().linear * maxDist + scene.Attenuation().quadratic * maxDist * maxDist);
 			tempColor *= atten;
 			color += tempColor;
 		}
-
-
 	}
 
 
@@ -163,10 +165,13 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 
 			halfAng = normalize(srDir + eyeDir);
 			tempColor = __blinn_phong(hit.object, p->_color, srDir, hit.normal, halfAng);
+			tempColor *= diffuseTexture;
 
 			color += tempColor;
 		}
 	}
+
+	color += hit.object->ambient() + hit.object->emission();
 
 	return color;
 }

@@ -33,6 +33,8 @@ public:
 
 	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal);
 
+	virtual vec3 getTextureColor(vec3& point);
+
 
 	virtual const void print() const;
 };

@@ -23,6 +23,7 @@ typedef struct Intersection {
 
 	vec3 point;
 	vec3 normal;
+	vec3 texColor;
 
 	Object *object; // The object the ray intersected
 

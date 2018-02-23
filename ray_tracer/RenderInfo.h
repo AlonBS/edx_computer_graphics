@@ -32,7 +32,8 @@ struct RenderInfo {
 	vector<glm::vec3> vertcies;
 	vector<glm::vec3> vertciesNormals;
 
-
+	Image *boundTexture;
+	bool textureIsBound;
 
 };
 

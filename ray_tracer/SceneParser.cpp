@@ -61,6 +61,9 @@ struct Commands {
 	const string vertexnormal  = "vertexnormal";
 	const string tri           = "tri";
 	const string trinormal     = "trinormal";
+	const string texture       = "texture";
+	const string bindTexture   = "bindTexture";
+	const string unbindTexture = "unbindTexture";
 
 	// Transformations
 	const string translate     = "translate";
@@ -90,7 +93,7 @@ set<string> SceneParser::general = {Commands.size, Commands.maxdepth, Commands.o
 string 	    SceneParser::camera = Commands.camera;
 set<string> SceneParser::geometry = {Commands.sphere, Commands.maxverts, Commands.maxvertnorms,
 									 Commands.vertex, Commands.vertexnormal, Commands.tri,
-									 Commands.trinormal};
+									 Commands.trinormal, Commands.texture, Commands.bindTexture, Commands.unbindTexture};
 set<string> SceneParser::transformations = {Commands.translate, Commands.rotate, Commands.scale,
 											Commands.pushTransform, Commands.popTransform};
 set<string> SceneParser::lights = {Commands.directional, Commands.point, Commands.attenuation};
@@ -324,6 +327,10 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 		sphere->transform() = transformsStack.top();
 		sphere->invTransform() = inverse(sphere->transform());
 		sphere->invTransposeTrans() = mat3(transpose(sphere->invTransform()));
+
+		if (renderInfo.textureIsBound) {
+			sphere->setTexture(renderInfo.boundTexture);
+		}
 		renderInfo.scene.addObject(sphere);
 	}
 
@@ -367,6 +374,9 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 //		triangle->transform() = transformsStack.top();
 //		triangle->invTransform() = inverse(triangle->transformMat);
 //		triangle->invTransposeTrans() = transpose(triangle->invTransformMat);
+		if (renderInfo.textureIsBound) {
+			triangle->setTexture(renderInfo.boundTexture);
+		}
 		renderInfo.scene.addObject(triangle);
 	}
 
@@ -381,6 +391,29 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 				renderInfo.vertcies[values[2] * 2 - 1]);
 		renderInfo.scene.addObject(triangle);
 	}
+
+	else if (cmd == Commands.texture) {
+
+		string textureFile;
+		s >> textureFile;
+
+		Image *texture = new Image(textureFile);
+
+		renderInfo.scene.addTexture(texture);
+	}
+
+	else if (cmd == Commands.bindTexture) {
+
+			readValues(s, 1, values);
+
+			renderInfo.textureIsBound = true;
+			renderInfo.boundTexture = renderInfo.scene.getTexture(values[0]);
+	}
+
+	else if (cmd == Commands.unbindTexture) {
+
+			renderInfo.textureIsBound = false;
+		}
 }
 
 
@@ -478,6 +511,7 @@ SceneParser::handleMaterialsCommand(stringstream& s, string& cmd)
 		readValues(s, 1, values);
 		shininess = values[0];
 	}
+
 }
 
 

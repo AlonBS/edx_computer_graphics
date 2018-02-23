@@ -15,6 +15,7 @@
 
 const GLfloat EPSILON  = 0.001f;
 const GLfloat INFINITE = FLT_MAX;
+const GLfloat PI = 3.1415926f;
 
 using namespace glm;
 using namespace std;

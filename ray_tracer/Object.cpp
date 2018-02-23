@@ -19,6 +19,8 @@ Object::Object() {
 	_invTransform = mat4(1.0f);
 	_invTransposeTrans = mat3(1.0f);
 
+	texture = nullptr;
+
 }
 
 Object::~Object() {
