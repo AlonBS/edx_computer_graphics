@@ -95,7 +95,6 @@ vec3 Sphere::getTextureColor(vec3& point)
 	u = 0.5 + atan2(d.x, d.z) / (2 * PI);
 	v = 0.5 + 0.5 * d.y;
 
-//  return this->_texture->getPixel((int)height * v, (int)width * u);
 	return this->_texture->getPixel((int)width * u, (int)height * v);
 }
 

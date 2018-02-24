@@ -30,7 +30,7 @@ Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLu
 
 	// Render loop
 	{
-#pragma omp parallel for collapse(2)
+//#pragma omp parallel for collapse(2)
 		for (GLuint i = 0 ; i < width ; ++i)
 		{
 			for (GLuint j = 0 ; j < height; ++j)
@@ -124,8 +124,6 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 	// The 'eye' direction is where the current ray was shot from, and hit.
 	eyeDir = normalize(r.origin - hit.point);
 
-	//Ambient & Emission - regardless of lights
-
 
 	// Add point lights
 	for (PointLight* p : scene.getPointLights()) {
@@ -140,7 +138,7 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 			halfAng = normalize(srDir + eyeDir);
 
 			tempColor = __blinn_phong(hit.object, p->_color, srDir, hit.normal, halfAng);
-			//tempColor *= diffuseTexture;
+			tempColor *= diffuseTexture;
 			// take attenuation into account
 			GLfloat atten = 1 / (scene.Attenuation().constant + scene.Attenuation().linear * maxDist + scene.Attenuation().quadratic * maxDist * maxDist);
 			tempColor *= atten;
@@ -160,13 +158,14 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 
 			halfAng = normalize(srDir + eyeDir);
 			tempColor = __blinn_phong(hit.object, p->_color, srDir, hit.normal, halfAng);
-			//tempColor *= diffuseTexture;
+			tempColor *= diffuseTexture;
 
 			color += tempColor;
 		}
 	}
 
-	color += hit.object->ambient() + hit.object->emission();
+	//Ambient & Emission - regardless of lights
+	color += hit.object->ambient() * diffuseTexture + hit.object->emission() * diffuseTexture;
 
 	return color;
 }

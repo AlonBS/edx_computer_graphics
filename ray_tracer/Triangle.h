@@ -17,9 +17,10 @@ class Triangle: public Object {
 
 private:
 
-		vec3 A,B,C ; 	// This triangle vertices
-		vec3 AN,BN,CN ; // Normals to the above vertices, respectively.
-		vec3 N;     	// Face normal to the triangle
+		vec3 A,B,C ; 		// This triangle vertices
+		vec2 Auv, Buv, Cuv; // Vertices texture uv-mapping
+		vec3 AN,BN,CN ; 	// Normals to the above vertices, respectively.
+		vec3 N;     		// Face normal to the triangle
 
 		bool __iRay (Ray &r, GLfloat &dist, vec3& point, vec3& normal);
 		bool __iRay2(Ray &r, GLfloat &dist, vec3& point, vec3& normal);
@@ -27,6 +28,7 @@ private:
 public:
 
 	Triangle(vec3& va, vec3& vb, vec3& vc);
+	Triangle(vec3& va, vec3& vb, vec3& vc, vec2& auv, vec2& buv, vec2& cuv);
 	Triangle(vec3& va, vec3& vb, vec3& vc, vec3& vaNorm, vec3& vbNorm, vec3& vcNorm);
 
 	virtual ~Triangle();

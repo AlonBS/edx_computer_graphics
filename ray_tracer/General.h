@@ -24,10 +24,17 @@ using namespace glm;
 using namespace std;
 
 inline void
+printVec2(const string& name, const vec2& vec)
+{
+	cout << name << ": " << vec.x << "," << vec.y << endl;
+}
+
+inline void
 printVec3(const string& name, const vec3& vec)
 {
 	cout << name << ": " << vec.x << "," << vec.y << "," << vec.z << endl;
 }
+
 
 inline void
 printMat4(const string& name, const mat4& mat)

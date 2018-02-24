@@ -59,8 +59,10 @@ struct Commands {
 	const string maxvertnorms  = "maxvertnorms";
 	const string vertex        = "vertex";
 	const string vertexnormal  = "vertexnormal";
+	const string vertexTex     = "vertexTex";
 	const string tri           = "tri";
 	const string trinormal     = "trinormal";
+	const string triTex        = "triTex";
 	const string texture       = "texture";
 	const string bindTexture   = "bindTexture";
 	const string unbindTexture = "unbindTexture";
@@ -92,8 +94,8 @@ struct Commands {
 set<string> SceneParser::general = {Commands.size, Commands.maxdepth, Commands.output};
 string 	    SceneParser::camera = Commands.camera;
 set<string> SceneParser::geometry = {Commands.sphere, Commands.maxverts, Commands.maxvertnorms,
-									 Commands.vertex, Commands.vertexnormal, Commands.tri,
-									 Commands.trinormal, Commands.texture, Commands.bindTexture, Commands.unbindTexture};
+									 Commands.vertex, Commands.vertexnormal, Commands.vertexTex, Commands.tri,
+									 Commands.trinormal, Commands.triTex, Commands.texture, Commands.bindTexture, Commands.unbindTexture};
 set<string> SceneParser::transformations = {Commands.translate, Commands.rotate, Commands.scale,
 											Commands.pushTransform, Commands.popTransform};
 set<string> SceneParser::lights = {Commands.directional, Commands.point, Commands.attenuation};
@@ -337,30 +339,37 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 
 	else if (cmd == Commands.maxverts) {
 		// New object is coming
-		renderInfo->vertcies.clear();
+		renderInfo->vertices.clear();
 	}
 
 	else if (cmd == Commands.maxvertnorms) {
 		// New Object is coming
-		renderInfo->vertciesNormals.clear();
+		renderInfo->verticesNormals.clear();
 	}
 
 	else if (cmd == Commands.vertex) {
 		readValues(s, 3, values);
-		renderInfo->vertcies.push_back(vec3(values[0], values[1], values[2]));
+		renderInfo->vertices.push_back(vec3(values[0], values[1], values[2]));
 	}
 
 	else if (cmd == Commands.vertexnormal) {
 		readValues(s, 6, values);
-		renderInfo->vertciesNormals.push_back(vec3(values[0], values[1], values[2]));
-		renderInfo->vertciesNormals.push_back(vec3(values[3], values[4], values[5]));
+		renderInfo->verticesNormals.push_back(vec3(values[0], values[1], values[2]));
+		renderInfo->verticesNormals.push_back(vec3(values[3], values[4], values[5]));
 	}
+
+	else if (cmd == Commands.vertexTex) {
+		readValues(s, 5, values);
+		renderInfo->verticesTexV.push_back(vec3(values[0], values[1], values[2]));
+		renderInfo->verticesTexT.push_back(vec2(values[3], values[4]));
+	}
+
 
 	else if (cmd == Commands.tri) {
 		readValues(s, 3, values);
-		vec3 A = vec3 (transformsStack.top() * vec4(renderInfo->vertcies[values[0]], 1.0f));
-		vec3 B = vec3 (transformsStack.top() * vec4(renderInfo->vertcies[values[1]], 1.0f));
-		vec3 C = vec3 (transformsStack.top() * vec4(renderInfo->vertcies[values[2]], 1.0f));
+		vec3 A = vec3 (transformsStack.top() * vec4(renderInfo->vertices[values[0]], 1.0f));
+		vec3 B = vec3 (transformsStack.top() * vec4(renderInfo->vertices[values[1]], 1.0f));
+		vec3 C = vec3 (transformsStack.top() * vec4(renderInfo->vertices[values[2]], 1.0f));
 		Object *triangle = new Triangle(A, B, C);
 
 //		Object *triangle = new Triangle(renderInfo.vertcies[values[0]],
@@ -384,12 +393,45 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 	else if (cmd == Commands.trinormal) {
 		readValues(s, 3, values);
 		// TODO - need to transform normals too ?
-		Object *triangle = new Triangle(renderInfo->vertcies[values[0] * 2],
-				renderInfo->vertcies[values[1] * 2],
-				renderInfo->vertcies[values[2] * 2],
-				renderInfo->vertcies[values[0] * 2 - 1],
-				renderInfo->vertcies[values[1] * 2 - 1],
-				renderInfo->vertcies[values[2] * 2 - 1]);
+		Object *triangle = new Triangle(renderInfo->vertices[values[0] * 2],
+				renderInfo->vertices[values[1] * 2],
+				renderInfo->vertices[values[2] * 2],
+				renderInfo->vertices[values[0] * 2 - 1],
+				renderInfo->vertices[values[1] * 2 - 1],
+				renderInfo->vertices[values[2] * 2 - 1]);
+
+		if (renderInfo->textureIsBound) {
+			triangle->setTexture(renderInfo->boundTexture);
+		}
+		renderInfo->scene.addObject(triangle);
+	}
+
+	else if (cmd == Commands.triTex) {
+		readValues(s, 3, values);
+		vec3 A = vec3 (transformsStack.top() * vec4(renderInfo->verticesTexV[values[0]], 1.0f));
+		vec3 B = vec3 (transformsStack.top() * vec4(renderInfo->verticesTexV[values[1]], 1.0f));
+		vec3 C = vec3 (transformsStack.top() * vec4(renderInfo->verticesTexV[values[2]], 1.0f));
+		vec2 Auv = vec2(renderInfo->verticesTexT[values[0]]);
+		vec2 Buv = vec2(renderInfo->verticesTexT[values[1]]);
+		vec2 Cuv = vec2(renderInfo->verticesTexT[values[2]]);
+
+		Object *triangle = new Triangle(A, B, C, Auv, Buv, Cuv);
+
+		//		Object *triangle = new Triangle(renderInfo.vertcies[values[0]],
+		//												renderInfo.vertcies[values[1]],
+		//												renderInfo.vertcies[values[2]]);
+		triangle->ambient() = ambient;
+		triangle->specular() = specular;
+		triangle->diffuse() = diffuse;
+		triangle->emission() = emission;
+		triangle->shininess() = shininess;
+
+		//		triangle->transform() = transformsStack.top();
+		//		triangle->invTransform() = inverse(triangle->transformMat);
+		//		triangle->invTransposeTrans() = transpose(triangle->invTransformMat);
+		if (renderInfo->textureIsBound) {
+			triangle->setTexture(renderInfo->boundTexture);
+		}
 		renderInfo->scene.addObject(triangle);
 	}
 

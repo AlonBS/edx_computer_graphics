@@ -45,6 +45,7 @@ void Object::setTexture(Image *texture)
 
 }
 
+
 const void Object::print() const
 {
 	printVec3("Ambient", _ambient);

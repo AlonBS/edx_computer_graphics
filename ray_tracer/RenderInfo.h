@@ -29,8 +29,11 @@ struct RenderInfo {
 
 	Scene scene;
 
-	vector<glm::vec3> vertcies;
-	vector<glm::vec3> vertciesNormals;
+	vector<glm::vec3> vertices;
+	vector<glm::vec3> verticesNormals;
+
+	vector<glm::vec3> verticesTexV; // For Vertices with textures mapping
+	vector<glm::vec2> verticesTexT; // The texture mapping
 
 	Image *boundTexture;
 	bool textureIsBound;

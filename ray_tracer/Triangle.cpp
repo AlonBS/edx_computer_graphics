@@ -17,6 +17,19 @@ Triangle::Triangle(vec3& va, vec3& vb, vec3& vc)
 
 }
 
+
+Triangle::Triangle(vec3& va, vec3& vb, vec3& vc, vec2& auv, vec2& buv, vec2& cuv)
+: Object(), A(va), B(vb), C(vc), Auv(auv), Buv(buv), Cuv(cuv)
+{
+	N = normalize(cross(C-B,A-B)); // Compute the face normal
+	AN = vec3(0.0f, 0.0f, 0.0f);
+	BN = vec3(0.0f, 0.0f, 0.0f);
+	CN = vec3(0.0f, 0.0f, 0.0f);
+
+}
+
+
+
 Triangle::Triangle(vec3& va, vec3& vb, vec3& vc, vec3& vaNorm, vec3& vbNorm, vec3& vcNorm)
 : Object(), A(va), B(vb), C(vc), AN(vaNorm), BN(vbNorm), CN(vcNorm)
 {
@@ -132,8 +145,6 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 	AP = P - A;
 
 	// Compute dot products
-
-
 	dot_ACAC = dot(AC, AC);
 	dot_ACAB = dot(AC, AB);
 	dot_ACAP = dot(AC, AP);
@@ -277,14 +288,71 @@ bool Triangle::__iRay3(Ray &r, GLfloat &dist, glm::vec3& normal)
 */
 
 
-vec3 Triangle::getTextureColor(vec3& point)
+//vec3 Triangle::getTextureColor(vec3& P)
+//{
+//	if (!_textured) {
+//		return VECTOR_WHITE;
+//	}
+//
+//	printVec3("P", P);
+//
+//	vec2 uv;
+//	GLfloat baryA, baryB, baryC;
+//	printVec3("A", A);
+//	printVec3("B", B);
+//	printVec3("C", C);
+//	GLfloat denom = (B.y-C.y)*(A.x-C.x) + (C.x-B.x)*(A.y-C.y);
+//
+//	cout << "DENOM" << denom << endl;
+//
+//	baryA = ((B.y - C.y)*(P.x - C.x) + (C.x - B.x)*(P.y - C.y) ) / denom;
+//	baryB = ((C.y - A.y)*(P.x - C.x) + (A.x - C.x)*(P.y - C.y) ) / denom;
+//	baryC = 1 - baryA - baryB;
+//
+//	int w = this->_texture->getWidth(), h = this->_texture->getHeight();
+//
+//	uv = baryA * Auv + baryB * Buv + baryC * Cuv;
+//
+//	//printVec2("UV", uv);
+//
+//
+//
+//	vec3 res = this->_texture->getPixel((int)uv.x * w, (int)uv.y * h);
+//	printVec3("RES", res);
+//	return res;
+//}
+
+
+vec3 Triangle::getTextureColor(vec3& P)
 {
-	return VECTOR_WHITE;
+	vec3 v0 = B-A, v1 = C-A, v2 = P-A;
+
+	GLfloat d00 = dot(v0, v0);
+	GLfloat d01 = dot(v0, v1);
+	GLfloat d11 = dot(v1, v1);
+	GLfloat d20 = dot(v2, v0);
+	GLfloat d21 = dot(v2, v1);
+	GLfloat denom = d00 * d11 - d01 * d01;
+	GLfloat v = (d11 * d20 - d01 * d21) / denom;
+	GLfloat w = (d00 * d21 - d01 * d20) / denom;
+	GLfloat u = 1.0f - v - w;
+
+	vec2 uv = u*Auv + v*Buv + w*Cuv;
+
+	int w0, h0;
+	w0 = this->_texture->getWidth();
+	h0 = this->_texture->getHeight();
+
+	vec3 res = this->_texture->getPixel(uv.x * w0, uv.y * h0);
+
+	return res;
 }
+
+
+
 
 const void Triangle::print() const
 {
-
 	cout << "TRIANGLE" << endl;
 	Object::print();
 }
