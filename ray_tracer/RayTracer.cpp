@@ -30,11 +30,12 @@ Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLu
 
 	// Render loop
 	{
-#pragma omp parallel for
-		for (GLuint i = 0 ; i < width ; ++i) {
-			for (GLuint j = 0 ; j < height; ++j) {
-
-				Ray ray = camera.generateRay(i + .5, j + .5);
+#pragma omp parallel for collapse(2)
+		for (GLuint i = 0 ; i < width ; ++i)
+		{
+			for (GLuint j = 0 ; j < height; ++j)
+			{
+				Ray ray = camera.generateRay(i + .5, j - .5);
 				color = recursiveRayTrace(scene, ray, maxDepth);
 				image->setPixel(i, j, color);
 			}
@@ -86,10 +87,6 @@ Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 
 			if (dist < minDist) {
 
-				//				std::cout << ":(" << color.x << "," << color.y << "," << color.z << ")" << std::endl;
-				//				std::cout << ":(" << normal.x << "," << normal.y << "," << normal.z << ")" << std::endl;
-				//				std::cout << "DIST:(" << dist << std::endl;
-
 				minDist = dist;
 				hit.point = point;
 				hit.normal = normal;
@@ -121,7 +118,7 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 	vec3 eyeDir;
 	vec3 halfAng;
 
-	//vec3 diffuseTexture = hit.object->getTextureColor(hit.point);
+	vec3 diffuseTexture = hit.object->getTextureColor(hit.point);
 
 
 	// The 'eye' direction is where the current ray was shot from, and hit.

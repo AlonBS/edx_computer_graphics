@@ -65,7 +65,7 @@ void Image::setPixel(int col, int row, glm::vec3& rgbColors)
 	color.rgbBlue = clampedValue.b * 255;
 
 	//FreeImage_SetPixelColor(this->bitmap, col, row, &color);
-	FreeImage_SetPixelColor(this->bitmap, col, row, &color);
+	FreeImage_SetPixelColor(this->bitmap, col, height - row, &color);
 }
 
 vec3 Image::getPixel(int col, int row)
