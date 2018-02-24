@@ -29,13 +29,6 @@ glm::vec3 Image::clamp (glm::vec3& v)
 	return clampedV;
 }
 
-glm::vec3 Image::clamp (glm::vec3& v) const
-{
-	return this->clamp(v);
-}
-
-
-
 
 Image::Image(int width, int height)
 :width(width), height(height)
@@ -59,10 +52,10 @@ Image::~Image() {
 	FreeImage_Unload(this->bitmap);
 }
 
-void Image::setPixel(int row, int col, glm::vec3& rgbColors)
+void Image::setPixel(int col, int row, glm::vec3& rgbColors)
 {
-	assert(row >= 0 && row < height);
-	assert(col >= 0 && col < width);
+///	assert(row >= 0 && row < height);
+///	assert(col >= 0 && col < width);
 
 	RGBQUAD color;
 
@@ -71,18 +64,19 @@ void Image::setPixel(int row, int col, glm::vec3& rgbColors)
 	color.rgbGreen = clampedValue.g * 255;
 	color.rgbBlue = clampedValue.b * 255;
 
+	//FreeImage_SetPixelColor(this->bitmap, col, row, &color);
 	FreeImage_SetPixelColor(this->bitmap, col, row, &color);
 }
 
-vec3 Image::getPixel(int row, int col) const
+vec3 Image::getPixel(int col, int row)
 {
 	vec3 color;
 	RGBQUAD pixel;
 
 	FreeImage_GetPixelColor(this->bitmap, col, row, &pixel);
-	color.r = pixel.rgbRed / 255;
-	color.g = pixel.rgbGreen / 255;
-	color.b = pixel.rgbBlue / 255;
+	color.r = pixel.rgbRed / 255.0f;
+	color.g = pixel.rgbGreen / 255.0f;
+	color.b = pixel.rgbBlue / 255.0f;
 
 	return this->clamp(color);
 }

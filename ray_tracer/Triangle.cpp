@@ -279,7 +279,7 @@ bool Triangle::__iRay3(Ray &r, GLfloat &dist, glm::vec3& normal)
 
 vec3 Triangle::getTextureColor(vec3& point)
 {
-	return vec3(0.0f, 0.0f, 0.0f);
+	return VECTOR_WHITE;
 }
 
 const void Triangle::print() const

@@ -34,7 +34,7 @@ private:
 protected:
 
 	bool _textured;
-	Image *texture;
+	Image *_texture;
 
 public:
 
@@ -42,7 +42,7 @@ public:
 	Object();
 	virtual ~Object();
 
-	void setTexture(Image *texture) { this->texture = texture; }
+	void setTexture(Image *texture);
 
 	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal) = 0;
 

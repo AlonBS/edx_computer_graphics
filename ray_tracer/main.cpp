@@ -44,31 +44,52 @@ static void get_all_scenes(const fs::path& root, const string& ext, vector<fs::p
 static void render_scene(string &fileName)
 {
 
-	RenderInfo renderInfo = SceneParser::readFile(fileName.c_str());
+	RenderInfo *renderInfo = SceneParser::readFile(fileName.c_str());
 
 	RayTracer rayTracer;
-	Image *img = rayTracer.rayTrace(fileName, renderInfo.camera, renderInfo.scene, renderInfo.width, renderInfo.height, renderInfo.maxDepth);
+	Image *img = rayTracer.rayTrace(fileName, renderInfo->camera, renderInfo->scene, renderInfo->width, renderInfo->height, renderInfo->maxDepth);
 
 	fs::path p = fileName;
 
 	string output;
-	if (renderInfo.outputFile.empty()) {
+	if (renderInfo->outputFile.empty()) {
 		// No output file was given
 		output = fileName + "_result";
 	}
 	else {
-		output = p.parent_path().generic_string() + "/" + renderInfo.outputFile;
+		output = p.parent_path().generic_string() + "/" + renderInfo->outputFile;
 	}
 
 	img->saveImage(output);
 
 	delete img;
+	delete renderInfo;
 }
 
 
 
 int main()
 {
+//	string s = "./scenes/a/dog.png";
+//	Image *source = new Image(s);
+//	Image *dest = new Image(source->getWidth(), source->getHeight());
+//
+// 	for (int i = 0 ; i < source->getWidth(); ++i) {
+//
+//		for (int j = 0 ; j < source->getHeight(); ++j) {
+//
+//			vec3 pixel = source->getPixel(i,j);
+//			dest->setPixel(i,j, pixel);
+//		}
+// 	}
+//
+// 	string f = "./scenes/a/aaa.png";
+// 	dest->saveImage(f);
+//
+// 	delete source;
+// 	delete dest;
+
+//	return 0;
 
 	struct timeval start, end;
 	GLfloat time, totalTime;

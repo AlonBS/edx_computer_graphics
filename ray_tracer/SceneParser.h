@@ -42,7 +42,7 @@ class SceneParser {
 
 public:
 
-	static RenderInfo readFile(const char* fileName);
+	static RenderInfo* readFile(const char* fileName);
 
 private:
 
@@ -89,7 +89,7 @@ private:
 	static Attenuation attenuation;
 	static GLuint maxDepth;
 
-	static RenderInfo renderInfo;
+	static RenderInfo* renderInfo;
 
 
 };

@@ -31,8 +31,8 @@ Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLu
 	// Render loop
 	{
 #pragma omp parallel for
-		for (GLuint i = 0 ; i < height ; ++i) {
-			for (GLuint j = 0 ; j < width ; ++j) {
+		for (GLuint i = 0 ; i < width ; ++i) {
+			for (GLuint j = 0 ; j < height; ++j) {
 
 				Ray ray = camera.generateRay(i + .5, j + .5);
 				color = recursiveRayTrace(scene, ray, maxDepth);
@@ -121,9 +121,7 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 	vec3 eyeDir;
 	vec3 halfAng;
 
-	cout << " HERE" << endl;
-
-	vec3 diffuseTexture = hit.object->getTextureColor(hit.point);
+	//vec3 diffuseTexture = hit.object->getTextureColor(hit.point);
 
 
 	// The 'eye' direction is where the current ray was shot from, and hit.
@@ -145,7 +143,7 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 			halfAng = normalize(srDir + eyeDir);
 
 			tempColor = __blinn_phong(hit.object, p->_color, srDir, hit.normal, halfAng);
-			tempColor *= diffuseTexture;
+			//tempColor *= diffuseTexture;
 			// take attenuation into account
 			GLfloat atten = 1 / (scene.Attenuation().constant + scene.Attenuation().linear * maxDist + scene.Attenuation().quadratic * maxDist * maxDist);
 			tempColor *= atten;
@@ -165,7 +163,7 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 
 			halfAng = normalize(srDir + eyeDir);
 			tempColor = __blinn_phong(hit.object, p->_color, srDir, hit.normal, halfAng);
-			tempColor *= diffuseTexture;
+			//tempColor *= diffuseTexture;
 
 			color += tempColor;
 		}

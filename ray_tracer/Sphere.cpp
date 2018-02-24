@@ -81,8 +81,12 @@ bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 
 vec3 Sphere::getTextureColor(vec3& point)
 {
-	int width = this->texture->getWidth();
-	int height = this->texture->getHeight();
+	if (!this->_textured) {
+		return VECTOR_WHITE;
+	}
+
+	int width = this->_texture->getWidth();
+	int height = this->_texture->getHeight();
 
 	vec3 d = normalize(point - center);
 
@@ -91,7 +95,8 @@ vec3 Sphere::getTextureColor(vec3& point)
 	u = 0.5 + atan2(d.x, d.z) / (2 * PI);
 	v = 0.5 + 0.5 * d.y;
 
-	return this->texture->getPixel(width * u, height * v);
+//  return this->_texture->getPixel((int)height * v, (int)width * u);
+	return this->_texture->getPixel((int)width * u, (int)height * v);
 }
 
 

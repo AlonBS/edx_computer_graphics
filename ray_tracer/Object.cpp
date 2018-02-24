@@ -19,7 +19,8 @@ Object::Object() {
 	_invTransform = mat4(1.0f);
 	_invTransposeTrans = mat3(1.0f);
 
-	texture = nullptr;
+	_texture = nullptr;
+	_textured = false;
 
 }
 
@@ -31,6 +32,17 @@ std::ostream& operator<< (std::ostream& out, const Object & obj)
 {
 	obj.print();
 	return out;
+}
+
+
+void Object::setTexture(Image *texture)
+{
+	if (texture == nullptr)
+		return;
+
+	this->_texture = texture;
+	this->_textured = true;
+
 }
 
 const void Object::print() const

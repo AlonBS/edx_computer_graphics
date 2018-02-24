@@ -13,9 +13,12 @@
 #include <GL/glew.h>
 #include <iostream>
 
+using namespace glm;
+
 const GLfloat EPSILON  = 0.001f;
 const GLfloat INFINITE = FLT_MAX;
 const GLfloat PI = 3.1415926f;
+const vec3 VECTOR_WHITE = vec3(1.0f, 1.0f, 1.0f);
 
 using namespace glm;
 using namespace std;
