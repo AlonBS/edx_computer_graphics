@@ -48,15 +48,15 @@ Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLu
 
 vec3 RayTracer::recursiveRayTrace(Scene& scene, Ray & ray, GLuint depth)
 {
-	vec3 color = vec3(0.0f, 0.0f, 0.0f);
+	vec3 color = COLOR_BLACK;
 
 	if (depth == 0) {
-		return vec3(0.0f, 0.0f, 0.0f);
+		return COLOR_BLACK;
 	}
 
 	Intersection hit = intersectScene(scene, ray);
 	if (!hit.isValid) {
-		return vec3(0.0f, 0.0f, 0.0f);
+		return COLOR_BLACK;
 	}
 
 	color = computeLight(scene, ray, hit);
@@ -83,7 +83,7 @@ Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 
 	for (Object *object : scene.getObjects()) {
 
-		if (object->intersectsRay(ray, dist, point, normal)) {
+		if (object->intersectsRay(ray, dist, &point, &normal, &texColor)) {
 
 			if (dist < minDist) {
 
@@ -108,7 +108,7 @@ Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 
 vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 {
-	vec3 color = vec3(0.0f, 0.0f, 0.0f), tempColor;
+	vec3 color = COLOR_BLACK, tempColor;
 
 	Ray shadowRay;
 	vec3 srOrigin;
@@ -118,7 +118,7 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 	vec3 eyeDir;
 	vec3 halfAng;
 
-	vec3 diffuseTexture = hit.object->getTextureColor(hit.point);
+	vec3 diffuseTexture = hit.texColor;
 
 
 	// The 'eye' direction is where the current ray was shot from, and hit.
@@ -154,6 +154,7 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 		shadowRay = Ray(srOrigin, srDir);
 		maxDist = INFINITE;
 
+
 		if (isVisibleToLight(scene.getObjects(), shadowRay, maxDist)) {
 
 			halfAng = normalize(srDir + eyeDir);
@@ -177,7 +178,7 @@ bool RayTracer::isVisibleToLight(vector<Object*>& objects, Ray& shadowRay, GLflo
 	vec3 point, normal;
 	for (Object * o : objects) {
 
-		if (o->intersectsRay(shadowRay, dist, point, normal)) {
+		if (o->intersectsRay(shadowRay, dist, nullptr, nullptr, nullptr)) {
 
 			// If there's a intersection to a object which is within limit (no 'after' the light)
 			// then there's no visibility
@@ -196,7 +197,6 @@ vec3 RayTracer::__blinn_phong(Object* obj, vec3& lightColor, vec3& lightDir, vec
 	// diffuse
 	GLfloat diff = glm::max(dot(normal, lightDir), 0.0f);
 	vec3 diffuse = diff * obj->diffuse();
-	diffuse *= lightColor;
 
 	// Specular
 	GLfloat spec = glm::pow(glm::max(dot(halfAng, normal), 0.0f), obj->shininess());

@@ -35,9 +35,7 @@ public:
 	}
 	virtual ~Sphere() {}
 
-	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal);
-
-	virtual vec3 getTextureColor(vec3& point);
+	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor);
 
 	virtual const void print() const;
 };

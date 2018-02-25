@@ -29,8 +29,10 @@ static void get_all_scenes(const fs::path& root, const string& ext, vector<fs::p
 {
     if(!fs::exists(root) || !fs::is_directory(root)) return;
 
-    fs::recursive_directory_iterator it(root);
-    fs::recursive_directory_iterator endit;
+    fs::directory_iterator it(root);
+    fs::directory_iterator endit;
+    //fs::recursive_directory_iterator it(root);
+    //fs::recursive_directory_iterator endit;
 
     while(it != endit)
     {
@@ -54,7 +56,7 @@ static void render_scene(string &fileName)
 	string output;
 	if (renderInfo->outputFile.empty()) {
 		// No output file was given
-		output = fileName + "_result";
+		output = fileName + "_result.png";
 	}
 	else {
 		output = p.parent_path().generic_string() + "/" + renderInfo->outputFile;

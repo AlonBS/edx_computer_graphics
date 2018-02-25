@@ -36,6 +36,8 @@ protected:
 	bool _textured;
 	Image *_texture;
 
+	vec3 getTextureColor(vec2& uv);
+
 public:
 
 
@@ -44,9 +46,9 @@ public:
 
 	void setTexture(Image *texture);
 
-	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal) = 0;
+	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor) = 0;
 
-	virtual vec3 getTextureColor(vec3& point) = 0;
+
 
 	friend std::ostream& operator<< (std::ostream& out, const Object & obj);
 

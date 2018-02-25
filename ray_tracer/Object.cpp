@@ -45,6 +45,16 @@ void Object::setTexture(Image *texture)
 
 }
 
+vec3 Object::getTextureColor(vec2& uv)
+{
+	int w = this->_texture->getWidth();
+	int h = this->_texture->getHeight();
+
+	/* TODO - consider interpolation */
+	return this->_texture->getPixel((int)(uv.x * w), (int) (uv.y * h));
+}
+
+
 
 const void Object::print() const
 {

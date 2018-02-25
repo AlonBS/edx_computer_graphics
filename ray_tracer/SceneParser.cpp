@@ -210,7 +210,6 @@ SceneParser::readFile(const char* fileName)
 
 	renderInfo = new RenderInfo();
 
-
 	in.open(fileName);
 	if (!in.is_open()) {
 
@@ -500,6 +499,7 @@ SceneParser::handleLightsCommand(stringstream& s, string& cmd)
 		vec3 dir = vec3(transformsStack.top() * vec4(values[0], values[1], values[2], 0.0f));
 		vec3 color = vec3(values[3], values[4], values[5]);
 		DirectionalLight *dirLight = new DirectionalLight(color, dir);
+
 		renderInfo->scene.addDirectionalLight(dirLight);
 	}
 

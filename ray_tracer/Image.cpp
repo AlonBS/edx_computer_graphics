@@ -13,6 +13,9 @@
 #include "General.h"
 #include "glm/glm.hpp"
 
+#include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
+
 using namespace std;
 
 #define RGBSIZE 24
@@ -38,8 +41,16 @@ Image::Image(int width, int height)
 
 Image::Image(std::string& fileName)
 {
+	string extension = boost::filesystem::extension(fileName);
+	if ( boost::iequals(extension, ".jpg") || boost::iequals(extension, ".jpeg") ) {
 
-	this->bitmap = FreeImage_Load(FIF_PNG, fileName.c_str());
+		this->bitmap = FreeImage_Load(FIF_JPEG, fileName.c_str());
+	}
+	else if ( boost::iequals(extension, ".png") ) {
+
+		this->bitmap = FreeImage_Load(FIF_PNG, fileName.c_str());
+	}
+
 
 	this->height = FreeImage_GetHeight(this->bitmap);
 	this->width = FreeImage_GetWidth(this->bitmap);
@@ -85,7 +96,15 @@ vec3 Image::getPixel(int col, int row)
 
 const void Image::saveImage(std::string& fileName) const
 {
-	//FIF_PNG
-	FreeImage_Save(FIF_PNG, bitmap, fileName.c_str(), 0);
+	string extension = boost::filesystem::extension(fileName);
+	if ( boost::iequals(extension, ".jpg") || boost::iequals(extension, ".jpeg") ) {
+
+		FreeImage_Save(FIF_JPEG, bitmap, fileName.c_str(), 0);
+	}
+	else if ( boost::iequals(extension, ".png") ) {
+
+		FreeImage_Save(FIF_PNG, bitmap, fileName.c_str(), 0);
+	}
+
 	std::cout << "\tImage saved to: " << fileName << std::endl;
 }

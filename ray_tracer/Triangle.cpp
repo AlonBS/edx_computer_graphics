@@ -42,17 +42,18 @@ Triangle::~Triangle()
 }
 
 
-bool Triangle::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
+bool Triangle::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor)
 {
 	GLfloat dist1, dist2;
 	vec3    point1, point2;
 	vec3	norm1, norm2;
 	bool    res1, res2;
+	vec3    texColor1, texColor2;
 
 	// This is used for implementation stages - we use the other intersection as back up -
 	// will be removed later on
 //	res1 = __iRay(r, dist1, point1, norm1);
-	res2 = __iRay2(r, dist2, point2, norm2);
+	res2 = __iRay2(r, dist2, &point2, &norm2, &texColor2);
 //
 //	assert(res1 == res2);
 //
@@ -84,13 +85,18 @@ bool Triangle::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 
 
 	dist = dist2;
-	point = point2;
-	normal = norm2;
+	if (point)
+		*point = point2;
+	if (normal)
+		*normal = norm2;
+	if (texColor)
+		*texColor = texColor2;
+
 	return res2;
 }
 
 
-bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
+bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor)
 {
 	// We do that in two steps:
 	// 	- First, we intersect the ray with the plane this triangle lays in
@@ -139,6 +145,26 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 	//		 A, B, C are this triangles vertices, and a,b,y are alpha beta and gamma from barycentric coordinates.
 	P = r.origin + t*r.direction;
 
+	//  vec3 v0 = B-A, v1 = C-A, v2 = P-A;
+	//
+	//	GLfloat d00 = dot(v0, v0);
+	//	GLfloat d01 = dot(v0, v1);
+	//	GLfloat d11 = dot(v1, v1);
+	//	GLfloat d20 = dot(v2, v0);
+	//	GLfloat d21 = dot(v2, v1);
+	//	GLfloat denom = d00 * d11 - d01 * d01;
+	//	GLfloat v = (d11 * d20 - d01 * d21) / denom;
+	//	GLfloat w = (d00 * d21 - d01 * d20) / denom;
+	//	GLfloat u = 1.0f - v - w;
+	//
+	//	vec2 uv = u*Auv + v*Buv + w*Cuv;
+	//
+	//	int w0, h0;
+	//	w0 = this->_texture->getWidth();
+	//	h0 = this->_texture->getHeight();
+
+
+
 	// Compute vectors
 	AC = C - A;
 	AB = B - A;
@@ -159,8 +185,13 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 	// Check if point is in triangle
 	if ( (beta >= 0) && (gamma >= 0) && (beta + gamma < 1) ){
 		dist = t;
-		point = P;
-		normal = N;
+		if (point)
+			*point = P;
+		if (normal)
+			*normal = N;
+		if (texColor)
+			*texColor = COLOR_WHITE;
+
 		return true;
 	}
 
@@ -169,7 +200,7 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 }
 
 
-bool Triangle::__iRay2(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
+bool Triangle::__iRay2(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor)
 {
 	// Another close computation - to check validity of the other
 
@@ -182,8 +213,6 @@ bool Triangle::__iRay2(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 	vec3 APn, BPn, CPn;
 	GLfloat APw, BPw, CPw;
 	GLfloat alpha, beta, gamma;
-
-	normal = vec3(0.0f, 0.0f, 0.0f);
 
 	// First - find intersection point
 	d_dot_n = dot(r.direction, N);
@@ -222,133 +251,26 @@ bool Triangle::__iRay2(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 
 	if (alpha >= 0 && alpha <= 1 && beta >= 0 && beta <= 1 && gamma >= 0 && gamma <= 1) {
 		dist = t;
-		point = P;
-		normal = this->N;
+		if (point)
+			*point = P;
+		if (normal)
+			*normal = this->N; //TODO - interpolated normal
+		if (texColor) {
+			if (!_textured) {
+				*texColor = COLOR_WHITE;
+			}
+			else {
+				vec2 uv;
+				uv = alpha * Auv + beta * Buv + gamma * Cuv;
+				*texColor = this->getTextureColor(uv);
+			}
+		}
 		return true;
 	}
 
 	return false;
 
 }
-
-
-/*
-bool Triangle::__iRay3(Ray &r, GLfloat &dist, glm::vec3& normal)
-{
-	// Another close computation - to check validity of the other
-
-	GLfloat a_dot_n;
-	GLfloat o_dot_n;
-	GLfloat d_dot_n;
-	GLfloat t = 0;
-	vec3    P; // Intersection point
-	vec3    AB, AC;
-	vec3    PA, PB, PC;
-	GLfloat ABC2, alpha, beta, gamma;
-
-	normal = vec3(0.0f, 0.0f, 0.0f);
-
-	// First - find intersection point
-	d_dot_n = dot(r.direction, N);
-	if (d_dot_n - EPSILON == 0 ) {
-		// No intersection, or very close to no intersection
-		return false;
-	}
-
-	a_dot_n = dot(A, N);
-	o_dot_n = dot(r.origin, N);
-	t = (a_dot_n - o_dot_n) / d_dot_n;
-
-	// Now check if intersection point given by: o + td is inside the triangle.
-	// We do this using barycentric coordinates
-	// That is that:
-	// 		(P-A) = b(B-A)+y(C-A). WHere P is the intersection point,
-	//		 A, B, C are this triangles vertices, and a,b,y are alpha beta and gamma from barycentric coordinates.
-	P = r.origin + t*r.direction;
-
-	AB = B-A; AC = C-A;
-	PA = A-P; PB = B-P; PC = C-P;
-
-	ABC2 = length(cross(AB, AC));
-	alpha = length(cross(PB, PC)) / (ABC2);
-	beta = length(cross(PC, PA)) / (ABC2);
-	gamma = 1 - alpha - beta;
-
-	if ( alpha < 0 || alpha > 1 || beta < 0 || beta > 1 || gamma < 0 || gamma > 1) {
-		// No intersection - make sure values are irrelevant
-		dist = 0;
-		normal = vec3(0.0f, 0.0f, 0.0f);
-		return false;
-	}
-
-	dist = t;
-	normal = N;
-	return true;
-}
-*/
-
-
-//vec3 Triangle::getTextureColor(vec3& P)
-//{
-//	if (!_textured) {
-//		return VECTOR_WHITE;
-//	}
-//
-//	printVec3("P", P);
-//
-//	vec2 uv;
-//	GLfloat baryA, baryB, baryC;
-//	printVec3("A", A);
-//	printVec3("B", B);
-//	printVec3("C", C);
-//	GLfloat denom = (B.y-C.y)*(A.x-C.x) + (C.x-B.x)*(A.y-C.y);
-//
-//	cout << "DENOM" << denom << endl;
-//
-//	baryA = ((B.y - C.y)*(P.x - C.x) + (C.x - B.x)*(P.y - C.y) ) / denom;
-//	baryB = ((C.y - A.y)*(P.x - C.x) + (A.x - C.x)*(P.y - C.y) ) / denom;
-//	baryC = 1 - baryA - baryB;
-//
-//	int w = this->_texture->getWidth(), h = this->_texture->getHeight();
-//
-//	uv = baryA * Auv + baryB * Buv + baryC * Cuv;
-//
-//	//printVec2("UV", uv);
-//
-//
-//
-//	vec3 res = this->_texture->getPixel((int)uv.x * w, (int)uv.y * h);
-//	printVec3("RES", res);
-//	return res;
-//}
-
-
-vec3 Triangle::getTextureColor(vec3& P)
-{
-	vec3 v0 = B-A, v1 = C-A, v2 = P-A;
-
-	GLfloat d00 = dot(v0, v0);
-	GLfloat d01 = dot(v0, v1);
-	GLfloat d11 = dot(v1, v1);
-	GLfloat d20 = dot(v2, v0);
-	GLfloat d21 = dot(v2, v1);
-	GLfloat denom = d00 * d11 - d01 * d01;
-	GLfloat v = (d11 * d20 - d01 * d21) / denom;
-	GLfloat w = (d00 * d21 - d01 * d20) / denom;
-	GLfloat u = 1.0f - v - w;
-
-	vec2 uv = u*Auv + v*Buv + w*Cuv;
-
-	int w0, h0;
-	w0 = this->_texture->getWidth();
-	h0 = this->_texture->getHeight();
-
-	vec3 res = this->_texture->getPixel(uv.x * w0, uv.y * h0);
-
-	return res;
-}
-
-
 
 
 const void Triangle::print() const

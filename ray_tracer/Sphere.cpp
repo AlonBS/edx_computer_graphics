@@ -12,7 +12,7 @@ using namespace glm;
 
 
 
-bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
+bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor)
 {
 	// To find intersection between Ray and Sphere represented the following way:
 	// 	Sphere: (P - C )^2 - r^2 = 0
@@ -73,29 +73,27 @@ bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3& point, vec3& normal)
 	intersection_point = vec3(this->transform() * vec4(intersection_point, 1.0f));
 	// The distance is the length of the original intersection point with the origin of the non transformed ray.
 	dist = length(intersection_point - r.origin);
-	point = intersection_point;
-	normal = normalize(vec3(mat3(this->invTransposeTrans()) * n));
-	return true;
-}
 
-
-vec3 Sphere::getTextureColor(vec3& point)
-{
-	if (!this->_textured) {
-		return VECTOR_WHITE;
+	if (point) {
+		*point = intersection_point;
 	}
+	if (normal) {
+		*normal = normalize(vec3(mat3(this->invTransposeTrans()) * n));
+	}
+	if (texColor) {
 
-	int width = this->_texture->getWidth();
-	int height = this->_texture->getHeight();
-
-	vec3 d = normalize(point - center);
-
-	GLfloat u, v;
-
-	u = 0.5 + atan2(d.x, d.z) / (2 * PI);
-	v = 0.5 + 0.5 * d.y;
-
-	return this->_texture->getPixel((int)width * u, (int)height * v);
+		if (!_textured) {
+			*texColor = COLOR_WHITE;
+		}
+		else {
+			vec3 d = normalize(intersection_point - center);
+			vec2 uv;
+			uv.x = 0.5 + atan2(d.x, d.z) / (2 * PI);
+			uv.y = 0.5 + 0.5 * d.y;
+			*texColor = this->getTextureColor(uv);
+		}
+	}
+	return true;
 }
 
 
@@ -105,46 +103,3 @@ const void Sphere::print() const
 	Object::print();
 }
 
-
-
-
-/*
-vec3 center = vec3(0.0f, 0.0f, 0.0f);
-	GLfloat radius = 1;
-	Sphere ss(center, radius);
-	GLfloat dist;
-	vec3 normal;
-
-	vec3 tt = glm::normalize(glm::vec3(5.0, 3, 2));
-	cout << "DOTTT: " << glm::dot(tt,tt) << endl;
-
-
-	vec3 o1 = vec3(0, 0, -0.5); vec3 d1 = vec3(0, 0, 1);
-	vec3 o2 = vec3(0, -2, 0); vec3 d2 = vec3(0, 1, 0);
-	vec3 o3 = vec3(-2, 0, 0); vec3 d3 = vec3(1, 0, 0);
-
-	vec3 o4 = vec3(0, 0, -0.5); vec3 d4 = vec3(0, 0, -1);
-	vec3 o5 = vec3(0, -2, 0); vec3 d5 = vec3(0, -1, 0);
-	vec3 o6 = vec3(-2, 0, 0); vec3 d6 = vec3(-1, 0, 0);
-
-
-	Ray r1(o1, d1), r2(o2, d2), r3(o3, d3);
-	Ray r4(o4, d4), r5(o5, d5), r6(o6, d6);
-
-
-	std::vector<Ray> vecs;
-	vecs.push_back(r1); vecs.push_back(r2); vecs.push_back(r3);
-	vecs.push_back(r4); vecs.push_back(r5); vecs.push_back(r6);
-
-	for (Ray r : vecs) {
-
-		if (ss.intersectsRay(r, dist, normal) ) {
-
-			cout << "Int. Dist: " << dist << " . Normal: " << normal.x << ", " << normal.y << " ," << normal.z << "." << std::endl;
-		}
-		else {
-			std::cout << "No intersection!" << std::endl;
-		}
-
-	}
- */
