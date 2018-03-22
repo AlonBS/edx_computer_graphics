@@ -1,7 +1,7 @@
 INCFLAGS  = -I /usr/include/GL -I ./utilities/include -I /usr/include/boost
 
 #LINKFLAGS  = -lGL -lGLUassimp  -lSOIL
-LINKFLAGS  = -L ./lib/nix -lfreeimage -lGLEW -L /usr/lib/x86_64-linux-gnu/ -lboost_filesystem -lboost_system
+LINKFLAGS  = -L ./lib/nix -lfreeimage -lGLEW -L /usr/lib/x86_64-linux-gnu/ -lboost_filesystem -lboost_system -lassimp
 
 
 CFLAGS    = -g -std=c++1y -fopenmp 
@@ -15,7 +15,8 @@ SRCS      = main.cpp \
             Object.cpp \
             Sphere.cpp \
             Triangle.cpp \
-            Lights.cpp
+            Lights.cpp \
+            Mesh.cpp
             
 	    
 
