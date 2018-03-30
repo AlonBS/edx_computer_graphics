@@ -16,7 +16,8 @@ SRCS      = main.cpp \
             Sphere.cpp \
             Triangle.cpp \
             Lights.cpp \
-            Mesh.cpp
+            Mesh.cpp \
+            Model.cpp
             
 	    
 

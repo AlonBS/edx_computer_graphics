@@ -34,6 +34,7 @@
 #include "Object.h"
 #include "Sphere.h"
 #include "Triangle.h"
+#include "Model.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -66,6 +67,7 @@ struct Commands {
 	const string texture       = "texture";
 	const string bindTexture   = "bindTexture";
 	const string unbindTexture = "unbindTexture";
+	const string model		   = "model";
 
 	// Transformations
 	const string translate     = "translate";
@@ -95,7 +97,8 @@ set<string> SceneParser::general = {Commands.size, Commands.maxdepth, Commands.o
 string 	    SceneParser::camera = Commands.camera;
 set<string> SceneParser::geometry = {Commands.sphere, Commands.maxverts, Commands.maxvertnorms,
 									 Commands.vertex, Commands.vertexnormal, Commands.vertexTex, Commands.tri,
-									 Commands.trinormal, Commands.triTex, Commands.texture, Commands.bindTexture, Commands.unbindTexture};
+									 Commands.trinormal, Commands.triTex, Commands.texture, Commands.bindTexture, Commands.unbindTexture,
+									 Commands.model};
 set<string> SceneParser::transformations = {Commands.translate, Commands.rotate, Commands.scale,
 											Commands.pushTransform, Commands.popTransform};
 set<string> SceneParser::lights = {Commands.directional, Commands.point, Commands.attenuation};
@@ -456,6 +459,13 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 
 			renderInfo->textureIsBound = false;
 		}
+
+	else if (cmd == Commands.model) {
+		string modelFile;
+		s >> modelFile;
+		Object *model = new Model(modelFile);
+		renderInfo->scene.addObject(model);
+	}
 }
 
 
