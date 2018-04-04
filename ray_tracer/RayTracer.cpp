@@ -30,7 +30,7 @@ Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLu
 
 	// Render loop
 	{
-//#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2)
 		for (GLuint i = 0 ; i < width ; ++i)
 		{
 			for (GLuint j = 0 ; j < height; ++j)

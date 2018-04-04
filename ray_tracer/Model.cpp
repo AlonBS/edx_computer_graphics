@@ -112,8 +112,6 @@ Model::processMesh(aiMesh *mesh, const aiScene *scene)
 	vector<Vertex> vertices;
 	vector<unsigned int> indices;
 //	vector<Texture> textures;
-	cout << "HERE" << endl;
-	cout << mesh->mNumVertices << endl;
 	// Walk through each of the mesh's vertices
 	for(unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
