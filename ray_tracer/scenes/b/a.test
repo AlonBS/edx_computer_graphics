@@ -7,7 +7,7 @@ camera 0 0 5 0 0 0 0 1 0 45
 # for initial testing, you should get the geometry right
 # you may want to use dummy (constant) shading, ignoring these lines
 
-ambient 0.1 0.1 0.1
+ambient 0.1 1.0 0.1
 model ./scenes/b/cube.obj
 
 

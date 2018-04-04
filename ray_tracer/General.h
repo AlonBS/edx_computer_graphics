@@ -34,6 +34,8 @@ inline void
 printVec3(const string& name, const vec3& vec)
 {
 	cout << name << ": " << vec.x << "," << vec.y << "," << vec.z << endl;
+
+//	cout << name << " " << vec.x << " " << vec.y << " " << vec.z << endl;
 }
 
 
