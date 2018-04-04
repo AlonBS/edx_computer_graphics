@@ -69,29 +69,15 @@ static void render_scene(string &fileName)
 }
 
 
+#include "Model.h"
 
 int main()
 {
-//	string s = "./scenes/a/dog.png";
-//	Image *source = new Image(s);
-//	Image *dest = new Image(source->getWidth(), source->getHeight());
+//	string path = "./scenes/b/cube.obj";
+//	Model m = Model(path);
 //
-// 	for (int i = 0 ; i < source->getWidth(); ++i) {
-//
-//		for (int j = 0 ; j < source->getHeight(); ++j) {
-//
-//			vec3 pixel = source->getPixel(i,j);
-//			dest->setPixel(i,j, pixel);
-//		}
-// 	}
-//
-// 	string f = "./scenes/a/aaa.png";
-// 	dest->saveImage(f);
-//
-// 	delete source;
-// 	delete dest;
-
 //	return 0;
+
 
 	struct timeval start, end;
 	GLfloat time, totalTime;
@@ -100,7 +86,7 @@ int main()
 
 	FreeImage_Initialise();
 
-	fs::path directory = "./scenes/a";
+	fs::path directory = "./scenes/b";
 	string ext = ".test";
 	vector<fs::path> files;
 	get_all_scenes(directory, ext, files);

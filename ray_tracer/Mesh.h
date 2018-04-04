@@ -30,10 +30,14 @@ struct Vertex {
 //};
 
 class Mesh{
+
+private:
+	vector<Triangle*> triangles;
+
+
 public:
     /*  Mesh Data  */
     //vector<Vertex> vertices;
-	vector<Triangle*> triangles;
 
 //    vector<Texture> textures;
 //    unsigned int VAO;
@@ -43,6 +47,11 @@ public:
 
     // constructor
 	Mesh(vector<Vertex>& vertices, vector<unsigned int>& indices/*, vector<Texture> textures*/);
+
+	virtual ~Mesh();
+
+
+	bool intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor) ;
 
 //    // render the mesh
 //    void Draw(Shader shader)
@@ -85,7 +94,7 @@ public:
 private:
 
 
-    vector<Triangle*> __triangulate(vector<Vertex> vertices, vector<unsigned int> indices);
+    void __triangulate(vector<Vertex> vertices, vector<unsigned int> indices);
     /*  Render data  */
 //    unsigned int VBO, EBO;
 

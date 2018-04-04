@@ -73,7 +73,7 @@ vec3 RayTracer::recursiveRayTrace(Scene& scene, Ray & ray, GLuint depth)
 
 Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 {
-	GLfloat minDist = FLT_MAX;
+	GLfloat minDist = INFINITE;
 	GLfloat dist;
 	vec3 point;
 	vec3 normal;

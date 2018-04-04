@@ -29,22 +29,37 @@ Model::Model(string const &path)
 //    }
 
 
+Model::~Model()
+{
+	for (Mesh* m : meshes)
+	{
+		delete (m);
+		m = nullptr;
+	}
+
+	meshes.clear();
+}
+
 
 bool
 Model::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor)
 {
-	GLfloat minDist;
-	for (Mesh* m : meshes) {
+	GLfloat minDist = INFINITE;
 
-		if (m->intersectesRay(r, dist, point, normal, texColor))
-				{
+	for (Mesh *m : meshes) {
 
-				}
+		if (m->intersectsRay(r, dist, point, normal, texColor)) {
 
+			if (dist < minDist) {
 
+				minDist = dist;
+			}
+		}
 	}
 
-	dist = minDist;
+	if (minDist == INFINITE) {
+		return false;
+	}
 
 	return true;
 
@@ -58,7 +73,7 @@ Model::loadModel(string const &path)
 	// read file via ASSIMP
 	Assimp::Importer importer;
 	//const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs /*| aiProcess_JoinIdenticalVertices*/);
 	// check for errors
 	if(!scene || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) || !scene->mRootNode) // if is Not Zero
 	{
@@ -92,14 +107,15 @@ Model::processNode(aiNode *node, const aiScene *scene)
 
 }
 
-Mesh
+Mesh*
 Model::processMesh(aiMesh *mesh, const aiScene *scene)
 {
 	// data to fill
 	vector<Vertex> vertices;
 	vector<unsigned int> indices;
 //	vector<Texture> textures;
-
+	cout << "HERE" << endl;
+	cout << mesh->mNumVertices << endl;
 	// Walk through each of the mesh's vertices
 	for(unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
@@ -162,7 +178,7 @@ Model::processMesh(aiMesh *mesh, const aiScene *scene)
 
 	// return a mesh object created from the extracted mesh data
 	//return Mesh(vertices, indices/*, textures*/);
-	return Mesh(vertices, indices);
+	return new Mesh(vertices, indices);
 }
 
 

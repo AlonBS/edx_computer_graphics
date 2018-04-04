@@ -23,12 +23,14 @@ class Model : public Object
 public:
     /*  Model Data */
 //    vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
-    vector<Mesh> meshes;
+    vector<Mesh*> meshes;
 //    string directory;
 
     /*  Functions   */
     // constructor, expects a filepath to a 3D model.
     Model(string const &path);
+
+    virtual ~Model();
 
     virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor);
 
@@ -41,7 +43,7 @@ private:
     // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
     void processNode(aiNode *node, const aiScene *scene);
 
-    Mesh processMesh(aiMesh *mesh, const aiScene *scene);
+    Mesh* processMesh(aiMesh *mesh, const aiScene *scene);
 
     // checks all material textures of a given type and loads the textures if they're not loaded yet.
     // the required info is returned as a Texture struct.

@@ -464,6 +464,7 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 		string modelFile;
 		s >> modelFile;
 		Object *model = new Model(modelFile);
+		model->ambient() = ambient;
 		renderInfo->scene.addObject(model);
 	}
 }
