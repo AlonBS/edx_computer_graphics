@@ -49,11 +49,12 @@ bool Triangle::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, v
 	vec3	norm1, norm2;
 	bool    res1, res2;
 	vec3    texColor1, texColor2;
+	ObjectProperties properties1, properties2;
 
 	// This is used for implementation stages - we use the other intersection as back up -
 	// will be removed later on
-//	res1 = __iRay(r, dist1, point1, norm1);
-	res2 = __iRay2(r, dist2, &point2, &norm2, &texColor2);
+//	res1 = __iRay(r, dist1, point1, norm1, &texColor1, &properties1);
+	res2 = __iRay2(r, dist2, &point2, &norm2, &texColor2, &properties2);
 //
 //	assert(res1 == res2);
 //
@@ -91,12 +92,14 @@ bool Triangle::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, v
 		*normal = norm2;
 	if (texColor)
 		*texColor = texColor2;
+	if (properties)
+		*properties = properties2;
 
 	return res2;
 }
 
 
-bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor)
+bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor, ObjectProperties* properties)
 {
 	// We do that in two steps:
 	// 	- First, we intersect the ray with the plane this triangle lays in
@@ -191,6 +194,9 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* te
 			*normal = N;
 		if (texColor)
 			*texColor = COLOR_WHITE;
+		if (properties) {
+			*properties = {};
+		}
 
 		return true;
 	}
@@ -200,7 +206,7 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* te
 }
 
 
-bool Triangle::__iRay2(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor)
+bool Triangle::__iRay2(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor, ObjectProperties* properties)
 {
 	// Another close computation - to check validity of the other
 
@@ -264,6 +270,9 @@ bool Triangle::__iRay2(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* t
 				uv = alpha * Auv + beta * Buv + gamma * Cuv;
 				*texColor = this->getTextureColor(uv);
 			}
+		}
+		if (properties) {
+			*properties = _properties;
 		}
 		return true;
 	}

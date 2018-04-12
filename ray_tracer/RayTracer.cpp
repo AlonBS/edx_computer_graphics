@@ -6,6 +6,7 @@
  */
 
 #include "RayTracer.h"
+#include <future>
 #include <iostream>
 #include <vector>
 #include "General.h"
@@ -28,17 +29,30 @@ Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLu
 	vec3 color;
 	GLfloat completed;
 
+//	vector<std::future<int>> a;
+//	a.push_back(nullptr);
+
 	// Render loop
 	{
-#pragma omp parallel for collapse(2)
+//#pragma omp parallel for collapse(2)
 		for (GLuint i = 0 ; i < width ; ++i)
 		{
 			for (GLuint j = 0 ; j < height; ++j)
 			{
-				Ray ray = camera.generateRay(i + .5, j - .5);
-				color = recursiveRayTrace(scene, ray, maxDepth);
-				image->setPixel(i, j, color);
+				auto h = std::async(std::launch::async, [=, &color, &scene, &camera] ()
+				{
+					Ray ray = camera.generateRay(i + .5, j - .5);
+					color = recursiveRayTrace(scene, ray, maxDepth);
+					image->setPixel(i, j, color);
+
+				});
+
+//				a.push_back(h);
 			}
+		}
+
+		for (auto& e : a) {
+			e.get();
 		}
 	}
 

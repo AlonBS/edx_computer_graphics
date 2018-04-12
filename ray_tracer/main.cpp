@@ -24,7 +24,6 @@ using namespace std;
 namespace fs = ::boost::filesystem;
 
 // return the filenames of all files that have the specified extension
-// in the specified directory and all subdirectories
 static void get_all_scenes(const fs::path& root, const string& ext, vector<fs::path>& ret)
 {
     if(!fs::exists(root) || !fs::is_directory(root)) return;
@@ -123,4 +122,6 @@ int main()
 	FreeImage_DeInitialise();
 	return 0;
 }
+
+
 

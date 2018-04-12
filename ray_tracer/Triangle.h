@@ -22,8 +22,8 @@ private:
 		vec3 AN,BN,CN ; 	// Normals to the above vertices, respectively.
 		vec3 N;     		// Face normal to the triangle
 
-		bool __iRay (Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor);
-		bool __iRay2(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor);
+		bool __iRay (Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor, ObjectProperties* properties);
+		bool __iRay2(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor, ObjectProperties* properties);
 
 public:
 

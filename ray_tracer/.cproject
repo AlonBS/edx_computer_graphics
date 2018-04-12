@@ -45,9 +45,6 @@
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
 	</storageModule>
-	<storageModule moduleId="scannerConfiguration">
-		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="ray_tracer.null.1140296726" name="ray_tracer"/>
 	</storageModule>
@@ -57,5 +54,14 @@
 		<configuration configurationName="Default">
 			<resource resourceType="PROJECT" workspacePath="/ray_tracer"/>
 		</configuration>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1860948159;cdt.managedbuild.toolchain.gnu.cross.base.1860948159.825229418;cdt.managedbuild.tool.gnu.cross.c.compiler.983273010;cdt.managedbuild.tool.gnu.c.compiler.input.1654885842">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1860948159;cdt.managedbuild.toolchain.gnu.cross.base.1860948159.825229418;cdt.managedbuild.tool.gnu.cross.cpp.compiler.635716362;cdt.managedbuild.tool.gnu.cpp.compiler.input.1155977401">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
 	</storageModule>
 </cproject>

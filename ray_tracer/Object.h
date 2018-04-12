@@ -68,16 +68,18 @@ public:
 
 	virtual const void print() const;
 
-	ObjectProperties& properties() { return _properties; };
-	vec3& ambient () { return _properties._ambient; }
-	vec3& diffuse () { return _properties._diffuse; }
-	vec3& specular() { return _properties._specular; }
-	vec3& emission() { return _properties._emission; }
-	GLfloat& shininess() { return _properties._shininess; }
+	/* Just for fun - using trailing return value */
+	auto properties() -> ObjectProperties& { return _properties; };
+	auto ambient () -> vec3& { return _properties._ambient; }
+	auto emission() -> vec3& { return _properties._emission; }
+	auto diffuse () -> vec3& { return _properties._diffuse; }
+	auto specular() -> vec3& { return _properties._specular; }
+	auto shininess() -> GLfloat& { return _properties._shininess; }
 
-	mat4& transform() { return _transform; }
-	mat4& invTransform() { return _invTransform; }
-	mat3& invTransposeTrans() { return _invTransposeTrans; }
+	auto transform() -> mat4& { return _transform; }
+	auto invTransform() -> mat4& { return _invTransform; }
+	auto invTransposeTrans() -> mat3& { return _invTransposeTrans; }
+
 
 };
 
