@@ -9,11 +9,11 @@
 
 Object::Object() {
 
-	_ambient = vec3(0.0f, 0.0f, 0.0f);
-	_diffuse = vec3(0.0f, 0.0f, 0.0f);
-	_specular = vec3(0.0f, 0.0f, 0.0f);
-	_emission = vec3(0.0f, 0.0f, 0.0f);
-	_shininess = 0.0f;
+	_properties._ambient = vec3(0.0f, 0.0f, 0.0f);
+	_properties._emission = vec3(0.0f, 0.0f, 0.0f);
+	_properties._diffuse = vec3(0.0f, 0.0f, 0.0f);
+	_properties._specular = vec3(0.0f, 0.0f, 0.0f);
+	_properties._shininess = 0.0f;
 
 	_transform = mat4(1.0f);
 	_invTransform = mat4(1.0f);
@@ -58,10 +58,10 @@ vec3 Object::getTextureColor(vec2& uv)
 
 const void Object::print() const
 {
-	printVec3("Ambient", _ambient);
-	printVec3("_diffuse", _diffuse);
-	printVec3("_specular", _specular);
-	printVec3("_emission", _emission);
-	cout << "Shininess: " << _shininess << endl;
+	printVec3("Ambient", _properties._ambient);
+	printVec3("_emission", _properties._emission);
+	printVec3("_diffuse", _properties._diffuse);
+	printVec3("_specular", _properties._specular);
+	cout << "Shininess: " << _properties._shininess << endl;
 }
 

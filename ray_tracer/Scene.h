@@ -28,7 +28,6 @@ private:
 
 	Attenuation_t attenuation;
 
-	int a;
 
 public:
 
@@ -51,8 +50,6 @@ public:
 	Image* getTexture(int i) { assert(i >= 0 && i < textures.size()); return textures[i]; }
 
 	Attenuation_t& Attenuation() { return attenuation; }
-
-	int& A() { return a; }
 
 };
 

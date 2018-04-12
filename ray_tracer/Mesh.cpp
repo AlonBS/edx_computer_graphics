@@ -1,9 +1,34 @@
 
 
 #include "Mesh.h"
+
+
+ObjectProperties operator*(const MeshProperties& mp, const ObjectProperties& op)
+{
+	ObjectProperties ret =
+	{
+			._ambient   = mp._ambient   * op._ambient,
+			._emission  = mp._emission  * op._emission,
+			._diffuse   = mp._diffuse   * op._diffuse,
+			._specular  = mp._specular  * op._specular,
+			._shininess = mp._shininess * op._shininess
+	};
+	return ret;
+}
+
+ObjectProperties operator*(const ObjectProperties& op, const MeshProperties& mp)
+{
+	return mp*op;
+}
+
+
+
+
+
     /*  Functions  */
     // constructor
-Mesh::Mesh(vector<Vertex>& vertices, vector<unsigned int>& indices/*, vector<Texture> textures*/)
+Mesh::Mesh(vector<Vertex>& vertices, vector<unsigned int>& indices, MeshProperties& properties /*, vector<Texture> textures*/)
+:_properties(properties)
 {
 	__triangulate(vertices, indices);
 }
@@ -47,7 +72,7 @@ Mesh::__triangulate(vector<Vertex> vertices, vector<unsigned int> indices)
 
 
 bool
-Mesh::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor)
+Mesh::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor, MeshProperties* properties)
 {
 	GLfloat minDist = INFINITE;
 
@@ -56,7 +81,10 @@ Mesh::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texC
 
 	for (Triangle *t : triangles) {
 
-		if (t->intersectsRay(r, tDist, &tP, &tN, &ttC)) {
+		/* When we iterate over triangles as part of mesh - we take the properties of the mesh
+		 * and not the triangle. In fact, this triangle doesn't have other but default properties
+		 */
+		if (t->intersectsRay(r, tDist, &tP, &tN, &ttC, nullptr)) {
 
 			if (tDist < minDist) {
 
@@ -64,6 +92,7 @@ Mesh::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texC
 				*point = tP;
 				*normal = tN;
 				*texColor = ttC;
+				*properties = this->_properties;
 			}
 		}
 	}

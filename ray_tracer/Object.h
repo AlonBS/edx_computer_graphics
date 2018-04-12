@@ -15,15 +15,27 @@
 
 using namespace glm;
 
+typedef struct ObjectProperties {
+
+	vec3 _ambient;
+	vec3 _emission;
+	vec3 _diffuse;
+	vec3 _specular;
+	GLfloat _shininess;
+
+}ObjectProperties;
+
 class Object {
 
 private:
 
-	vec3 _ambient;
-	vec3 _diffuse;
-	vec3 _specular;
-	vec3 _emission;
-	GLfloat _shininess;
+
+
+//	vec3 _ambient;
+//	vec3 _diffuse;
+//	vec3 _specular;
+//	vec3 _emission;
+//	GLfloat _shininess;
 
 	mat4 _transform;
 	mat4 _invTransform;	  	 // We compute it once, instead of each intersection test
@@ -32,6 +44,8 @@ private:
 
 
 protected:
+
+	ObjectProperties _properties;
 
 	bool _textured;
 	Image *_texture;
@@ -46,7 +60,7 @@ public:
 
 	void setTexture(Image *texture);
 
-	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor) = 0;
+	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor, ObjectProperties* properties) = 0;
 
 
 
@@ -54,11 +68,12 @@ public:
 
 	virtual const void print() const;
 
-	vec3& ambient () { return _ambient; }
-	vec3& diffuse () { return _diffuse; }
-	vec3& specular() { return _specular; }
-	vec3& emission() { return _emission; }
-	GLfloat& shininess() { return _shininess; }
+	ObjectProperties& properties() { return _properties; };
+	vec3& ambient () { return _properties._ambient; }
+	vec3& diffuse () { return _properties._diffuse; }
+	vec3& specular() { return _properties._specular; }
+	vec3& emission() { return _properties._emission; }
+	GLfloat& shininess() { return _properties._shininess; }
 
 	mat4& transform() { return _transform; }
 	mat4& invTransform() { return _invTransform; }

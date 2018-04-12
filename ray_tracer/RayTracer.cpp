@@ -66,7 +66,7 @@ vec3 RayTracer::recursiveRayTrace(Scene& scene, Ray & ray, GLuint depth)
 	reflectedRayOrigin = reflectedRayOrigin + EPSILON * reflectedRayDir;
 	Ray reflectedRay(reflectedRayOrigin , reflectedRayDir);
 
-	return color + hit.object->specular() * recursiveRayTrace(scene, reflectedRay, --depth);
+	return color + hit.properties._specular * recursiveRayTrace(scene, reflectedRay, --depth);
 
 }
 
@@ -78,12 +78,13 @@ Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 	vec3 point;
 	vec3 normal;
 	vec3 texColor;
+	ObjectProperties objProps;
 
 	Intersection hit;
 
 	for (Object *object : scene.getObjects()) {
 
-		if (object->intersectsRay(ray, dist, &point, &normal, &texColor)) {
+		if (object->intersectsRay(ray, dist, &point, &normal, &texColor, &objProps)) {
 
 			if (dist < minDist) {
 
@@ -92,7 +93,7 @@ Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 				hit.normal = normal;
 				hit.texColor = texColor;
 
-				hit.object = object;
+				hit.properties = objProps;
 				hit.isValid = true;
 			}
 		}
@@ -137,7 +138,7 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 
 			halfAng = normalize(srDir + eyeDir);
 
-			tempColor = __blinn_phong(hit.object, p->_color, srDir, hit.normal, halfAng);
+			tempColor = __blinn_phong(&hit.properties, p->_color, srDir, hit.normal, halfAng);
 			tempColor *= diffuseTexture;
 			// take attenuation into account
 			GLfloat atten = 1 / (scene.Attenuation().constant + scene.Attenuation().linear * maxDist + scene.Attenuation().quadratic * maxDist * maxDist);
@@ -158,7 +159,7 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 		if (isVisibleToLight(scene.getObjects(), shadowRay, maxDist)) {
 
 			halfAng = normalize(srDir + eyeDir);
-			tempColor = __blinn_phong(hit.object, p->_color, srDir, hit.normal, halfAng);
+			tempColor = __blinn_phong(&hit.properties, p->_color, srDir, hit.normal, halfAng);
 			tempColor *= diffuseTexture;
 
 			color += tempColor;
@@ -166,7 +167,7 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 	}
 
 	//Ambient & Emission - regardless of lights
-	color += hit.object->ambient() * diffuseTexture + hit.object->emission() * diffuseTexture;
+	color += hit.properties._ambient * diffuseTexture + hit.properties._emission * diffuseTexture;
 
 	return color;
 }
@@ -178,7 +179,7 @@ bool RayTracer::isVisibleToLight(vector<Object*>& objects, Ray& shadowRay, GLflo
 	vec3 point, normal;
 	for (Object * o : objects) {
 
-		if (o->intersectsRay(shadowRay, dist, nullptr, nullptr, nullptr)) {
+		if (o->intersectsRay(shadowRay, dist, nullptr, nullptr, nullptr, nullptr)) {
 
 			// If there's a intersection to a object which is within limit (no 'after' the light)
 			// then there's no visibility
@@ -192,15 +193,15 @@ bool RayTracer::isVisibleToLight(vector<Object*>& objects, Ray& shadowRay, GLflo
 	return true;
 }
 
-vec3 RayTracer::__blinn_phong(Object* obj, vec3& lightColor, vec3& lightDir, vec3& normal, vec3& halfAng)
+vec3 RayTracer::__blinn_phong(ObjectProperties* objProps, vec3& lightColor, vec3& lightDir, vec3& normal, vec3& halfAng)
 {
 	// diffuse
 	GLfloat diff = glm::max(dot(normal, lightDir), 0.0f);
-	vec3 diffuse = diff * obj->diffuse();
+	vec3 diffuse = diff * objProps->_diffuse;
 
 	// Specular
-	GLfloat spec = glm::pow(glm::max(dot(halfAng, normal), 0.0f), obj->shininess());
-	vec3 specular = spec * obj->specular();
+	GLfloat spec = glm::pow(glm::max(dot(halfAng, normal), 0.0f), objProps->_shininess);
+	vec3 specular = spec * objProps->_specular;
 
 	return (diffuse + specular) * lightColor;
 }

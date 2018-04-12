@@ -42,7 +42,7 @@ Triangle::~Triangle()
 }
 
 
-bool Triangle::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor)
+bool Triangle::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor, ObjectProperties* properties)
 {
 	GLfloat dist1, dist2;
 	vec3    point1, point2;

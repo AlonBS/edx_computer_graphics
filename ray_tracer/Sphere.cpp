@@ -12,7 +12,7 @@ using namespace glm;
 
 
 
-bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor)
+bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor, ObjectProperties* properties)
 {
 	// To find intersection between Ray and Sphere represented the following way:
 	// 	Sphere: (P - C )^2 - r^2 = 0
@@ -92,6 +92,9 @@ bool Sphere::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec
 			uv.y = 0.5 + 0.5 * d.y;
 			*texColor = this->getTextureColor(uv);
 		}
+	}
+	if (properties) {
+		*properties = this->properties();
 	}
 	return true;
 }

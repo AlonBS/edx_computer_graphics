@@ -22,17 +22,36 @@ struct Vertex {
 //    // bitangent
 //    glm::vec3 Bitangent;
 };
-//
+
+
+typedef struct MeshProperties : ObjectProperties {
+	/* Currently doesn't have extra features */
+
+	friend ObjectProperties operator*(const MeshProperties& mp, const ObjectProperties& op);
+	friend ObjectProperties operator*(const ObjectProperties& op, const MeshProperties& mp);
+
+}MeshProperties;
+
+
 //struct Texture {
 //    unsigned int id;
 //    string type;
 //    string path;
 //};
 
+
 class Mesh{
 
 private:
+
+	MeshProperties _properties;
 	vector<Triangle*> triangles;
+
+	glm::vec3 ambient;
+	glm::vec3 emmision;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+	GLfloat shininess;
 
 
 public:
@@ -46,12 +65,12 @@ public:
 //	Mesh();
 
     // constructor
-	Mesh(vector<Vertex>& vertices, vector<unsigned int>& indices/*, vector<Texture> textures*/);
+	Mesh(vector<Vertex>& vertices, vector<unsigned int>& indices, MeshProperties& properties /*, vector<Texture> textures*/);
 
 	virtual ~Mesh();
 
 
-	bool intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor) ;
+	bool intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor, MeshProperties* properties) ;
 
 //    // render the mesh
 //    void Draw(Shader shader)
