@@ -68,19 +68,11 @@ static void render_scene(string &fileName)
 }
 
 
-#include "Model.h"
 
 int main()
 {
-//	string path = "./scenes/b/cube.obj";
-//	Model m = Model(path);
-//
-//	return 0;
-
-
 	struct timeval start, end;
-	GLfloat time, totalTime;
-
+	GLdouble time, totalTime;
 
 
 	FreeImage_Initialise();
@@ -111,17 +103,19 @@ int main()
 		gettimeofday(&end, NULL);
 
 		time = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
-		cout << "\tTime took: " << time << setprecision(1) << " seconds. " << endl;
+		cout << "\tTime took: " << setprecision(1) << time  <<  " seconds. \n" << endl;
 		totalTime += time;
 
 	}
 
-
-	cout << "Finished working. Total Time: " << totalTime / 60 << setprecision(2) << " minutes." << endl;
+	GLuint minutes = (GLuint)(totalTime / 60);
+	GLuint seconds = (GLuint)totalTime % 60;
+	cout << "Finished working.\nTotal Time: " << minutes << " minutes and " << seconds << " seconds." << endl;
 
 	FreeImage_DeInitialise();
 	return 0;
 }
+
 
 
 

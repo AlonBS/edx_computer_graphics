@@ -7,9 +7,12 @@
 
 #include "RayTracer.h"
 #include <future>
+#include <thread>
 #include <iostream>
 #include <vector>
 #include "General.h"
+
+using namespace std;
 
 
 
@@ -26,35 +29,36 @@ RayTracer::~RayTracer() {
 Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLuint width, GLuint height, GLuint maxDepth)
 {
 	Image *image = new Image(width, height);
-	vec3 color;
-	GLfloat completed;
 
-//	vector<std::future<int>> a;
-//	a.push_back(nullptr);
+	size_t max = width * height;
+	size_t cores = std::thread::hardware_concurrency();
+	volatile atomic<size_t> count(0);
+	vector<future<void>> future_vector;
 
-	// Render loop
+	while (cores--)
 	{
-//#pragma omp parallel for collapse(2)
-		for (GLuint i = 0 ; i < width ; ++i)
-		{
-			for (GLuint j = 0 ; j < height; ++j)
-			{
-				auto h = std::async(std::launch::async, [=, &color, &scene, &camera] ()
-				{
-					Ray ray = camera.generateRay(i + .5, j - .5);
-					color = recursiveRayTrace(scene, ray, maxDepth);
-					image->setPixel(i, j, color);
+	    future_vector.push_back(
+	        std::async(launch::async, [=, &camera, &scene, &count]()
+	        {
+	            while (true)
+	            {
+	                std::size_t index = count++;
+	                if (index >= max)
+	                    break;
 
-				});
+	                GLuint i = index % width;
+	                GLuint j = index / width;
 
-//				a.push_back(h);
-			}
-		}
+	                Ray ray = camera.generateRay(i + .5, j - .5);
+	                vec3 color = recursiveRayTrace(scene, ray, maxDepth);
+	                image->setPixel(i, j, color);
 
-		for (auto& e : a) {
-			e.get();
-		}
+	            }
+	        }));
 	}
+
+	for (auto& e : future_vector)
+		e.get();
 
 	return image;
 }
