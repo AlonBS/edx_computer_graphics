@@ -9,6 +9,7 @@
 #include <future>
 #include <thread>
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include "General.h"
 
@@ -52,13 +53,13 @@ Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLu
 	                Ray ray = camera.generateRay(i + .5, j - .5);
 	                vec3 color = recursiveRayTrace(scene, ray, maxDepth);
 	                image->setPixel(i, j, color);
-
 	            }
 	        }));
 	}
 
-	for (auto& e : future_vector)
+	for (auto& e : future_vector) {
 		e.get();
+	}
 
 	return image;
 }
@@ -95,21 +96,21 @@ Intersection RayTracer::intersectScene(Scene & scene, Ray& ray)
 	GLfloat dist;
 	vec3 point;
 	vec3 normal;
-	vec3 texColor;
+	ObjectTexColors texColors;
 	ObjectProperties objProps;
 
 	Intersection hit;
 
 	for (Object *object : scene.getObjects()) {
 
-		if (object->intersectsRay(ray, dist, &point, &normal, &texColor, &objProps)) {
+		if (object->intersectsRay(ray, dist, &point, &normal, &texColors, &objProps)) {
 
 			if (dist < minDist) {
 
 				minDist = dist;
 				hit.point = point;
 				hit.normal = normal;
-				hit.texColor = texColor;
+				hit.texColors = texColors;
 
 				hit.properties = objProps;
 				hit.isValid = true;
@@ -137,9 +138,6 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 	vec3 eyeDir;
 	vec3 halfAng;
 
-	vec3 diffuseTexture = hit.texColor;
-
-
 	// The 'eye' direction is where the current ray was shot from, and hit.
 	eyeDir = normalize(r.origin - hit.point);
 
@@ -156,8 +154,7 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 
 			halfAng = normalize(srDir + eyeDir);
 
-			tempColor = __blinn_phong(&hit.properties, p->_color, srDir, hit.normal, halfAng);
-			tempColor *= diffuseTexture;
+			tempColor = __blinn_phong(hit.properties, hit.texColors, p->_color, srDir, hit.normal, halfAng);
 			// take attenuation into account
 			GLfloat atten = 1 / (scene.Attenuation().constant + scene.Attenuation().linear * maxDist + scene.Attenuation().quadratic * maxDist * maxDist);
 			tempColor *= atten;
@@ -177,15 +174,15 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 		if (isVisibleToLight(scene.getObjects(), shadowRay, maxDist)) {
 
 			halfAng = normalize(srDir + eyeDir);
-			tempColor = __blinn_phong(&hit.properties, p->_color, srDir, hit.normal, halfAng);
-			tempColor *= diffuseTexture;
+			tempColor = __blinn_phong(hit.properties, hit.texColors, p->_color, srDir, hit.normal, halfAng);
 
 			color += tempColor;
 		}
 	}
 
 	//Ambient & Emission - regardless of lights
-	color += hit.properties._ambient * diffuseTexture + hit.properties._emission * diffuseTexture;
+	color += hit.properties._ambient * hit.texColors._ambientTexColor +
+			 hit.properties._emission * hit.texColors._ambientTexColor; // TODO Currently - ambient texture == emission texture
 
 	return color;
 }
@@ -211,15 +208,20 @@ bool RayTracer::isVisibleToLight(vector<Object*>& objects, Ray& shadowRay, GLflo
 	return true;
 }
 
-vec3 RayTracer::__blinn_phong(ObjectProperties* objProps, vec3& lightColor, vec3& lightDir, vec3& normal, vec3& halfAng)
+vec3 RayTracer::__blinn_phong(const ObjectProperties& objProps,
+							  const ObjectTexColors& objTexColors,
+							  const vec3& lightColor,
+							  const vec3& lightDir,
+							  const vec3& normal,
+							  const vec3& halfAng)
 {
 	// diffuse
 	GLfloat diff = glm::max(dot(normal, lightDir), 0.0f);
-	vec3 diffuse = diff * objProps->_diffuse;
+	vec3 diffuse = diff * objProps._diffuse * objTexColors._diffuseTexColor;
 
 	// Specular
-	GLfloat spec = glm::pow(glm::max(dot(halfAng, normal), 0.0f), objProps->_shininess);
-	vec3 specular = spec * objProps->_specular;
+	GLfloat spec = glm::pow(glm::max(dot(halfAng, normal), 0.0f), objProps._shininess);
+	vec3 specular = spec * objProps._specular * objTexColors._specularTexColor;
 
 	return (diffuse + specular) * lightColor;
 }

@@ -34,12 +34,13 @@ Model::~Model()
 
 
 bool
-Model::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor, ObjectProperties* properties)
+Model::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, ObjectTexColors* texColors, ObjectProperties* properties)
 {
 	GLfloat minDist = INFINITE;
 
 	GLfloat tDist;
-	vec3 tP, tN, ttC;
+	vec3 tP, tN;
+	vec2 ttC;
 	MeshProperties meshProps;
 
 	for (Mesh *m : meshes) {
@@ -51,7 +52,11 @@ Model::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* tex
 				dist = minDist = tDist;
 				*point = tP;
 				*normal = tN;
-				*texColor = ttC;
+
+				texColors->_ambientTexColor  = m->getAmbientTextureColor(ttC)  * this->getAmbientTextureColor(ttC);
+				texColors->_diffuseTexColor  = m->getDiffuseTextureColor(ttC)  * this->getDiffuseTextureColor(ttC);
+				texColors->_specularTexColor = m->getSpecularTextureColor(ttC) * this->getSpecularTextureColor(ttC);
+
 
 				*properties = meshProps * _properties;
 			}
@@ -197,7 +202,7 @@ Model::processMesh(aiMesh *mesh, const aiScene *scene)
 
 	// return a mesh object created from the extracted mesh data
 	//return Mesh(vertices, indices/*, textures*/);
-	return new Mesh(vertices, indices, properties);
+	return new Mesh(vertices, indices, properties, nullptr, nullptr, nullptr);
 }
 
 

@@ -71,6 +71,29 @@ static void render_scene(string &fileName)
 
 int main()
 {
+
+//	size_t max = 10000;
+
+
+//	for (int i = 0 ; i < max ; ++i) {
+//
+//		for (int j = 0 ; j < 1000 ; ++j) {
+//
+//			std::cout << "Progress: [ "<< setprecision(1) << fixed << (i / (GLfloat)max) * 100.0 << "% ] \r";
+//			std::cout.flush();
+//
+//		}
+//
+//
+//
+//	}
+//
+//	return 0;
+
+
+
+
+
 	struct timeval start, end;
 	GLdouble time, totalTime;
 

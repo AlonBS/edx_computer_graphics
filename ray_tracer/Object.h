@@ -25,6 +25,16 @@ typedef struct ObjectProperties {
 
 }ObjectProperties;
 
+typedef struct ObjectTexColors {
+
+
+	vec3 _ambientTexColor;
+	vec3 _diffuseTexColor;
+	vec3 _specularTexColor;
+
+
+}ObjectTexColors;
+
 class Object {
 
 private:
@@ -42,15 +52,23 @@ private:
 	mat3 _invTransposeTrans; // For normals transforms - notice 3x3
 
 
+	vec3 getTextureColor(const Image *texture, vec2& uv);
+
+	Image *_ambientTexture;
+	Image *_diffuseTexture;
+	Image *_speularTexture;
 
 protected:
 
 	ObjectProperties _properties;
 
-	bool _textured;
-	Image *_texture;
+	//bool _textured;
 
-	vec3 getTextureColor(vec2& uv);
+
+	vec3 getAmbientTextureColor(vec2& uv);
+	vec3 getDiffuseTextureColor(vec2& uv);
+	vec3 getSpecularTextureColor(vec2& uv);
+
 
 public:
 
@@ -60,7 +78,7 @@ public:
 
 	void setTexture(Image *texture);
 
-	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor, ObjectProperties* properties) = 0;
+	virtual bool intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, ObjectTexColors* texColors, ObjectProperties* properties) = 0;
 
 
 

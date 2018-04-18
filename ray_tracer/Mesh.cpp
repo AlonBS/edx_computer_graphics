@@ -27,8 +27,17 @@ ObjectProperties operator*(const ObjectProperties& op, const MeshProperties& mp)
 
     /*  Functions  */
     // constructor
-Mesh::Mesh(vector<Vertex>& vertices, vector<unsigned int>& indices, MeshProperties& properties /*, vector<Texture> textures*/)
-:_properties(properties)
+Mesh::Mesh(vector<Vertex>& vertices,
+		   vector<unsigned int>& indices,
+		   MeshProperties& properties,
+		   Image *ambientTexture,
+		   Image *diffuseTexture,
+		   Image *specularTexture)
+
+:_properties(properties),
+ _ambientTexture(ambientTexture),
+ _diffuseTexture(diffuseTexture),
+ _specularTexture(specularTexture)
 {
 	__triangulate(vertices, indices);
 }
@@ -72,26 +81,27 @@ Mesh::__triangulate(vector<Vertex> vertices, vector<unsigned int> indices)
 
 
 bool
-Mesh::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor, MeshProperties* properties)
+Mesh::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec2* texCoords, MeshProperties* properties)
 {
 	GLfloat minDist = INFINITE;
 
 	GLfloat tDist;
-	vec3 tP, tN, ttC;
+	vec3 tP, tN;
+	vec2 ttC;
 
 	for (Triangle *t : triangles) {
 
 		/* When we iterate over triangles as part of mesh - we take the properties of the mesh
 		 * and not the triangle. In fact, this triangle doesn't have other but default properties
 		 */
-		if (t->intersectsRay(r, tDist, &tP, &tN, &ttC, nullptr)) {
+		if (t->intersectsRayM(r, tDist, &tP, &tN, &ttC)) {
 
 			if (tDist < minDist) {
 
 				dist = minDist = tDist;
 				*point = tP;
 				*normal = tN;
-				*texColor = ttC;
+				*texCoords = ttC;
 				*properties = this->_properties;
 			}
 		}
@@ -102,5 +112,35 @@ Mesh::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texC
 	}
 
 	return true;
+}
+
+
+vec3 Mesh::__getTextureColor(const Image* texture, vec2& uv)
+{
+	if (!texture) {
+		return COLOR_WHITE;
+	}
+
+	int w = texture->getWidth();
+	int h = texture->getHeight();
+
+	/* TODO - consider interpolation for better effects (average near by pixels) */
+	return texture->getPixel((int)(uv.x * w), (int) (uv.y * h));
+}
+
+
+vec3 Mesh::getAmbientTextureColor(vec2& uv)
+{
+	return this->__getTextureColor(_ambientTexture, uv);
+}
+
+vec3 Mesh::getDiffuseTextureColor(vec2& uv)
+{
+	return this->__getTextureColor(_diffuseTexture, uv);
+}
+
+vec3 Mesh::getSpecularTextureColor(vec2& uv)
+{
+	return this->__getTextureColor(_specularTexture, uv);
 }
 

@@ -92,6 +92,11 @@ vec3 Image::getPixel(int col, int row)
 	return this->clamp(color);
 }
 
+vec3 Image::getPixel(int col, int row) const
+{
+	return this->getPixel(col, row);
+}
+
 
 
 const void Image::saveImage(std::string& fileName) const

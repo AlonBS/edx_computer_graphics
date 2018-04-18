@@ -53,6 +53,13 @@ private:
 	glm::vec3 specular;
 	GLfloat shininess;
 
+	Image *_ambientTexture;
+	Image *_diffuseTexture;
+	Image *_specularTexture;
+
+
+	vec3 __getTextureColor(const Image* texture, vec2& uv);
+
 
 public:
     /*  Mesh Data  */
@@ -65,12 +72,23 @@ public:
 //	Mesh();
 
     // constructor
-	Mesh(vector<Vertex>& vertices, vector<unsigned int>& indices, MeshProperties& properties /*, vector<Texture> textures*/);
+	Mesh(vector<Vertex>& vertices,
+		 vector<unsigned int>& indices,
+		 MeshProperties& properties,
+		 Image *ambientTexture,
+		 Image *diffuseTexture,
+		 Image *specualrTexture);
+
 
 	virtual ~Mesh();
 
 
-	bool intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor, MeshProperties* properties) ;
+	bool intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec2* texCoords, MeshProperties* properties) ;
+
+
+	vec3 getAmbientTextureColor(vec2& uv);
+	vec3 getDiffuseTextureColor(vec2& uv);
+	vec3 getSpecularTextureColor(vec2& uv);
 
 //    // render the mesh
 //    void Draw(Shader shader)

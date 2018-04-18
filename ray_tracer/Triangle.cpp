@@ -42,19 +42,19 @@ Triangle::~Triangle()
 }
 
 
-bool Triangle::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor, ObjectProperties* properties)
+bool Triangle::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, ObjectTexColors* texColors, ObjectProperties* properties)
 {
-	GLfloat dist1, dist2;
-	vec3    point1, point2;
-	vec3	norm1, norm2;
-	bool    res1, res2;
-	vec3    texColor1, texColor2;
+	GLfloat 		 dist1, dist2;
+	vec3    		 point1, point2;
+	vec3			 norm1, norm2;
+	bool    		 res1, res2;
+	ObjectTexColors  texColors1, texColors2;
 	ObjectProperties properties1, properties2;
 
 	// This is used for implementation stages - we use the other intersection as back up -
 	// will be removed later on
 //	res1 = __iRay(r, dist1, point1, norm1, &texColor1, &properties1);
-	res2 = __iRay2(r, dist2, &point2, &norm2, &texColor2, &properties2);
+	res2 = __iRay2(r, dist2, &point2, &norm2, &texColors2, &properties2);
 //
 //	assert(res1 == res2);
 //
@@ -90,8 +90,8 @@ bool Triangle::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, v
 		*point = point2;
 	if (normal)
 		*normal = norm2;
-	if (texColor)
-		*texColor = texColor2;
+	if (texColors)
+		*texColors = texColors2;
 	if (properties)
 		*properties = properties2;
 
@@ -99,7 +99,72 @@ bool Triangle::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, v
 }
 
 
-bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor, ObjectProperties* properties)
+
+bool
+Triangle::intersectsRayM(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec2* texCoords)
+{
+	GLfloat 		 dist1, dist2;
+	vec3    		 point1, point2;
+	vec3			 norm1, norm2;
+	bool    		 res1, res2;
+	vec2			 texCoords1, texCoords2;
+
+	// This is used for implementation stages - we use the other intersection as back up -
+	// will be removed later on
+	//	res1 = __iRay(r, dist1, point1, norm1, &texColor1, &properties1);
+	res2 = __iRay2(r, dist2, &point2, &norm2, nullptr, nullptr, &texCoords2);
+	//
+	//	assert(res1 == res2);
+	//
+	//	if (res1 != res2) {
+	//		std::cout << "Result of intersections differ: " << res1 << " " << res2 << std::endl;
+	//		exit(-1);
+	//	}
+	//
+	//	if (glm::abs(dist1 - dist2) > EPSILON)  {
+	//		std::cout << "DIst 1 and 2 differ: " << dist1 << " " << dist2 << std::endl;
+	//		exit(-1);
+	//	}
+
+	//	if (glm::abs(glm::length(point1) - glm::length(point2) > EPSILON)  {
+	//		std::cout << "Points differ: " << std::endl;
+	//		std::cout << "POINT1: (" << point1.x << "," << point1.y << "," << point1.z << ")" << std::endl;
+	//		std::cout << "POINT2: (" << point2.x << "," << point2.y << "," << point2.z << ")" << std::endl;
+	//		exit(-1);
+	//	}
+
+	//
+	//
+	//	if (glm::abs(glm::length(norm1) - glm::length(norm2)) > EPSILON)  {
+	//		std::cout << "Normal differ: " << std::endl;
+	//		std::cout << "NORMAL1: (" << norm1.x << "," << norm1.y << "," << norm1.z << ")" << std::endl;
+	//		std::cout << "NORMAL2: (" << norm2.x << "," << norm2.y << "," << norm2.z << ")" << std::endl;
+	//		exit(-1);
+	//	}
+
+
+	dist = dist2;
+	if (point)
+		*point = point2;
+	if (normal)
+		*normal = norm2;
+	if (texCoords) {
+		*texCoords = texCoords2;
+	}
+
+	return res2;
+
+
+}
+
+
+bool
+Triangle::__iRay(Ray &r,
+				 GLfloat &dist,
+				 vec3* point,
+				 vec3* normal, ObjectTexColors* texColors,
+				 ObjectProperties* properties,
+				 vec2* texCoords)
 {
 	// We do that in two steps:
 	// 	- First, we intersect the ray with the plane this triangle lays in
@@ -148,26 +213,6 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* te
 	//		 A, B, C are this triangles vertices, and a,b,y are alpha beta and gamma from barycentric coordinates.
 	P = r.origin + t*r.direction;
 
-	//  vec3 v0 = B-A, v1 = C-A, v2 = P-A;
-	//
-	//	GLfloat d00 = dot(v0, v0);
-	//	GLfloat d01 = dot(v0, v1);
-	//	GLfloat d11 = dot(v1, v1);
-	//	GLfloat d20 = dot(v2, v0);
-	//	GLfloat d21 = dot(v2, v1);
-	//	GLfloat denom = d00 * d11 - d01 * d01;
-	//	GLfloat v = (d11 * d20 - d01 * d21) / denom;
-	//	GLfloat w = (d00 * d21 - d01 * d20) / denom;
-	//	GLfloat u = 1.0f - v - w;
-	//
-	//	vec2 uv = u*Auv + v*Buv + w*Cuv;
-	//
-	//	int w0, h0;
-	//	w0 = this->_texture->getWidth();
-	//	h0 = this->_texture->getHeight();
-
-
-
 	// Compute vectors
 	AC = C - A;
 	AB = B - A;
@@ -192,8 +237,9 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* te
 			*point = P;
 		if (normal)
 			*normal = N;
-		if (texColor)
-			*texColor = COLOR_WHITE;
+		if (texColors)
+			//*texColors = COLOR_WHITE;
+			// TODO COMPLETE
 		if (properties) {
 			*properties = {};
 		}
@@ -206,7 +252,14 @@ bool Triangle::__iRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* te
 }
 
 
-bool Triangle::__iRay2(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* texColor, ObjectProperties* properties)
+bool
+Triangle::__iRay2(Ray &r,
+				  GLfloat &dist,
+				  vec3* point,
+				  vec3* normal,
+				  ObjectTexColors* texColors,
+				  ObjectProperties* properties,
+				  vec2* texCoords)
 {
 	// Another close computation - to check validity of the other
 
@@ -261,15 +314,16 @@ bool Triangle::__iRay2(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec3* t
 			*point = P;
 		if (normal)
 			*normal = this->N; //TODO - interpolated normal
-		if (texColor) {
-			if (!_textured) {
-				*texColor = COLOR_WHITE;
-			}
-			else {
-				vec2 uv;
-				uv = alpha * Auv + beta * Buv + gamma * Cuv;
-				*texColor = this->getTextureColor(uv);
-			}
+
+		vec2 uv;
+		uv = alpha * Auv + beta * Buv + gamma * Cuv;
+		if (texColors) {
+			texColors->_ambientTexColor  = this->getAmbientTextureColor(uv);
+			texColors->_diffuseTexColor  = this->getDiffuseTextureColor(uv);
+			texColors->_specularTexColor = this->getSpecularTextureColor(uv);
+		}
+		if (texCoords) {
+			*texCoords = uv;
 		}
 		if (properties) {
 			*properties = _properties;
@@ -288,4 +342,15 @@ const void Triangle::print() const
 	Object::print();
 }
 
+
+
+
+
+
+
+#if 0
+
+
+
+#endif
 

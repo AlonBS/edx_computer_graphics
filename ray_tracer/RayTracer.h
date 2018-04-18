@@ -23,7 +23,7 @@ typedef struct Intersection {
 
 	vec3 point;
 	vec3 normal;
-	vec3 texColor;
+	ObjectTexColors texColors;
 
 	ObjectProperties properties; // The object's properties at intersection
 
@@ -49,7 +49,12 @@ private:
 	bool isVisibleToLight(vector<Object*>& objects, Ray& shadowRay, GLfloat limit);
 
 
-	vec3 __blinn_phong(ObjectProperties* objProps, vec3& lightColor, vec3& lightDir, vec3& normal, vec3& halfAng);
+	vec3 __blinn_phong(const ObjectProperties& objProps,
+			  	  	   const ObjectTexColors& objTexColors,
+					   const vec3& lightColor,
+					   const vec3& lightDir,
+					   const vec3& normal,
+					   const vec3& halfAng);
 
 };
 

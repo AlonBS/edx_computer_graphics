@@ -19,8 +19,9 @@ Object::Object() {
 	_invTransform = mat4(1.0f);
 	_invTransposeTrans = mat3(1.0f);
 
-	_texture = nullptr;
-	_textured = false;
+	_ambientTexture = nullptr;
+	_diffuseTexture = nullptr;
+	_speularTexture = nullptr;
 
 }
 
@@ -40,19 +41,40 @@ void Object::setTexture(Image *texture)
 	if (texture == nullptr)
 		return;
 
-	this->_texture = texture;
-	this->_textured = true;
+//	this->_texture = texture;
+//	this->_textured = true;
 
 }
 
-vec3 Object::getTextureColor(vec2& uv)
+vec3 Object::getTextureColor(const Image *texture, vec2& uv)
 {
-	int w = this->_texture->getWidth();
-	int h = this->_texture->getHeight();
+	if (!texture) {
+		return COLOR_WHITE;
+	}
 
-	/* TODO - consider interpolation */
-	return this->_texture->getPixel((int)(uv.x * w), (int) (uv.y * h));
+	int w = texture->getWidth();
+	int h = texture->getHeight();
+
+	/* TODO - consider interpolation for better effects (average near by pixels) */
+	return texture->getPixel((int)(uv.x * w), (int) (uv.y * h));
 }
+
+
+vec3 Object::getAmbientTextureColor(vec2& uv)
+{
+	return getTextureColor(this->_ambientTexture, uv);
+}
+
+vec3 Object::getDiffuseTextureColor(vec2& uv)
+{
+	return getTextureColor(this->_diffuseTexture, uv);
+}
+
+vec3 Object::getSpecularTextureColor(vec2& uv)
+{
+	return getTextureColor(this->_speularTexture, uv);
+}
+
 
 
 
