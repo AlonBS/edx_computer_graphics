@@ -67,6 +67,53 @@ static void render_scene(string &fileName)
 	delete renderInfo;
 }
 
+#include <future>
+#include <thread>
+#include <chrono>
+#include <vector>
+//
+//int main()
+//{
+//	vector<future<int>> future_vector;
+//
+//	future_vector.push_back(
+//			std::async(std::launch::async, []()
+//			{
+//        		std::this_thread::sleep_for(std::chrono::seconds(3));
+//        		return 3;
+//			}
+//	));
+//
+//	future_vector.push_back(
+//			std::async(std::launch::async, []()
+//			{
+//				std::this_thread::sleep_for(std::chrono::seconds(5));
+//				return 5;
+//			}
+//	));
+//
+////    std::cout << "waiting...\n";
+////    std::future_status status;
+//    while (!future_vector.empty()) {
+////
+//    	std::future<int>& future = future_vector.pop();
+////
+////    	do {
+////    		status = future.wait_for(std::chrono::seconds(1));
+////    		if (status == std::future_status::deferred) {
+////    			std::cout << "deferred\n";
+////    		} else if (status == std::future_status::timeout) {
+////    			std::cout << "timeout\n";
+////    		} else if (status == std::future_status::ready) {
+////    			std::cout << "ready!\n";
+////    		}
+////    	} while (status != std::future_status::ready);
+//    }
+//
+//
+//    std::cout << "result is " << future.get() << '\n';
+//}
+//
 
 
 int main()

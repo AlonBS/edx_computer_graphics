@@ -8,6 +8,8 @@
 #include "RayTracer.h"
 #include <future>
 #include <thread>
+#include <mutex>
+#include <chrono>
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -36,6 +38,7 @@ Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLu
 	volatile atomic<size_t> count(0);
 	vector<future<void>> future_vector;
 
+
 	while (cores--)
 	{
 	    future_vector.push_back(
@@ -57,12 +60,51 @@ Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLu
 	        }));
 	}
 
+	// To display progress bar, it's sufficient to 'actively' wait for one of the working threads
+	std::future_status status;
+	std::future<void>& f = future_vector[0];
+	do {
+		status = f.wait_for(std::chrono::milliseconds(100));
+		if (status == std::future_status::timeout) {
+
+			std::cout << "\tProgress: [ "<< setprecision(1) << fixed << (count / (GLfloat)max) * 100.0 << "% ] \r";
+			std::cout.flush();
+		}
+	} while (status != std::future_status::ready);
+
+
 	for (auto& e : future_vector) {
 		e.get();
 	}
 
 	return image;
 }
+
+
+// OLD CODE - single threaded - for benchmark purposes
+
+//Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLuint width, GLuint height, GLuint maxDepth)
+//{
+//	cout << "HREE";
+//	Image *image = new Image(width, height);
+//	vec3 color;
+//	GLfloat completed;
+//
+//	for (GLuint i = 0 ; i < width ; ++i)
+//	{
+//		for (GLuint j = 0 ; j < height; ++j)
+//		{
+//
+//			Ray ray = camera.generateRay(i + .5, j - .5);
+//			color = recursiveRayTrace(scene, ray, maxDepth);
+//			image->setPixel(i, j, color);
+//		}
+//	}
+//
+//	return image;
+//}
+
+
 
 
 vec3 RayTracer::recursiveRayTrace(Scene& scene, Ray & ray, GLuint depth)
