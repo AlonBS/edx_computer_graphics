@@ -42,7 +42,7 @@ Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLu
 	while (cores--)
 	{
 	    future_vector.push_back(
-	        std::async(launch::async, [=, &camera, &scene, &count]()
+	        std::async(launch::async, [=, &camera, &scene, &count, &progress_lock]()
 	        {
 	            while (true)
 	            {
