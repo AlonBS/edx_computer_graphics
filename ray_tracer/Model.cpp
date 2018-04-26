@@ -16,8 +16,11 @@ using namespace std;
 
 unsigned int TextureFromFile(const char *path, const string &directory, bool gamma = false);
 
-Model::Model(string const &path)
+Model::Model(string const &path, mat4& transform, mat3& invTransposeTrans)
+:Object()
 {
+	this->transform() = transform;
+	this->invTransposeTrans() = invTransposeTrans;
 	loadModel(path);
 }
 
@@ -140,11 +143,12 @@ Model::processMesh(aiMesh *mesh, const aiScene *scene)
 		vector.x = mesh->mVertices[i].x;
 		vector.y = mesh->mVertices[i].y;
 		vector.z = mesh->mVertices[i].z;
-		vertex.Position = vector;
+		vertex.Position = vec3 (_transform * vec4(vector, 1.0f));;
 		// normals
 		vector.x = mesh->mNormals[i].x;
 		vector.y = mesh->mNormals[i].y;
 		vector.z = mesh->mNormals[i].z;
+		//vertex.Normal = _invTransposeTrans * vector;
 		vertex.Normal = vector;
 		// texture coordinates
 		if(mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?

@@ -28,7 +28,7 @@ public:
 
     /*  Functions   */
     // constructor, expects a filepath to a 3D model.
-    Model(string const &path);
+    Model(string const &path, mat4& transform, mat3& normalsTrans);
 
     virtual ~Model();
 

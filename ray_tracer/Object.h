@@ -47,9 +47,6 @@ private:
 //	vec3 _emission;
 //	GLfloat _shininess;
 
-	mat4 _transform;
-	mat4 _invTransform;	  	 // We compute it once, instead of each intersection test
-	mat3 _invTransposeTrans; // For normals transforms - notice 3x3
 
 
 	vec3 getTextureColor(Image *texture, vec2& uv);
@@ -59,6 +56,10 @@ private:
 	Image *_speularTexture;
 
 protected:
+
+	mat4 _transform;
+	mat4 _invTransform;	  	 // We compute it once, instead of each intersection test
+	mat3 _invTransposeTrans; // For normals transforms - notice 3x3
 
 	ObjectProperties _properties;
 

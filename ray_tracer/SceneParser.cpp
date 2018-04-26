@@ -466,7 +466,10 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 	else if (cmd == Commands.model) {
 		string modelFile;
 		s >> modelFile;
-		Object *model = new Model(modelFile);
+
+		mat4 transform = transformsStack.top();
+		mat3 normalsTransform = mat3(transpose(inverse(transform)));
+		Object *model = new Model(modelFile, transform, normalsTransform);
 		model->ambient() = ambient;
 		model->emission() = emission;
 		model->diffuse() = diffuse;
