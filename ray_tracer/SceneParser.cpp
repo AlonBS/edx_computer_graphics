@@ -325,9 +325,9 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 		GLfloat radius = values[3];
 		Object *sphere = new Sphere(center, radius);
 		sphere->ambient() = ambient;
-		sphere->specular() = specular;
-		sphere->diffuse() = diffuse;
 		sphere->emission() = emission;
+		sphere->diffuse() = diffuse;
+		sphere->specular() = specular;
 		sphere->shininess() = shininess;
 		sphere->transform() = transformsStack.top();
 		sphere->invTransform() = inverse(sphere->transform());
@@ -378,9 +378,9 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 //												renderInfo.vertcies[values[1]],
 //												renderInfo.vertcies[values[2]]);
 		triangle->ambient() = ambient;
-		triangle->specular() = specular;
-		triangle->diffuse() = diffuse;
 		triangle->emission() = emission;
+		triangle->diffuse() = diffuse;
+		triangle->specular() = specular;
 		triangle->shininess() = shininess;
 
 //		triangle->transform() = transformsStack.top();
@@ -423,9 +423,9 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 		//												renderInfo.vertcies[values[1]],
 		//												renderInfo.vertcies[values[2]]);
 		triangle->ambient() = ambient;
-		triangle->specular() = specular;
-		triangle->diffuse() = diffuse;
 		triangle->emission() = emission;
+		triangle->diffuse() = diffuse;
+		triangle->specular() = specular;
 		triangle->shininess() = shininess;
 
 		//		triangle->transform() = transformsStack.top();
@@ -468,6 +468,10 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 		s >> modelFile;
 		Object *model = new Model(modelFile);
 		model->ambient() = ambient;
+		model->emission() = emission;
+		model->diffuse() = diffuse;
+		model->specular() = specular;
+		model->shininess() = shininess;
 		renderInfo->scene.addObject(model);
 	}
 }

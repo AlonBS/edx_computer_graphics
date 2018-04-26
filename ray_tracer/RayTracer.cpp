@@ -38,7 +38,6 @@ Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLu
 	volatile atomic<size_t> count(0);
 	vector<future<void>> future_vector;
 
-
 	while (cores--)
 	{
 	    future_vector.push_back(
@@ -254,6 +253,7 @@ vec3 RayTracer::__blinn_phong(const ObjectProperties& objProps,
 							  const vec3& normal,
 							  const vec3& halfAng)
 {
+
 	// diffuse
 	GLfloat diff = glm::max(dot(normal, lightDir), 0.0f);
 	vec3 diffuse = diff * objProps._diffuse * objTexColors._diffuseTexColor;
