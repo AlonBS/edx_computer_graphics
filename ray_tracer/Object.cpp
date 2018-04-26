@@ -46,7 +46,7 @@ void Object::setTexture(Image *texture)
 
 }
 
-vec3 Object::getTextureColor(const Image *texture, vec2& uv)
+vec3 Object::getTextureColor(Image *texture, vec2& uv)
 {
 	if (!texture) {
 		return COLOR_WHITE;

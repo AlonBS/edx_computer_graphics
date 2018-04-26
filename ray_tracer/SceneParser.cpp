@@ -114,7 +114,7 @@ GLfloat SceneParser::values[MAX_POSSIBLE_VALUES] = {};
 RenderInfo* SceneParser::renderInfo = nullptr;
 
 Attenuation SceneParser::attenuation = { .constant = 1.0f, .linear = 0.0f, .quadratic = 0.0f};
-GLuint 		SceneParser::maxDepth = 5;
+GLuint 		SceneParser::maxDepth = 1;
 
 stack<mat4> SceneParser::transformsStack;
 
@@ -442,7 +442,10 @@ SceneParser::handleGeometryCommand(stringstream& s, string& cmd)
 		string textureFile;
 		s >> textureFile;
 
-		Image *texture = new Image(textureFile);
+		Image *texture = new Image(0, 0);
+		texture->loadImage(textureFile);
+
+		//Image *texture = new Image(textureFile);
 
 		renderInfo->scene.addTexture(texture);
 	}

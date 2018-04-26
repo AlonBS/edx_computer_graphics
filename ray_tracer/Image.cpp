@@ -39,23 +39,6 @@ Image::Image(int width, int height)
 	this->bitmap = FreeImage_Allocate(width, height, RGBSIZE);
 }
 
-Image::Image(std::string& fileName)
-{
-	string extension = boost::filesystem::extension(fileName);
-	if ( boost::iequals(extension, ".jpg") || boost::iequals(extension, ".jpeg") ) {
-
-		this->bitmap = FreeImage_Load(FIF_JPEG, fileName.c_str());
-	}
-	else if ( boost::iequals(extension, ".png") ) {
-
-		this->bitmap = FreeImage_Load(FIF_PNG, fileName.c_str());
-	}
-
-
-	this->height = FreeImage_GetHeight(this->bitmap);
-	this->width = FreeImage_GetWidth(this->bitmap);
-
-}
 
 
 Image::~Image() {
@@ -92,14 +75,8 @@ vec3 Image::getPixel(int col, int row)
 	return this->clamp(color);
 }
 
-vec3 Image::getPixel(int col, int row) const
-{
-	return this->getPixel(col, row);
-}
 
-
-
-const void Image::saveImage(std::string& fileName) const
+void Image::saveImage(std::string& fileName) const
 {
 	string extension = boost::filesystem::extension(fileName);
 	if ( boost::iequals(extension, ".jpg") || boost::iequals(extension, ".jpeg") ) {
@@ -113,3 +90,64 @@ const void Image::saveImage(std::string& fileName) const
 
 	std::cout << "\tImage saved to: " << fileName << std::endl;
 }
+
+void
+Image::loadImage(std::string& fileName)
+{
+	this->loadImage(fileName.c_str());
+}
+
+
+// Method to load an image into a texture using the freeimageplus library. Returns the texture ID or dies trying.
+void Image::loadImage(const char* filename)
+{
+
+    // Determine the format of the image.
+    // Note: The second paramter ('size') is currently unused, and we should use 0 for it.
+    FREE_IMAGE_FORMAT format = FreeImage_GetFileType(filename , 0);
+
+    // Image not found? Abort! Without this section we get a 0 by 0 image with 0 bits-per-pixel but we don't abort, which
+    // you might find preferable to dumping the user back to the desktop.
+    if (format == -1)
+    {
+        cout << "Could not find image: " << filename << " - Aborting." << endl;
+    }
+
+    // Found image, but couldn't determine the file format? Try again...
+    if (format == FIF_UNKNOWN)
+    {
+        cout << "Couldn't determine file format - attempting to get from file extension..." << endl;
+        format = FreeImage_GetFIFFromFilename(filename);
+        // Check that the plugin has reading capabilities for this format (if it's FIF_UNKNOWN,
+        // for example, then it won't have) - if we can't read the file, then we bail out =(
+        if ( !FreeImage_FIFSupportsReading(format) )
+        {
+            cout << "Detected image format cannot be read!" << endl;
+            exit(-1);
+        }
+    }
+
+    // If we're here we have a known image format, so load the image into a bitmap
+    FIBITMAP* tmpBitmap = FreeImage_Load(format, filename);
+    int bitsPerPixel =  FreeImage_GetBPP(tmpBitmap);
+
+    if (bitsPerPixel == 32)
+    {
+    	this->bitmap = tmpBitmap;
+    }
+    else
+    {
+    	this->bitmap = FreeImage_ConvertTo32Bits(tmpBitmap);
+    }
+
+    // Some basic image info - strip it out if you don't care
+    this->width  = FreeImage_GetWidth(this->bitmap);
+    this->height = FreeImage_GetHeight(this->bitmap);
+
+    // Unload the 32-bit colour bitmap
+    if (bitsPerPixel != 32)
+    {
+        FreeImage_Unload(tmpBitmap);
+    }
+}
+

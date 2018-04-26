@@ -52,7 +52,7 @@ private:
 	mat3 _invTransposeTrans; // For normals transforms - notice 3x3
 
 
-	vec3 getTextureColor(const Image *texture, vec2& uv);
+	vec3 getTextureColor(Image *texture, vec2& uv);
 
 	Image *_ambientTexture;
 	Image *_diffuseTexture;

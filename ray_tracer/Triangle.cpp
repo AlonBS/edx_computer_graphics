@@ -14,7 +14,9 @@ Triangle::Triangle(vec3& va, vec3& vb, vec3& vc)
 	AN = vec3(0.0f, 0.0f, 0.0f);
 	BN = vec3(0.0f, 0.0f, 0.0f);
 	CN = vec3(0.0f, 0.0f, 0.0f);
-
+	Auv = vec2(0.0f, 0.0f);
+	Buv = vec2(0.0f, 0.0f);
+	Cuv = vec2(0.0f, 0.0f);
 }
 
 
@@ -36,6 +38,17 @@ Triangle::Triangle(vec3& va, vec3& vb, vec3& vc, vec3& vaNorm, vec3& vbNorm, vec
 	N = normalize(cross(C-B,A-B)); // Compute the face normal
 
 }
+
+Triangle::Triangle(vec3& va, vec3& vb, vec3& vc,
+			 	   vec3& vaNorm, vec3& vbNorm, vec3& vcNorm,
+				   vec2& auv, vec2& buv, vec2& cuv)
+: Object(), A(va), B(vb), C(vc),
+  	  	    AN(vaNorm), BN(vbNorm), CN(vcNorm),
+  	  	  	Auv(auv), Buv(buv), Cuv(cuv)
+{
+	N = normalize(cross(C-B,A-B)); // Compute the face normal
+}
+
 
 Triangle::~Triangle()
 {

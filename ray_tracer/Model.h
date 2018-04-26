@@ -45,9 +45,19 @@ private:
 
     Mesh* processMesh(aiMesh *mesh, const aiScene *scene);
 
-    // checks all material textures of a given type and loads the textures if they're not loaded yet.
-    // the required info is returned as a Texture struct.
-//    vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName);
+
+
+    struct Texture {
+
+    	Image *texture;
+    	string name;
+    };
+
+    Image* loadMaterialTextures(aiMaterial* mat, aiTextureType type);
+
+    vector<Texture*> loadedTextures; // We store all the textures loaded for this module, to avoid load duplication
+
+    string directory;
 };
 
 

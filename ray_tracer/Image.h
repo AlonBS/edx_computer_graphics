@@ -53,14 +53,13 @@ public:
 
 
 	Image (int width, int height);
-	Image(std::string& fileName);
+
 
 	~Image();
 
 	void setPixel(int col, int row, glm::vec3& rgbColors);
 
 	glm::vec3 getPixel(int col, int row);
-	glm::vec3 getPixel(int col, int row) const;
 
 	int getWidth() { return this->width; }
 	int getHeight() { return this->height; }
@@ -69,7 +68,9 @@ public:
 	int getHeight() const { return this->height; }
 
 
-	const void saveImage(std::string& fileName) const;
+	void saveImage(std::string& fileName) const;
+	void loadImage(std::string& fileName);
+	void loadImage(const char * fileName);
 
 
 };

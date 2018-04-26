@@ -82,10 +82,9 @@ Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLu
 
 
 // OLD CODE - single threaded - for benchmark purposes
-
+//
 //Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLuint width, GLuint height, GLuint maxDepth)
 //{
-//	cout << "HREE";
 //	Image *image = new Image(width, height);
 //	vec3 color;
 //	GLfloat completed;
@@ -103,8 +102,6 @@ Image* RayTracer::rayTrace(string& fileName, Camera & camera, Scene & scene, GLu
 //
 //	return image;
 //}
-
-
 
 
 vec3 RayTracer::recursiveRayTrace(Scene& scene, Ray & ray, GLuint depth)
@@ -222,10 +219,10 @@ vec3 RayTracer::computeLight(Scene& scene, Ray& r, Intersection& hit)
 		}
 	}
 
+
 	//Ambient & Emission - regardless of lights
 	color += hit.properties._ambient * hit.texColors._ambientTexColor +
 			 hit.properties._emission * hit.texColors._ambientTexColor; // TODO Currently - ambient texture == emission texture
-
 	return color;
 }
 

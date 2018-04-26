@@ -22,9 +22,6 @@ ObjectProperties operator*(const ObjectProperties& op, const MeshProperties& mp)
 }
 
 
-
-
-
     /*  Functions  */
     // constructor
 Mesh::Mesh(vector<Vertex>& vertices,
@@ -60,20 +57,24 @@ Mesh::__triangulate(vector<Vertex> vertices, vector<unsigned int> indices)
 {
 	vec3 A, B, C;
 	vec3 An, Bn, Cn;
+	vec2 Auv, Buv, Cuv;
 
 
 	for (unsigned int i = 0 ; i < indices.size() ; i+=3) {
 
-		A  = vertices[indices[i  ]].Position;
-		An = vertices[indices[i  ]].Normal;
+		A   = vertices[indices[i  ]].Position;
+		An  = vertices[indices[i  ]].Normal;
+		Auv = vertices[indices[i  ]].TexCoords;
 
-		B  = vertices[indices[i+1]].Position;
-		Bn = vertices[indices[i+1]].Normal;
+		B   = vertices[indices[i+1]].Position;
+		Bn  = vertices[indices[i+1]].Normal;
+		Buv = vertices[indices[i+1]].TexCoords;
 
-		C  = vertices[indices[i+2]].Position;
-		Cn = vertices[indices[i+2]].Normal;
+		C   = vertices[indices[i+2]].Position;
+		Cn  = vertices[indices[i+2]].Normal;
+		Cuv = vertices[indices[i+2]].TexCoords;
 
-		this->triangles.push_back(new Triangle(A, B, C, An, Bn, Cn));
+		this->triangles.push_back(new Triangle(A, B, C, An, Bn, Cn, Auv, Buv, Cuv));
 
 	}
 
@@ -99,10 +100,10 @@ Mesh::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec2* texC
 			if (tDist < minDist) {
 
 				dist = minDist = tDist;
-				*point = tP;
-				*normal = tN;
-				*texCoords = ttC;
-				*properties = this->_properties;
+				if (point) *point = tP;
+				if (normal) *normal = tN;
+				if (texCoords) *texCoords = ttC;
+				if (properties) *properties = this->_properties;
 			}
 		}
 	}
@@ -115,7 +116,7 @@ Mesh::intersectsRay(Ray &r, GLfloat &dist, vec3* point, vec3* normal, vec2* texC
 }
 
 
-vec3 Mesh::__getTextureColor(const Image* texture, vec2& uv)
+vec3 Mesh::__getTextureColor(Image* texture, vec2& uv)
 {
 	if (!texture) {
 		return COLOR_WHITE;
