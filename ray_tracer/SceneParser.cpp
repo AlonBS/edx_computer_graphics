@@ -114,7 +114,7 @@ GLfloat SceneParser::values[MAX_POSSIBLE_VALUES] = {};
 RenderInfo* SceneParser::renderInfo = nullptr;
 
 Attenuation SceneParser::attenuation = { .constant = 1.0f, .linear = 0.0f, .quadratic = 0.0f};
-GLuint 		SceneParser::maxDepth = 1;
+GLuint 		SceneParser::maxDepth = 3;
 
 stack<mat4> SceneParser::transformsStack;
 
